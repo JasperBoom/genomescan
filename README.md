@@ -1,6 +1,5 @@
 # GenomeScan Internship Repository
-A repository that contains all scripts and other documents used on the  
-GenomeScan HPC for back-up purposes.
+A repository that contains all scripts and other documents used on the GenomeScan HPC for back-up purposes.
 
 ## Author(s)
 * [Jasper Boom](https://github.com/JasperBoom)

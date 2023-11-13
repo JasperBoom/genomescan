@@ -16,6 +16,10 @@
 
 # Contact information: info@jboom.org.
 
+# Define which version of Snakemake (or higher) should be used.
+from snakemake.utils import min_version
+min_version("7.23")
+
 # A yaml file for example, that stores list with for
 # example sample names, or file names.
 configfile: "/home/j.boom/genomescan/tutorial-workflow/envs/config.yaml"
@@ -83,14 +87,18 @@ rule samtools_sort:
     # running a tool.
     benchmark:
         repeat(config["directories"]["output"] + "/benchmarks/{sample}.samtools_sort.benchmarkt.tbl", 3)
+    log:
+        config["directories"]["output"] + "/logs/samtools_sort/{sample}.log"
     shell:
         "samtools sort -T /sorted_reads/{wildcards.sample} "
-        "-O bam {input} > {output}"
+        "-O bam {input} > {output} 2> {log}"
 
 rule samtools_index:
     input:
         config["directories"]["output"] + "/sorted_reads/{sample}.bam"
     output:
         config["directories"]["output"] + "/sorted_reads/{sample}.bam.bai"
+    log:
+        config["directories"]["output"] + "/logs/samtools_index/{sample}.log"
     shell:
-        "samtools index {input}"
+        "samtools index {input} 2> {log}"

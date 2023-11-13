@@ -16,6 +16,10 @@
 
 # Contact information: info@jboom.org.
 
+# Define which version of Snakemake (or higher) should be used.
+from snakemake.utils import min_version
+min_version("7.23")
+
 # A yaml file for example, that stores list with for
 # example sample names, or file names.
 configfile: "/home/j.boom/genomescan/tutorial-workflow/envs/config.yaml"
@@ -31,6 +35,8 @@ include: config["directories"]["script"] + "/rules/read-mapping.smk"
 rule all:
     input:
         config["directories"]["output"] + "/plots/quals.svg"
+    default_target:
+        True
 
 rule bcftools_call:
     input:

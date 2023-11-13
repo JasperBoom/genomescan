@@ -37,8 +37,6 @@ source /home/j.boom/mambaforge/bin/activate snakemake-tutorial
 #    -n \
 #    -p \
 #    --verbose \
-#    --cores 1 \
-#    --local-cores 1 \
 #    /home/j.boom/snakemake-tutorial/plots/quals.svg
 
 ## You can also use a rule as a target, these should be created
@@ -47,6 +45,7 @@ source /home/j.boom/mambaforge/bin/activate snakemake-tutorial
 ## line (in this case the rule "all").
 snakemake \
     --snakefile "/home/j.boom/genomescan/tutorial-workflow/Snakefile" \
+    --use-singularity \
     -p \
     --verbose \
     --cores 10 \
@@ -58,6 +57,10 @@ snakemake \
 ## I can use the command below.
 #snakemake --dag sorted_reads/{A,B}.bam.bai | dot -Tsvg > dag.svg
 #snakemake --dag calls/all.vcf | dot -Tsvg > dag.svg
+
+## If I want to archive my workflow and share it with other people
+## I could use the "--archive" argument to create a tarball.
+# snakemake --archive my-workflow.tar.gz
 
 time_stamp="$(date +"%d-%m-%y-%T")"
 mv \
