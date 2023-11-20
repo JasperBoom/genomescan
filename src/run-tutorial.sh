@@ -18,13 +18,13 @@
 
 # Contact information: info@jboom.org.
 
-#SBATCH --job-name="Snakemake-Tutorial"
-#SBATCH --mem=1G
+#SBATCH --job-name="snakemake-tutorial"
+#SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/snakemake-tutorial/logs/log.log"
-#SBATCH --error="/home/j.boom/snakemake-tutorial/errors/error.error"
-#SBATCH --time=0:15:0
+#SBATCH --output="/home/j.boom/logs/snakemake-tutorial.log"
+#SBATCH --error="/home/j.boom/errors/snakemake-tutorial.error"
+#SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
 source /home/j.boom/mambaforge/bin/activate snakemake-tutorial
@@ -33,18 +33,18 @@ source /home/j.boom/mambaforge/bin/activate snakemake-tutorial
 ## is the "target", this will make snakemake run all rules to
 ## create that "target".
 #snakemake \
-#    --snakefile "/home/j.boom/genomescan/tutorial-workflow/Snakefile" \
+#    --snakefile "/home/j.boom/genomescan/snakemake-tutorial/Snakefile" \
 #    -n \
 #    -p \
 #    --verbose \
-#    /home/j.boom/snakemake-tutorial/plots/quals.svg
+#    /home/j.boom/genomescan/snakemake-tutorial/plots/quals.svg
 
 ## You can also use a rule as a target, these should be created
 ## at the top of the workflow. The first is used by default when
 ## no target is given. But any of them can be called in command
 ## line (in this case the rule "all").
 snakemake \
-    --snakefile "/home/j.boom/genomescan/tutorial-workflow/Snakefile" \
+    --snakefile "/home/j.boom/genomescan/snakemake-tutorial/Snakefile" \
     --use-singularity \
     -p \
     --verbose \
@@ -64,11 +64,11 @@ snakemake \
 
 time_stamp="$(date +"%d-%m-%y-%T")"
 mv \
-    "/home/j.boom/snakemake-tutorial/logs/log.log" \
-    "/home/j.boom/snakemake-tutorial/logs/${time_stamp}.log"
+    "/home/j.boom/logs/snakemake-tutorial.log" \
+    "/home/j.boom/logs/snakemake-tutorial_${time_stamp}.log"
 mv \
-    "/home/j.boom/snakemake-tutorial/errors/error.error" \
-    "/home/j.boom/snakemake-tutorial/errors/${time_stamp}.error"
+    "/home/j.boom/errors/snakemake-tutorial.error" \
+    "/home/j.boom/errors/snakemake-tutorial_${time_stamp}.error"
 
 ## NOTES:
 ## Apart from the very common thread resource, Snakemake provides

@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 # GenomeScan internship repository.
 # Copyright (C) 2023 Jasper Boom
 
@@ -16,13 +18,15 @@
 
 # Contact information: info@jboom.org.
 
-samples:
-    A: "data/samples/A.fastq"
-    B: "data/samples/B.fastq"
-    C: "data/samples/C.fastq"
-prior_mutation_rate:
-    default: "1.1e-3"
-directories:
-    input: "/home/j.boom/snakemake-tutorial"
-    output: "/home/j.boom/results"
-    script: "/home/j.boom/genomescan/tutorial-workflow"
+#SBATCH --job-name="genebreaker"
+#SBATCH --mem=10G
+#SBATCH --cpus-per-task=10
+#SBATCH --export=ALL
+#SBATCH --output="/home/j.boom/logs/genebreaker.log"
+#SBATCH --error="/home/j.boom/errors/genebreaker.error"
+#SBATCH --time=1:15:0
+#SBATCH --partition=high,low
+
+python3 \
+    /home/j.boom/tool-testing/GeneBreaker/GeneBreaker/src/variants.py \
+    --help
