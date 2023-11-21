@@ -18,12 +18,12 @@
 
 # Contact information: info@jboom.org.
 
-#SBATCH --job-name="reference_data"
+#SBATCH --job-name="reference_download"
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/reference_data.log"
-#SBATCH --error="/home/j.boom/errors/reference_data.error"
+#SBATCH --output="/home/j.boom/logs/reference_download.log"
+#SBATCH --error="/home/j.boom/errors/reference_download.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
@@ -32,31 +32,41 @@ wget \
     --directory-prefix="/home/j.boom/tool-testing/data" \
     ftp://ftp.ensembl.org/pub/release-110/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
 genome_file="/home/j.boom/tool-testing/data/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
-gzip -d "${genome_file}.gz"
+gzip \
+    -d "${genome_file}.gz"
 
 # Create dictionary:
-singularity exec --containall --bind /home docker://quay.io/biocontainers/picard:3.1.1--hdfd78af_0 \
-picard CreateSequenceDictionary \
-    R=${genome_file} \
-    O=${genome_file}.dict
+singularity \
+    exec \
+        --containall \
+        --bind /home docker://quay.io/biocontainers/picard:3.1.1--hdfd78af_0 \
+        picard CreateSequenceDictionary \
+            R=${genome_file} \
+            O=${genome_file}.dict
 
 # Create genome index:
-singularity exec --containall --bind /home docker://quay.io/biocontainers/samtools:1.18--h50ea8bc_1 \
-samtools faidx \
-    ${genome_file}
+singularity \
+    exec \
+        --containall \
+        --bind /home docker://quay.io/biocontainers/samtools:1.18--h50ea8bc_1 \
+        samtools faidx \
+            ${genome_file}
 
 # Reference annotation:
 wget \
     --directory-prefix="/home/j.boom/tool-testing/data" \
     ftp://ftp.ensembl.org/pub/release-110/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
+
 # Download gtfToGenePred:
 wget \
     --directory-prefix="/home/j.boom/tool-testing/data" \
     http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/gtfToGenePred
+
 # Fix permissions:
 chmod 777 /home/j.boom/tool-testing/data/gtfToGenePred
 gtf_file="/home/j.boom/tool-testing/data/Homo_sapiens.GRCh38.110"
-gzip -d "${gtf_file}.gtf.gz"
+gzip \
+    -d "${gtf_file}.gtf.gz"
 
 # Run gtfToGenePred:
 /home/j.boom/tool-testing/simulating-data/data/gtfToGenePred \
