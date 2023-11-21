@@ -1,12 +1,12 @@
 # Changelog
 ```
 GenomeScan internship repository.
-Copyright (C) 2023 Jasper Boom
+Copyright (C) 2021 Jasper Boom
 
 This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published
-by the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -20,3 +20,7 @@ Contact information: info@jboom.org.
 ```
 
 ## Develop
++ Add files, scripts and workflow for the snakemake tutorial.
++ Restructure folders and files for the snakemake tutorial.
++ Add scripts for testing a bunch of simulation tools.
++ Add test scripts for NEAT and Phen2Gene.

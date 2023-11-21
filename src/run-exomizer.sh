@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 
 # GenomeScan internship repository.
-# Copyright (C) 2023 Jasper Boom
+# Copyright (C) 2021 Jasper Boom
 
 # This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as published
-# by the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
 
-# This program is distributed in the hope that it will be useful,
+# his program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details.
@@ -27,26 +27,83 @@
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
-#exomiser-rest-prioritiser \
-#    --analysis /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/NA19722_601952_AUTOSOMAL_RECESSIVE_POMP_13_29233225_5UTR_38.yml
+main() {
+    # The main function:
+    #     Contains all test code for running exomizer.
+    java \
+        -Xms2g \
+        -Xmx4g \
+        -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
+            --prioritiser=hiphive \
+            -I AD \
+            -F 1 \
+            -D OMIM:101600 \
+            -v /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
+    #exomiser-rest-prioritiser \
+    #    --analysis /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/NA19722_601952_AUTOSOMAL_RECESSIVE_POMP_13_29233225_5UTR_38.yml
 
-#java \
-#    -Xms4g \
-#    -Xmx8g \
-#    -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar
+    #java \
+    #    -Xms4g \
+    #    -Xmx8g \
+    #    -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar
 
-#java \
-#    -Xms4g \
-#    -Xmx8g \
-#    -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-#    --analysis /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/NA19722_601952_AUTOSOMAL_RECESSIVE_POMP_13_29233225_5UTR_38.yml
+    #java \
+    #    -Xms4g \
+    #    -Xmx8g \
+    #    -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
+    #        --analysis /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/NA19722_601952_AUTOSOMAL_RECESSIVE_POMP_13_29233225_5UTR_38.yml
+}
 
-java \
-    -Xms2g \
-    -Xmx4g \
-    -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-    --prioritiser=hiphive \
-    -I AD \
-    -F 1 \
-    -D OMIM:101600 \
-    -v /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
+# The getopts function.
+# https://kodekloud.com/blog/bash-getopts/
+OPTSTRING="vh"
+while getopts ${OPTSTRING} option;
+do
+    case ${option} in
+        v)
+            echo ""
+            echo "run-exomizer.sh [1.0]"
+            echo ""
+
+            exit
+            ;;
+        h)
+            echo ""
+            echo "Usage: run-exomizer.sh [-v] [-h]"
+            echo ""
+            echo "Optional arguments:"
+            echo " -v                    Show the software's version number"
+            echo "                       and exit."
+            echo " -h                    Show this help page and exit."
+            echo ""
+            echo "This script runs trial commands for testing exomizer on the"
+            echo "GenomeScan HPC."
+            echo ""
+
+            exit
+            ;;
+        \?)
+            echo ""
+            echo "You've entered an invalid option: -${OPTARG}."
+            echo "Please use the -h option for correct formatting information."
+            echo ""
+
+            exit
+            ;;
+        :)
+            echo ""
+            echo "You've entered an invalid option: -${OPTARG}."
+            echo "Please use the -h option for correct formatting information."
+            echo ""
+
+            exit
+            ;;
+    esac
+done
+
+main
+
+# Additional information:
+# =======================
+#
+#
