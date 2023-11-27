@@ -23,4 +23,8 @@ Contact information: info@jboom.org.
 + Add files, scripts and workflow for the snakemake tutorial.
 + Restructure folders and files for the snakemake tutorial.
 + Add scripts for testing a bunch of simulation tools.
-+ Add test scripts for NEAT and Phen2Gene.
+    + PGsim.
+    + GeneBreaker.
++ Add test scripts for Exomizer.
++ Add test scripts for NEAT (3.4 & 4.0) and Phen2Gene.
++ Add scripts for Python and Snakemake code formatting.
