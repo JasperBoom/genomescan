@@ -9,7 +9,7 @@
 # published by the Free Software Foundation, either version 3 of the
 # License, or (at your option) any later version.
 
-# his program is distributed in the hope that it will be useful,
+# This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
 # GNU Affero General Public License for more details.
@@ -39,7 +39,7 @@ main() {
     # is the "target", this will make snakemake run all rules to
     # create that "target".
     snakemake \
-        --snakefile "/home/j.boom/genomescan/snakemake-tutorial/Snakefile" \
+        --snakefile "/home/j.boom/genomescan/snakemake-tutorial/snakefile.smk" \
         -n \
         -p \
         --verbose \
@@ -50,7 +50,7 @@ main() {
     # no target is given. But any of them can be called in command
     # line (in this case the rule "all").
     snakemake \
-        --snakefile "/home/j.boom/genomescan/snakemake-tutorial/Snakefile" \
+        --snakefile "/home/j.boom/genomescan/snakemake-tutorial/snakefile.smk" \
         --use-singularity \
         -p \
         --verbose \
