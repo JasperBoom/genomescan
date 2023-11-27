@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
+# -----------------------------------------------------------------------------
 # GenomeScan internship repository.
-# Copyright (C) 2021 Jasper Boom
+# Copyright (C) 2023 Jasper Boom
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -17,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Contact information: info@jboom.org.
+# -----------------------------------------------------------------------------
 
 #SBATCH --job-name="phen2gene"
 #SBATCH --mem=10G
@@ -30,7 +32,10 @@
 main() {
     # The main function:
     #     This function contains all test code for running Phen2Gene
-    #     code locally.
+    #     code locally. Can easily be installed with conda. Sadly the image
+    #     the developers created is not working. The tool isn't actually
+    #     reachable via $PATH. It is also unclear where in the container
+    #     the tools python file can be found.
     source /home/j.boom/mambaforge/bin/activate phen2gene
 
     singularity \
@@ -47,8 +52,8 @@ main() {
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPTSTRING="vh"
-while getopts ${OPTSTRING} option;
+OPT_STRING="vh"
+while getopts ${OPT_STRING} option;
 do
     case ${option} in
         v)

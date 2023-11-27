@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
+# -----------------------------------------------------------------------------
 # GenomeScan internship repository.
-# Copyright (C) 2021 Jasper Boom
+# Copyright (C) 2023 Jasper Boom
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -17,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Contact information: info@jboom.org.
+# -----------------------------------------------------------------------------
 
 #SBATCH --job-name="neat-4.0"
 #SBATCH --mem=10G
@@ -30,7 +32,8 @@
 main() {
     # The main function:
     #     This function contains all test code for running
-    #     neat v4.0 code locally.
+    #     neat v4.0 code locally. At the time of writing (2023-11-27) this
+    #     version got recalled.
     source /home/j.boom/mambaforge/bin/activate neat
 
     time_stamp="$(date +"%d-%m-%y-%T")"
@@ -43,8 +46,8 @@ main() {
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPTSTRING="vh"
-while getopts ${OPTSTRING} option;
+OPT_STRING="vh"
+while getopts ${OPT_STRING} option;
 do
     case ${option} in
         v)

@@ -20,59 +20,54 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="neat-3.4"
+#SBATCH --job-name="format-python-file"
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/neat-3.4.log"
-#SBATCH --error="/home/j.boom/errors/neat-3.4.error"
-#SBATCH --time=12:15:0
+#SBATCH --output="/home/j.boom/logs/format-python-file.log"
+#SBATCH --error="/home/j.boom/errors/format-python-file.error"
+#SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
 main() {
     # The main function:
-    #     Contains all test code for running neat v3.4 code locally.
-    #     This tool is python based, and seems to work. Sadly the most recent
-    #     version (4.0) got recalled due to issues. The example below is the
-    #     most basic way of generating reads and a VCF + BAM file of simulated
-    #     data. I still need to add a predefined VCF and random variant
-    #     generator flag.
-    source /home/j.boom/mambaforge/bin/activate neat
-
-    time_stamp="$(date +"%d-%m-%y-%T")"
-
-    python3 /home/j.boom/tool-testing/NEAT-3.4/gen_reads.py \
-        -r "/home/j.boom/tool-testing/data/Homo_sapiens.GRCh38.dna.primary_assembly.fa" \
-        -R 101 \
-        -o "/home/j.boom/tool-testing/simulated_data/${time_stamp}" \
-        --vcf \
-        --bam
+    #     This function runs black in singularity to format an input
+    #     python file.
+    singularity \
+        exec \
+            --containall \
+           --bind /home docker://pyfound/black:latest_release \
+            black \
+                --help
 }
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPT_STRING="vh"
+OPT_STRING="i:vh"
 while getopts ${OPT_STRING} option;
 do
     case ${option} in
+        i)
+            python_file=${OPTARG}
+            ;;
         v)
             echo ""
-            echo "run-neat-3.4.sh [1.0]"
+            echo "run-format-python-file.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-neat-3.4.sh [-v] [-h]"
+            echo "Usage: run-format-python-file.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v                    Show the software's version number"
             echo "                       and exit."
             echo " -h                    Show this help page and exit."
             echo ""
-            echo "This script runs trial commands for testing neat v3.4 on"
-            echo "the GenomeScan HPC."
+            echo "This script runs the black tool on an input python file."
+            echo "Black is used to format python code and convert to PEP8."
             echo ""
 
             exit
@@ -100,5 +95,4 @@ main
 
 # Additional information:
 # =======================
-#
-#
+# https://black.readthedocs.io/en/stable/usage_and_configuration/black_docker_image.html

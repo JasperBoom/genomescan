@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
+# -----------------------------------------------------------------------------
 # GenomeScan internship repository.
-# Copyright (C) 2021 Jasper Boom
+# Copyright (C) 2023 Jasper Boom
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -17,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Contact information: info@jboom.org.
+# -----------------------------------------------------------------------------
 
 #SBATCH --job-name="genebreaker"
 #SBATCH --mem=10G
@@ -30,6 +32,11 @@
 main() {
     # The main function:
     #     Contains all test code for running genebreaker code locally.
+    #     A python based program which is designed to work via the website.
+    #     I tried to see if I could run the code locally, to get around the
+    #     fact that the website only allows to insert two variants. But the
+    #     code isn't structured and documented well enough for that, and
+    #     the fact that they seem to advise against it.
     python3 \
         /home/j.boom/tool-testing/GeneBreaker/GeneBreaker/src/variants.py \
         --help
@@ -37,8 +44,8 @@ main() {
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPTSTRING="vh"
-while getopts ${OPTSTRING} option;
+OPT_STRING="vh"
+while getopts ${OPT_STRING} option;
 do
     case ${option} in
         v)

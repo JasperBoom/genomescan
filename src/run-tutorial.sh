@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
+# -----------------------------------------------------------------------------
 # GenomeScan internship repository.
-# Copyright (C) 2021 Jasper Boom
+# Copyright (C) 2023 Jasper Boom
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -17,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Contact information: info@jboom.org.
+# -----------------------------------------------------------------------------
 
 #SBATCH --job-name="snakemake-tutorial"
 #SBATCH --mem=10G
@@ -69,28 +71,28 @@ main() {
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPTSTRING="vh"
-while getopts ${OPTSTRING} option;
+OPT_STRING="vh"
+while getopts ${OPT_STRING} option;
 do
     case ${option} in
         v)
             echo ""
-            echo "run-phen2gene.sh [1.0]"
+            echo "run-tutorial.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-phen2gene.sh [-v] [-h]"
+            echo "Usage: run-tutorial.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v                    Show the software's version number"
             echo "                       and exit."
             echo " -h                    Show this help page and exit."
             echo ""
-            echo "This script runs trial commands for testing phen2gene on"
-            echo "the GenomeScan HPC."
+            echo "This script runs code that executes the tutorial snakemake"
+            echo "pipeline."
             echo ""
 
             exit

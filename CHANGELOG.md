@@ -1,7 +1,7 @@
 # Changelog
 ```
 GenomeScan internship repository.
-Copyright (C) 2021 Jasper Boom
+Copyright (C) 2023 Jasper Boom
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as

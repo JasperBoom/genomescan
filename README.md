@@ -1,6 +1,7 @@
 # GenomeScan Internship Repository
 A repository that contains all scripts and other documents used on the
-GenomeScan HPC for back-up purposes.
+GenomeScan HPC for back-up purposes. This includes testing different tools and
+the snakemake tutorial.
 
 ## Author(s)
 * [Jasper Boom](https://github.com/JasperBoom)
@@ -11,7 +12,7 @@ GenomeScan HPC for back-up purposes.
 
 ```
 GenomeScan internship repository.
-Copyright (C) 2021 Jasper Boom
+Copyright (C) 2023 Jasper Boom
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as

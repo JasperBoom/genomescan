@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 
+# -----------------------------------------------------------------------------
 # GenomeScan internship repository.
-# Copyright (C) 2021 Jasper Boom
+# Copyright (C) 2023 Jasper Boom
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -17,6 +18,7 @@
 # along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 # Contact information: info@jboom.org.
+# -----------------------------------------------------------------------------
 
 #SBATCH --job-name="exomizer"
 #SBATCH --mem=10G
@@ -30,6 +32,12 @@
 main() {
     # The main function:
     #     Contains all test code for running exomizer.
+    #     As seen below, the tool is java based. It also has a version on
+    #     conda, but this doesn't seem to run the same jar file as is
+    #     downloaded via Git.
+    #     The example data doesn't work for some reason, missing some input
+    #     either because the files are incomplete or the example command is
+    #     incomplete.
     java \
         -Xms2g \
         -Xmx4g \
@@ -56,8 +64,8 @@ main() {
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPTSTRING="vh"
-while getopts ${OPTSTRING} option;
+OPT_STRING="vh"
+while getopts ${OPT_STRING} option;
 do
     case ${option} in
         v)
