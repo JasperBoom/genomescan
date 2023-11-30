@@ -38,7 +38,10 @@ main() {
             --containall \
            --bind /home docker://pyfound/black:latest_release \
             black \
-                --help
+                --line-length 80 \
+                --target-version py312 \
+                --verbose \
+                /home/j.boom/develop/galaxy-tools-umi-isolation/umi-isolation.py
 }
 
 # The getopts function.

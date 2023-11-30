@@ -20,7 +20,7 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="neat-3.4"
+#SBATCH --job-name="vep"
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
@@ -31,30 +31,22 @@
 
 main() {
     # The main function:
-    #     Contains all test code for running neat v3.4 code locally.
-    #     This tool is python based, and seems to work. Sadly the most recent
-    #     version (4.0) got recalled due to issues. The example below is the
-    #     most basic way of generating reads and a VCF + BAM file of simulated
-    #     data. I still need to add a predefined VCF and random variant
-    #     generator flag.
-    source /home/j.boom/mambaforge/bin/activate neat
-
-    time_stamp="$(date +"%d-%m-%y-%T")"
-
-    python3 /home/j.boom/tool-testing/NEAT-3.4/gen_reads.py \
-        -r "/home/j.boom/tool-testing/data/Homo_sapiens.GRCh38.dna.primary_assembly.fa" \
-        -R 147 \
-        -o "/home/j.boom/tool-testing/simulated_data/R-${SLURM_JOB_NAME}-${SLURM_JOB_ID}" \
-        -p 2 \
-        -M 0.05 \
-        -m "/home/j.boom/tool-testing/NEAT-3.4/models/MutModel_NA12878.pickle.gz" \
-        --pe 300 30 \
-        -v "/home/j.boom/tool-testing/NEAT-3.4/data/small.vcf" \
-        --rng 1995 \
-        --no-fastq \
-        --vcf
-        #-e "/home/j.boom/tool-testing/NEAT-3.4/models/default_error_model.pickle.gz" \
-        #-v "/home/j.boom/clinvar/pathogenic_example.vcf" \
+    #     https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
+    input_file="/home/j.boom/tool-testing/simulated_data/29-11-23-18:38:11_golden.vcf"
+    singularity \
+        exec \
+            --containall \
+            --bind /home docker://quay.io/biocontainers/ensembl-vep:110.1--pl5321h2a3209d_0  \
+                vep \
+                    --input_file "${input_file}" \
+                    --output_file "${input_file::-4}-annotated.tab" \
+                    --species "human" \
+                    --format "vcf" \
+                    --everything \
+                    --tab \
+                    --cache \
+                    --dir_cache "/home/j.boom/tool-testing/VEP" \
+                    --fork 4
 }
 
 # The getopts function.
@@ -65,22 +57,21 @@ do
     case ${option} in
         v)
             echo ""
-            echo "run-neat-3.4.sh [1.0]"
+            echo "run-vep.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-neat-3.4.sh [-v] [-h]"
+            echo "Usage: run-vep.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v                    Show the software's version number"
             echo "                       and exit."
             echo " -h                    Show this help page and exit."
             echo ""
-            echo "This script runs trial commands for testing neat v3.4 on"
-            echo "the GenomeScan HPC."
+            echo "This script runs vep on the GenomeScan HPC."
             echo ""
 
             exit

@@ -22,9 +22,14 @@
 
 # Imports:
 import argparse
-import matplotlib
-import matplotlib.pyplot as plt
-from pysam import VariantFile
+from bs4 import BeautifulSoup
+
+def read_xml(input_file):
+    with open(input_file, "r") as file:
+        data = file.read()
+        bs_data = BeautifulSoup(data, "xml")
+        for line in bs_data:
+            print(line)    
 
 def parse_argvs():
     """
@@ -32,13 +37,22 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = "A python script created for the snakemake tutorial,\
-                   which generates an image."
-    epilog = "This pythong script requires one dependency, namely matplotlib."
+    description = "A python script for reading in an xml file."
+    epilog = "This pythong script requires two dependencies, namely\
+              beautifulsoup4 & lxml."
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "-i",
+        "--input",
+        action="store",
+        dest="input_file",
+        type=str,
+        default=argparse.SUPPRESS,
+        help="The input xml file.",
     )
     parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s [1.0]]"
@@ -49,13 +63,10 @@ def parse_argvs():
 def main():
     """
     The main function:
-        Creates a histogram for the snakemake tutorial.
+        A
     """
-    matplotlib.use("Agg")
-    
-    quals = [record.qual for record in VariantFile(snakemake.input[0])]
-    plt.hist(quals)
-    plt.savefig(snakemake.output[0])
+    user_arguments = parse_argvs()
+    read_xml(user_arguments.input_file)
 
 if __name__ == "__main__":
     main()

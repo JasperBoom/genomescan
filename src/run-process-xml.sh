@@ -20,41 +20,30 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="neat-3.4"
+#SBATCH --job-name="process-xml"
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/R-%x-%j.log"
-#SBATCH --error="/home/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=120:15:0
+#SBATCH --output="/home/j.boom/logs/process-xml.log"
+#SBATCH --error="/home/j.boom/errors/process-xml.error"
+#SBATCH --time=1:15:0
 #SBATCH --partition=high,low
+
+run_python_script() {
+    # The run_python_script function:
+    #  
+    source /home/j.boom/mambaforge/bin/activate base
+    python3 \
+        "/home/j.boom/develop/genomescan/src/process-xml.py" \
+            -i "/home/j.boom/clinvar/clinvar_small.xml" \
+            2>&1 | tee "/home/j.boom/logs/tee-process-xml.log"
+#            -i "/home/j.boom/clinvar/ClinVarFullRelease_00-latest.xml" \
+}
 
 main() {
     # The main function:
-    #     Contains all test code for running neat v3.4 code locally.
-    #     This tool is python based, and seems to work. Sadly the most recent
-    #     version (4.0) got recalled due to issues. The example below is the
-    #     most basic way of generating reads and a VCF + BAM file of simulated
-    #     data. I still need to add a predefined VCF and random variant
-    #     generator flag.
-    source /home/j.boom/mambaforge/bin/activate neat
-
-    time_stamp="$(date +"%d-%m-%y-%T")"
-
-    python3 /home/j.boom/tool-testing/NEAT-3.4/gen_reads.py \
-        -r "/home/j.boom/tool-testing/data/Homo_sapiens.GRCh38.dna.primary_assembly.fa" \
-        -R 147 \
-        -o "/home/j.boom/tool-testing/simulated_data/R-${SLURM_JOB_NAME}-${SLURM_JOB_ID}" \
-        -p 2 \
-        -M 0.05 \
-        -m "/home/j.boom/tool-testing/NEAT-3.4/models/MutModel_NA12878.pickle.gz" \
-        --pe 300 30 \
-        -v "/home/j.boom/tool-testing/NEAT-3.4/data/small.vcf" \
-        --rng 1995 \
-        --no-fastq \
-        --vcf
-        #-e "/home/j.boom/tool-testing/NEAT-3.4/models/default_error_model.pickle.gz" \
-        #-v "/home/j.boom/clinvar/pathogenic_example.vcf" \
+    #     
+    run_python_script
 }
 
 # The getopts function.
@@ -65,22 +54,22 @@ do
     case ${option} in
         v)
             echo ""
-            echo "run-neat-3.4.sh [1.0]"
+            echo "run-process-xml.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-neat-3.4.sh [-v] [-h]"
+            echo "Usage: run-process-xml.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v                    Show the software's version number"
             echo "                       and exit."
             echo " -h                    Show this help page and exit."
             echo ""
-            echo "This script runs trial commands for testing neat v3.4 on"
-            echo "the GenomeScan HPC."
+            echo "This script runs the python script process-xml.py on the"
+            echo "GenomeScan HPC cluster."
             echo ""
 
             exit
@@ -108,5 +97,22 @@ main
 
 # Additional information:
 # =======================
-#
-#
+# The ClinVar database vcf file: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/
+# The ClinVar database xml file: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/
+# The clinvar directory files/folders:
+#     ClinVarFullRelease_00-latest.xml (the XML version of the full ClinVar
+#                                       database).
+#     clinvar.vcf (the VCF version of the full ClinVar database).
+#     gene_comparison.txt (the output of this script comparing the gene list
+#                          from alicia to the one from ClinVar).
+#     gene_list_alicia.txt (genes found by Alicia that are associated to
+#                           meningiomas, there is also a sorted version in this
+#                           folder).
+#     gene_list_script_meningioma-variants.txt (genes found by me using the
+#                                               ClinVar website, also a sorted
+#                                               version present).
+#     stats.txt (the output from the first function in this script, simply
+#                counting the number of genes found through variations on
+#                downloading variants for meningioma).
+#     ./clinvar_website_search (intermediate files used in the first function,
+#                               see the description there for more information).
