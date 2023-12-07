@@ -47,20 +47,6 @@ main() {
             -F 1 \
             -D OMIM:101600 \
             -v /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
-
-    #exomiser-rest-prioritiser \
-    #    --analysis /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/NA19722_601952_AUTOSOMAL_RECESSIVE_POMP_13_29233225_5UTR_38.yml
-
-    #java \
-    #    -Xms4g \
-    #    -Xmx8g \
-    #    -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar
-
-    #java \
-    #    -Xms4g \
-    #    -Xmx8g \
-    #    -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-    #        --analysis /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/NA19722_601952_AUTOSOMAL_RECESSIVE_POMP_13_29233225_5UTR_38.yml
 }
 
 # The getopts function.
@@ -81,9 +67,8 @@ do
             echo "Usage: run-exomizer.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
-            echo " -v                    Show the software's version number"
-            echo "                       and exit."
-            echo " -h                    Show this help page and exit."
+            echo " -v          Show the software's version number and exit."
+            echo " -h          Show this help page and exit."
             echo ""
             echo "This script runs trial commands for testing exomizer on the"
             echo "GenomeScan HPC."
@@ -114,4 +99,5 @@ main
 
 # Additional information:
 # =======================
+#
 #

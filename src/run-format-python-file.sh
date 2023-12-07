@@ -41,7 +41,7 @@ main() {
                 --line-length 80 \
                 --target-version py312 \
                 --verbose \
-                /home/j.boom/develop/galaxy-tools-umi-isolation/umi-isolation.py
+                /home/j.boom/develop/galaxy-tools-umi-isolation/src/umi-isolation.py
 }
 
 # The getopts function.
@@ -65,9 +65,8 @@ do
             echo "Usage: run-format-python-file.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
-            echo " -v                    Show the software's version number"
-            echo "                       and exit."
-            echo " -h                    Show this help page and exit."
+            echo " -v          Show the software's version number and exit."
+            echo " -h          Show this help page and exit."
             echo ""
             echo "This script runs the black tool on an input python file."
             echo "Black is used to format python code and convert to PEP8."

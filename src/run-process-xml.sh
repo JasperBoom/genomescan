@@ -37,7 +37,6 @@ run_python_script() {
         "/home/j.boom/develop/genomescan/src/process-xml.py" \
             -i "/home/j.boom/clinvar/clinvar_small.xml" \
             2>&1 | tee "/home/j.boom/logs/tee-process-xml.log"
-#            -i "/home/j.boom/clinvar/ClinVarFullRelease_00-latest.xml" \
 }
 
 main() {
@@ -64,9 +63,8 @@ do
             echo "Usage: run-process-xml.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
-            echo " -v                    Show the software's version number"
-            echo "                       and exit."
-            echo " -h                    Show this help page and exit."
+            echo " -v          Show the software's version number and exit."
+            echo " -h          Show this help page and exit."
             echo ""
             echo "This script runs the python script process-xml.py on the"
             echo "GenomeScan HPC cluster."

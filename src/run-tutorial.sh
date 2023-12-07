@@ -87,9 +87,8 @@ do
             echo "Usage: run-tutorial.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
-            echo " -v                    Show the software's version number"
-            echo "                       and exit."
-            echo " -h                    Show this help page and exit."
+            echo " -v          Show the software's version number and exit."
+            echo " -h          Show this help page and exit."
             echo ""
             echo "This script runs code that executes the tutorial snakemake"
             echo "pipeline."
@@ -126,15 +125,15 @@ main
 # like GPUs. Similar to threads, these can be considered by the
 # scheduler when an available amount of that resource is given
 # with the command line argument --resources (see Resources).
- 
+ #
 # --forcerun [TARGET ...], -R [TARGET ...]
 #     Force the re-execution or creation of the given rules
 #     or files. Use this option if you changed a rule and
 #     want to have all its output in your workflow updated.
 #     (default: None)
-
+#
 # With the flag --forceall you can enforce a complete
 # re-execution of the workflow.
-
+#
 # -R STR 
 #     Read group header line such as '@RG\tID:foo\tSM:bar' [null]

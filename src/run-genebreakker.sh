@@ -39,7 +39,7 @@ main() {
     #     the fact that they seem to advise against it.
     python3 \
         /home/j.boom/tool-testing/GeneBreaker/GeneBreaker/src/variants.py \
-        --help
+            --help
 }
 
 # The getopts function.
@@ -60,9 +60,8 @@ do
             echo "Usage: run-genebreaker.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
-            echo " -v                    Show the software's version number"
-            echo "                       and exit."
-            echo " -h                    Show this help page and exit."
+            echo " -v          Show the software's version number and exit."
+            echo " -h          Show this help page and exit."
             echo ""
             echo "This script runs trial commands for testing genebreaker on"
             echo "the GenomeScan HPC."
