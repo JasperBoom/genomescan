@@ -47,6 +47,7 @@ main() {
             -F 1 \
             -D OMIM:101600 \
             -v /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
+
     #exomiser-rest-prioritiser \
     #    --analysis /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/NA19722_601952_AUTOSOMAL_RECESSIVE_POMP_13_29233225_5UTR_38.yml
 
@@ -113,5 +114,4 @@ main
 
 # Additional information:
 # =======================
-#
 #

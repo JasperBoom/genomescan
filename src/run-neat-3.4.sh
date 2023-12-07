@@ -39,14 +39,13 @@ main() {
     #     generator flag.
     source /home/j.boom/mambaforge/bin/activate neat
 
-    time_stamp="$(date +"%d-%m-%y-%T")"
-
     python3 /home/j.boom/tool-testing/NEAT-3.4/gen_reads.py \
-        -r "/home/j.boom/tool-testing/data/Homo_sapiens.GRCh38.dna.primary_assembly.fa" \
+        -r "/home/j.boom/tool-testing/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa" \
         -R 147 \
         -o "/home/j.boom/tool-testing/simulated_data/R-${SLURM_JOB_NAME}-${SLURM_JOB_ID}" \
         -p 2 \
-        -M 0.05 \
+        -M 0.016 \
+        -tr /home/j.boom/bed/hg37/S31285117_Covered_50bpFlank.tiny.bed \
         -m "/home/j.boom/tool-testing/NEAT-3.4/models/MutModel_NA12878.pickle.gz" \
         --pe 300 30 \
         -v "/home/j.boom/tool-testing/NEAT-3.4/data/small.vcf" \

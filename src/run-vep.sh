@@ -32,7 +32,7 @@
 main() {
     # The main function:
     #     https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
-    input_file="/home/j.boom/tool-testing/simulated_data/29-11-23-18:38:11_golden.vcf"
+    input_file="/home/j.boom/tool-testing/simulated_data/R-neat-3.4-174801_golden.vcf"
     singularity \
         exec \
             --containall \

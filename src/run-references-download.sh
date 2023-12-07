@@ -29,6 +29,18 @@
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
+genome_file="/home/j.boom/tool-testing/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa"
+
+add_chr_to_fasta() {
+    # The add_chr_to_fasta function:
+    #     This function adds a string "chr" at the front of each fasta record
+    #     in the genome fasta file.
+    #     https://okko73313.blogspot.com/2013/01/chromosome-names-with-chr-prefix-or.html
+    cat ${genome_file} \
+        | sed -r 's/^>/>chr/' \
+        > "${genome_file::-3}.chr.fa"
+}
+
 download_genome() {
     # The download_genome function:
     #     This function downloads the reference genome fasta file.
@@ -36,7 +48,6 @@ download_genome() {
     wget \
         --directory-prefix="/home/j.boom/tool-testing/data" \
         ftp://ftp.ensembl.org/pub/release-110/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
-    genome_file="/home/j.boom/tool-testing/data/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
     gzip \
         -d "${genome_file}.gz"
 }
@@ -103,11 +114,12 @@ main() {
     # The main function:
     #     This function simply calls the functions above so they are run
     #     when this script is called.
-    download_genome
+    #add_chr_to_fasta
+    #download_genome
     create_dictionary
     create_genome_index
-    get_annotation
-    create_annotation_index
+    #get_annotation
+    #create_annotation_index
 }
 
 # The getopts function.
@@ -162,5 +174,5 @@ main
 
 # Additional information:
 # =======================
-#
-#
+# hg19: https://ftp.ensembl.org/pub/grch37/current/
+# hg38: https://ftp.ensembl.org/pub/release-110/fasta/homo_sapiens/dna/
