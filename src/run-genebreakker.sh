@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/genebreaker.log"
-#SBATCH --error="/home/j.boom/errors/genebreaker.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/genebreaker.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/genebreaker.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
@@ -38,7 +38,7 @@ main() {
     #     code isn't structured and documented well enough for that, and
     #     the fact that they seem to advise against it.
     python3 \
-        /home/j.boom/tool-testing/GeneBreaker/GeneBreaker/src/variants.py \
+        /mnt/titan/users/j.boom/tool-testing/GeneBreaker/GeneBreaker/src/variants.py \
             --help
 }
 

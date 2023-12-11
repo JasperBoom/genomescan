@@ -29,3 +29,4 @@ Contact information: info@jboom.org.
 + Add test scripts for NEAT (3.4 & 4.0) and Phen2Gene.
 + Add scripts for Python and Snakemake code formatting.
 + Modify NEAT script and add a script for VEP annotation.
++ Move main data files to new location on HPC and adjust file paths.

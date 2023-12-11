@@ -24,19 +24,19 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/process-xml.log"
-#SBATCH --error="/home/j.boom/errors/process-xml.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/process-xml.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/process-xml.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
 run_python_script() {
     # The run_python_script function:
     #  
-    source /home/j.boom/mambaforge/bin/activate base
+    source /mnt/titan/users/j.boom/mambaforge/bin/activate base
     python3 \
-        "/home/j.boom/develop/genomescan/src/process-xml.py" \
-            -i "/home/j.boom/clinvar/clinvar_small.xml" \
-            2>&1 | tee "/home/j.boom/logs/tee-process-xml.log"
+        "/mnt/titan/users/j.boom/develop/genomescan/src/process-xml.py" \
+            -i "/mnt/titan/users/j.boom/clinvar/clinvar_small.xml" \
+            2>&1 | tee "/mnt/titan/users/j.boom/logs/tee-process-xml.log"
 }
 
 main() {

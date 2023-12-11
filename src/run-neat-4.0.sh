@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/neat-4.0.log"
-#SBATCH --error="/home/j.boom/errors/neat-4.0.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/neat-4.0.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/neat-4.0.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
@@ -34,14 +34,14 @@ main() {
     #     This function contains all test code for running
     #     neat v4.0 code locally. At the time of writing (2023-11-27) this
     #     version got recalled.
-    source /home/j.boom/mambaforge/bin/activate neat
+    source /mnt/titan/users/j.boom/mambaforge/bin/activate neat
 
     time_stamp="$(date +"%d-%m-%y-%T")"
 
     neat \
         read-simulator \
-        -c "/home/j.boom/genomescan/src/template_neat_config.yml" \
-        -o "/home/j.boom/tool-testing/simulated_data/${time_stamp}"
+        -c "/mnt/titan/users/j.boom/genomescan/src/template_neat_config.yml" \
+        -o "/mnt/titan/users/j.boom/tool-testing/simulated_data/${time_stamp}"
 }
 
 # The getopts function.

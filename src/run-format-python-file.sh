@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/format-python-file.log"
-#SBATCH --error="/home/j.boom/errors/format-python-file.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/format-python-file.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/format-python-file.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
@@ -41,7 +41,8 @@ main() {
                 --line-length 80 \
                 --target-version py312 \
                 --verbose \
-                /home/j.boom/develop/galaxy-tools-umi-isolation/src/umi-isolation.py
+                /home/j.boom/develop/galaxy-tools-umi-isolation/src/umi-isolation.py \
+                /home/j.boom/develop/genomescan/src/process-xml.py
 }
 
 # The getopts function.

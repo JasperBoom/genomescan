@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/R-%x-%j.log"
-#SBATCH --error="/home/j.boom/errors/R-%x-%j.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=120:15:0
 #SBATCH --partition=high,low
 
@@ -37,23 +37,23 @@ main() {
     #     most basic way of generating reads and a VCF + BAM file of simulated
     #     data. I still need to add a predefined VCF and random variant
     #     generator flag.
-    source /home/j.boom/mambaforge/bin/activate neat
+    source /mnt/titan/users/j.boom/mambaforge/bin/activate neat
 
-    python3 /home/j.boom/tool-testing/NEAT-3.4/gen_reads.py \
-        -r "/home/j.boom/tool-testing/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa" \
+    python3 /mnt/titan/users/j.boom/tool-testing/NEAT-3.4/gen_reads.py \
+        -r "/mnt/titan/users/j.boom/tool-testing/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa" \
         -R 147 \
-        -o "/home/j.boom/tool-testing/simulated_data/R-${SLURM_JOB_NAME}-${SLURM_JOB_ID}" \
+        -o "/mnt/titan/users/j.boom/tool-testing/simulated_data/R-${SLURM_JOB_NAME}-${SLURM_JOB_ID}" \
         -p 2 \
         -M 0.016 \
-        -tr /home/j.boom/bed/hg37/S31285117_Covered_50bpFlank.tiny.bed \
-        -m "/home/j.boom/tool-testing/NEAT-3.4/models/MutModel_NA12878.pickle.gz" \
+        -tr /mnt/titan/users/j.boom/bed/hg37/S31285117_Covered_50bpFlank.tiny.bed \
+        -m "/mnt/titan/users/j.boom/tool-testing/NEAT-3.4/models/MutModel_NA12878.pickle.gz" \
         --pe 300 30 \
-        -v "/home/j.boom/tool-testing/NEAT-3.4/data/small.vcf" \
+        -v "/mnt/titan/users/j.boom/tool-testing/NEAT-3.4/data/small.vcf" \
         --rng 1995 \
         --no-fastq \
         --vcf
-        #-e "/home/j.boom/tool-testing/NEAT-3.4/models/default_error_model.pickle.gz" \
-        #-v "/home/j.boom/clinvar/pathogenic_example.vcf" \
+        #-e "/mnt/titan/users/j.boom/tool-testing/NEAT-3.4/models/default_error_model.pickle.gz" \
+        #-v "/mnt/titan/users/j.boom/clinvar/pathogenic_example.vcf" \
 }
 
 # The getopts function.

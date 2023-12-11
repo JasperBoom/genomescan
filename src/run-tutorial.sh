@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/snakemake-tutorial.log"
-#SBATCH --error="/home/j.boom/errors/snakemake-tutorial.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/snakemake-tutorial.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/snakemake-tutorial.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
@@ -33,24 +33,24 @@ main() {
     # The main function:
     #     This function contains all test code for running the snakemake
     #     tutorial code locally.
-    source /home/j.boom/mambaforge/bin/activate snakemake-tutorial
+    source /mnt/titan/users/j.boom/mambaforge/bin/activate snakemake-tutorial
 
     # The output file you use at the end of the snakemake command
     # is the "target", this will make snakemake run all rules to
     # create that "target".
     snakemake \
-        --snakefile "/home/j.boom/genomescan/snakemake-tutorial/snakefile.smk" \
+        --snakefile "/mnt/titan/users/j.boom/genomescan/snakemake-tutorial/snakefile.smk" \
         -n \
         -p \
         --verbose \
-        /home/j.boom/genomescan/snakemake-tutorial/plots/quals.svg
+        /mnt/titan/users/j.boom/genomescan/snakemake-tutorial/plots/quals.svg
 
     # You can also use a rule as a target, these should be created
     # at the top of the workflow. The first is used by default when
     # no target is given. But any of them can be called in command
     # line (in this case the rule "all").
     snakemake \
-        --snakefile "/home/j.boom/genomescan/snakemake-tutorial/snakefile.smk" \
+        --snakefile "/mnt/titan/users/j.boom/genomescan/snakemake-tutorial/snakefile.smk" \
         --use-singularity \
         -p \
         --verbose \

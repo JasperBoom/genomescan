@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/format-snake-file.log"
-#SBATCH --error="/home/j.boom/errors/format-snake-file.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/format-snake-file.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/format-snake-file.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
@@ -36,12 +36,12 @@ main() {
     singularity \
         exec \
             --containall \
-           --bind /home docker://quay.io/biocontainers/snakefmt:0.8.5--pyhdfd78af_0 \
+            --bind /home docker://quay.io/biocontainers/snakefmt:0.8.5--pyhdfd78af_0 \
             snakefmt \
                 --line-length 80 \
                 --verbose \
-                /home/j.boom/develop/genomescan/snakemake-tutorial/snakefile.smk
-                # /home/j.boom/develop/genomescan/snakemake-tutorial/rules/read-mapping.smk
+                /home/j.boom/develop/genomescan/snakemake-tutorial/snakefile.smk \
+                /home/j.boom/develop/genomescan/snakemake-tutorial/rules/read-mapping.smk
 }
 
 # The getopts function.

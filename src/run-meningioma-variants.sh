@@ -24,28 +24,28 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/meningioma-variants.log"
-#SBATCH --error="/home/j.boom/errors/meningioma-variants.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/meningioma-variants.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/meningioma-variants.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
 investigate_clinvar_variants() {
     # The investigate_clinvar_variants function:
-    #     The comparison and investigation is this function
-    #     focusses on three different downloads.
+    #     The comparison and investigation is this function focusses on three
+    #     different downloads.
     #     The first via the website using the term "meingioma".
     #     The second via the website using the term "meningiomas".
     #     And the last using the HPO term "HP:0002858".
     #     Another distinction is how I collected the gene names from the
     #     download. I first tried using awk, but I was missing genes that
     #     way, so I simply copy pasted the gene collumn to a file "manual".
-    clinvar_stats="/home/j.boom/clinvar/stats.txt"
-    clinvar_meningioma_website="/home/j.boom/clinvar/clinvar_website_search/clinvar_result_meningioma.txt"
-    clinvar_meningioma_website_manual_gene_list="/home/j.boom/clinvar/clinvar_website_search/manual_gene_names_meningioma.txt"
-    clinvar_meningiomas_website="/home/j.boom/clinvar/clinvar_website_search/clinvar_result_meningiomas.txt"
-    clinvar_meningiomas_website_manual_gene_list="/home/j.boom/clinvar/clinvar_website_search/manual_gene_names_meningiomas.txt"
-    clinvar_hpo_term_website="/home/j.boom/clinvar/clinvar_website_search/clinvar_result_hp_term.txt"
-    clinvar_hpo_term_website_manual_gene_list="/home/j.boom/clinvar/clinvar_website_search/manual_gene_names_hp_term.txt"
+    clinvar_stats="/mnt/titan/users/j.boom/clinvar/stats.txt"
+    clinvar_meningioma_website="/mnt/titan/users/j.boom/clinvar/clinvar_website_search/clinvar_result_meningioma.txt"
+    clinvar_meningioma_website_manual_gene_list="/mnt/titan/users/j.boom/clinvar/clinvar_website_search/manual_gene_names_meningioma.txt"
+    clinvar_meningiomas_website="/mnt/titan/users/j.boom/clinvar/clinvar_website_search/clinvar_result_meningiomas.txt"
+    clinvar_meningiomas_website_manual_gene_list="/mnt/titan/users/j.boom/clinvar/clinvar_website_search/manual_gene_names_meningiomas.txt"
+    clinvar_hpo_term_website="/mnt/titan/users/j.boom/clinvar/clinvar_website_search/clinvar_result_hp_term.txt"
+    clinvar_hpo_term_website_manual_gene_list="/mnt/titan/users/j.boom/clinvar/clinvar_website_search/manual_gene_names_hp_term.txt"
     rm ${clinvar_stats}
 
     # Searching for "meningioma" alone resulted in 2346 variants.
@@ -205,29 +205,29 @@ compare_gene_lists() {
     #     This function compares the gene names from the list Alicia created
     #     with the list I created using the ClinVar website. The results
     #     are written to a file called gene_comparison.txt.
-    gene_list_alicia="/home/j.boom/clinvar/gene_list_alicia.txt"
-    gene_list_script="/home/j.boom/clinvar/gene_list_script_meningioma_variants.txt"
-    results="/home/j.boom/clinvar/gene_comparison.txt"
+    gene_list_alicia="/mnt/titan/users/j.boom/clinvar/gene_list_alicia.txt"
+    gene_list_script="/mnt/titan/users/j.boom/clinvar/gene_list_script_meningioma_variants.txt"
+    results="/mnt/titan/users/j.boom/clinvar/gene_comparison.txt"
     rm "${results}"
     # Sort and deduplicate the gene list from Alicia.
     cat ${gene_list_alicia} \
         | sort \
         | uniq \
             --ignore-case \
-        > "/home/j.boom/clinvar/gene_list_alicia_SORTED.txt"
+        > "/mnt/titan/users/j.boom/clinvar/gene_list_alicia_SORTED.txt"
     # Sort and deduplicate the gene list from ClinVar.
     cat ${gene_list_script} \
         | sort \
         | uniq \
             --ignore-case \
-        > "/home/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt"
+        > "/mnt/titan/users/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt"
     echo "Genes in both lists:" \
         >> "${results}"
     # Compare the gene lists and output the overlapping ones.
     comm \
         -12 \
-        "/home/j.boom/clinvar/gene_list_alicia_SORTED.txt" \
-        "/home/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt" \
+        "/mnt/titan/users/j.boom/clinvar/gene_list_alicia_SORTED.txt" \
+        "/mnt/titan/users/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt" \
         >> "${results}"
     echo "----------------------------------------------------------------" \
         >> "${results}"
@@ -236,8 +236,8 @@ compare_gene_lists() {
     # Compare the gene lists and output the unique ones in the Alicia list.
     comm \
         -23 \
-        "/home/j.boom/clinvar/gene_list_alicia_SORTED.txt" \
-        "/home/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt" \
+        "/mnt/titan/users/j.boom/clinvar/gene_list_alicia_SORTED.txt" \
+        "/mnt/titan/users/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt" \
         >> "${results}"
     echo "----------------------------------------------------------------" \
         >> "${results}"
@@ -246,13 +246,13 @@ compare_gene_lists() {
     # Compare the gene lists and output the unique ones in the ClinVar list.
     comm \
         -13 \
-        "/home/j.boom/clinvar/gene_list_alicia_SORTED.txt" \
-        "/home/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt" \
+        "/mnt/titan/users/j.boom/clinvar/gene_list_alicia_SORTED.txt" \
+        "/mnt/titan/users/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt" \
         >> "${results}"
 }
 
 investigate_xml_file() {
-    xml="/home/j.boom/clinvar/ClinVarFullRelease_00-latest.xml"
+    xml="/mnt/titan/users/j.boom/clinvar/ClinVarFullRelease_00-latest.xml"
     cat "${xml}" \
         | egrep --ignore-case "meningioma" \
         | wc -l

@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/pgsim.log"
-#SBATCH --error="/home/j.boom/errors/pgsim.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/pgsim.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/pgsim.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
@@ -36,7 +36,7 @@ main() {
     #     variants, and it will generate purely on random. Not serving our
     #     purpose.
     perl \
-        /home/j.boom/tool-testing/PGsim/PG_planner.pl \
+        /mnt/titan/users/j.boom/tool-testing/PGsim/PG_planner.pl \
             --help
 }
 

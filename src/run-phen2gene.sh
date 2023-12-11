@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/phen2gene.log"
-#SBATCH --error="/home/j.boom/errors/phen2gene.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/phen2gene.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/phen2gene.error"
 #SBATCH --time=12:15:0
 #SBATCH --partition=high,low
 
@@ -36,7 +36,7 @@ main() {
     #     the developers created is not working. The tool isn't actually
     #     reachable via $PATH. It is also unclear where in the container
     #     the tools python file can be found.
-    source /home/j.boom/mambaforge/bin/activate phen2gene
+    source /mnt/titan/users/j.boom/mambaforge/bin/activate phen2gene
 
     singularity \
         exec \
@@ -46,7 +46,7 @@ main() {
                 --help
 
     python3 \
-        /home/j.boom/tool-testing/Phen2Gene/phen2gene.py \
+        /mnt/titan/users/j.boom/tool-testing/Phen2Gene/phen2gene.py \
             --help
 }
 

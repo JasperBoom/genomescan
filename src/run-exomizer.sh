@@ -24,8 +24,8 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/home/j.boom/logs/exomiser.log"
-#SBATCH --error="/home/j.boom/errors/exomiser.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/exomiser.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/exomiser.error"
 #SBATCH --time=1:15:0
 #SBATCH --partition=high,low
 
@@ -41,12 +41,12 @@ main() {
     java \
         -Xms2g \
         -Xmx4g \
-        -jar /home/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
+        -jar /mnt/titan/users/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
             --prioritiser=hiphive \
             -I AD \
             -F 1 \
             -D OMIM:101600 \
-            -v /home/j.boom/tool-testing/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
+            -v /mnt/titan/users/j.boom/tool-testing/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
 }
 
 # The getopts function.

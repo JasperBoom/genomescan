@@ -24,12 +24,14 @@
 import argparse
 from bs4 import BeautifulSoup
 
+
 def read_xml(input_file):
     with open(input_file, "r") as file:
         data = file.read()
         bs_data = BeautifulSoup(data, "xml")
         for line in bs_data:
-            print(line)    
+            print(line)
+
 
 def parse_argvs():
     """
@@ -60,6 +62,7 @@ def parse_argvs():
     argvs = parser.parse_args()
     return argvs
 
+
 def main():
     """
     The main function:
@@ -68,10 +71,11 @@ def main():
     user_arguments = parse_argvs()
     read_xml(user_arguments.input_file)
 
+
 if __name__ == "__main__":
     main()
 
 # Additional information:
 # =======================
 #
-# 
+#
