@@ -24,10 +24,10 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/phen2gene.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/phen2gene.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=12:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 main() {
     # The main function:
@@ -37,14 +37,12 @@ main() {
     #     reachable via $PATH. It is also unclear where in the container
     #     the tools python file can be found.
     source /mnt/titan/users/j.boom/mambaforge/bin/activate phen2gene
-
     singularity \
         exec \
             --containall \
             --bind /home docker://genomicslab/phen2gene:latest \
             python3 phen2gene.py \
                 --help
-
     python3 \
         /mnt/titan/users/j.boom/tool-testing/Phen2Gene/phen2gene.py \
             --help
@@ -100,5 +98,4 @@ main
 
 # Additional information:
 # =======================
-#
 #

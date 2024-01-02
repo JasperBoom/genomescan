@@ -24,14 +24,15 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/process-xml.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/process-xml.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=1:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 run_python_script() {
     # The run_python_script function:
-    #  
+    #     This function executes the process-xml script on a input xml file.
+    #     The standard output is saved in a log file.
     source /mnt/titan/users/j.boom/mambaforge/bin/activate base
     python3 \
         "/mnt/titan/users/j.boom/develop/genomescan/src/process-xml.py" \
@@ -41,7 +42,7 @@ run_python_script() {
 
 main() {
     # The main function:
-    #     
+    #     This function calls all relevant functions in correct order.
     run_python_script
 }
 
@@ -95,22 +96,4 @@ main
 
 # Additional information:
 # =======================
-# The ClinVar database vcf file: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/
-# The ClinVar database xml file: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/
-# The clinvar directory files/folders:
-#     ClinVarFullRelease_00-latest.xml (the XML version of the full ClinVar
-#                                       database).
-#     clinvar.vcf (the VCF version of the full ClinVar database).
-#     gene_comparison.txt (the output of this script comparing the gene list
-#                          from alicia to the one from ClinVar).
-#     gene_list_alicia.txt (genes found by Alicia that are associated to
-#                           meningiomas, there is also a sorted version in this
-#                           folder).
-#     gene_list_script_meningioma-variants.txt (genes found by me using the
-#                                               ClinVar website, also a sorted
-#                                               version present).
-#     stats.txt (the output from the first function in this script, simply
-#                counting the number of genes found through variations on
-#                downloading variants for meningioma).
-#     ./clinvar_website_search (intermediate files used in the first function,
-#                               see the description there for more information).
+# 

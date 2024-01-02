@@ -30,3 +30,5 @@ Contact information: info@jboom.org.
 + Add scripts for Python and Snakemake code formatting.
 + Modify NEAT script and add a script for VEP annotation.
 + Move main data files to new location on HPC and adjust file paths.
+    + New location: /mnt/titan/users/j.boom
++ Add scripts for converting MySQL dump to SQLite.

@@ -24,20 +24,18 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/neat-4.0.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/neat-4.0.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=1:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 main() {
     # The main function:
-    #     This function contains all test code for running
-    #     neat v4.0 code locally. At the time of writing (2023-11-27) this
-    #     version got recalled.
+    #     This function contains all test code for running neat v4.0 code
+    #     locally. At the time of writing (2023-11-27) this version got
+    #     recalled.
     source /mnt/titan/users/j.boom/mambaforge/bin/activate neat
-
     time_stamp="$(date +"%d-%m-%y-%T")"
-
     neat \
         read-simulator \
         -c "/mnt/titan/users/j.boom/genomescan/src/template_neat_config.yml" \
@@ -94,5 +92,4 @@ main
 
 # Additional information:
 # =======================
-#
 #

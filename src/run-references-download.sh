@@ -24,16 +24,16 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/reference-download.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/reference-download.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=1:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 genome_file="/mnt/titan/users/j.boom/tool-testing/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa"
 
 add_chr_to_fasta() {
     # The add_chr_to_fasta function:
-    #     This function adds a string "chr" at the front of each fasta record
+    #     This function adds a string "chr" at the start of each fasta record
     #     in the genome fasta file.
     #     https://okko73313.blogspot.com/2013/01/chromosome-names-with-chr-prefix-or.html
     cat ${genome_file} \

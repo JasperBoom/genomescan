@@ -24,15 +24,15 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/pgsim.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/pgsim.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=1:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 main() {
     # The main function:
-    #     This function contains all test code for running PGsim code locally.
-    #     The only problem here is that we can't give PGsim our own list of
+    #     This function contains all test code for running pgsim code locally.
+    #     The only problem here is that we can't give pgsim our own list of
     #     variants, and it will generate purely on random. Not serving our
     #     purpose.
     perl \
@@ -90,5 +90,4 @@ main
 
 # Additional information:
 # =======================
-#
 #

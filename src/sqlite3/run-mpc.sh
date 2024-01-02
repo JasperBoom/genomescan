@@ -20,62 +20,48 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="format-python-file"
-#SBATCH --mem=10G
+#SBATCH --job-name="mpc"
+#SBATCH --mem=30G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=1:15:0
+#SBATCH --time=200:15:0
 #SBATCH --partition=all
 
 main() {
     # The main function:
-    #     This function runs black in singularity to format the input
-    #     python files.
-    singularity \
-        exec \
-            --containall \
-           --bind /home,/mnt docker://pyfound/black:latest_release \
-            black \
-                --line-length 80 \
-                --target-version py312 \
-                --verbose \
-                /home/j.boom/develop/galaxy-tools-umi-isolation/src/umi-isolation.py \
-                /home/j.boom/develop/genomescan/src/process-xml.py \
-                /home/j.boom/develop/genomescan/src/imiv.py \
-                /home/j.boom/develop/genomescan/snakemake-tutorial/scripts/plot-quals.py
-                # The script below is python 2. Black does not support python 2.
-                # /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.py
+    #     This function runs the mysql2sqlite-perl-commands script that is
+    #     based on perl.
+    source /home/j.boom/mambaforge/bin/activate perl
+    /home/j.boom/develop/genomescan/src/sqlite3/mysql2sqlite-perl-commands.sh \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.v2.3.SQL \
+        | sqlite3 /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.v2.3.db
 }
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPT_STRING="i:vh"
+OPT_STRING="vh"
 while getopts ${OPT_STRING} option;
 do
     case ${option} in
-        i)
-            python_file=${OPTARG}
-            ;;
         v)
             echo ""
-            echo "run-format-python-file.sh [1.0]"
+            echo "run-mpc.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-format-python-file.sh [-v] [-h]"
+            echo "Usage: run-mpc.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the black tool on an input python file."
-            echo "Black is used to format python code and convert to"
-            echo "their adjusted version of PEP8."
+            echo "This script runs mysql2sqlite-perl-commands on the GenomeScan"
+            echo "HPC in order to convery a mysql dump to sqlite."
             echo ""
 
             exit
@@ -103,4 +89,4 @@ main
 
 # Additional information:
 # =======================
-# https://black.readthedocs.io/en/stable/usage_and_configuration/black_docker_image.html
+#

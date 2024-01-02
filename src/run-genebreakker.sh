@@ -24,10 +24,10 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/genebreaker.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/genebreaker.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=1:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 main() {
     # The main function:
@@ -37,6 +37,7 @@ main() {
     #     fact that the website only allows to insert two variants. But the
     #     code isn't structured and documented well enough for that, and
     #     the fact that they seem to advise against it.
+    source /home/j.boom/mambaforge/bin/activate base
     python3 \
         /mnt/titan/users/j.boom/tool-testing/GeneBreaker/GeneBreaker/src/variants.py \
             --help
@@ -92,5 +93,4 @@ main
 
 # Additional information:
 # =======================
-#
 #

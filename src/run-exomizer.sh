@@ -24,10 +24,10 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/exomiser.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/exomiser.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=1:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 main() {
     # The main function:
@@ -99,5 +99,4 @@ main
 
 # Additional information:
 # =======================
-#
 #

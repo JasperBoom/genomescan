@@ -24,10 +24,10 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/snakemake-tutorial.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/snakemake-tutorial.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=1:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 main() {
     # The main function:
@@ -35,9 +35,8 @@ main() {
     #     tutorial code locally.
     source /mnt/titan/users/j.boom/mambaforge/bin/activate snakemake-tutorial
 
-    # The output file you use at the end of the snakemake command
-    # is the "target", this will make snakemake run all rules to
-    # create that "target".
+    # The output file you use at the end of the snakemake command is the
+    # "target", this will make snakemake run all rules to create that "target".
     snakemake \
         --snakefile "/mnt/titan/users/j.boom/genomescan/snakemake-tutorial/snakefile.smk" \
         -n \
@@ -45,10 +44,10 @@ main() {
         --verbose \
         /mnt/titan/users/j.boom/genomescan/snakemake-tutorial/plots/quals.svg
 
-    # You can also use a rule as a target, these should be created
-    # at the top of the workflow. The first is used by default when
-    # no target is given. But any of them can be called in command
-    # line (in this case the rule "all").
+    # You can also use a rule as a target, these should be created at the top
+    # of the workflow. The first is used by default when no target is given.
+    # But any of them can be called in command line (in this case the
+    # rule "all").
     snakemake \
         --snakefile "/mnt/titan/users/j.boom/genomescan/snakemake-tutorial/snakefile.smk" \
         --use-singularity \
@@ -59,13 +58,13 @@ main() {
         --forceall \
         all
 
-    # If I want an image of the directed graph of the pipeline
-    # I can use the command below.
+    # If I want an image of the directed graph of the pipeline I can use the
+    # command below.
     snakemake --dag sorted_reads/{A,B}.bam.bai | dot -Tsvg > dag.svg
     snakemake --dag calls/all.vcf | dot -Tsvg > dag.svg
 
-    # If I want to archive my workflow and share it with other people
-    # I could use the "--archive" argument to create a tarball.
+    # If I want to archive my workflow and share it with other people I could
+    # use the "--archive" argument to create a tarball.
     snakemake --archive my-workflow.tar.gz
 }
 

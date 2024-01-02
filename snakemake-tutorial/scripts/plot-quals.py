@@ -26,6 +26,19 @@ import matplotlib
 import matplotlib.pyplot as plt
 from pysam import VariantFile
 
+
+def create_plot():
+    """
+    The create_plot function:
+        This function creates the histogram.
+    """
+    matplotlib.use("Agg")
+
+    quals = [record.qual for record in VariantFile(snakemake.input[0])]
+    plt.hist(quals)
+    plt.savefig(snakemake.output[0])
+
+
 def parse_argvs():
     """
     The parse_argvs function:
@@ -34,7 +47,7 @@ def parse_argvs():
     """
     description = "A python script created for the snakemake tutorial,\
                    which generates an image."
-    epilog = "This pythong script requires one dependency, namely matplotlib."
+    epilog = "This pythong script has two dependencies: matplotlib & pysam."
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
@@ -46,16 +59,14 @@ def parse_argvs():
     argvs = parser.parse_args()
     return argvs
 
+
 def main():
     """
     The main function:
-        Creates a histogram for the snakemake tutorial.
+        This function calls all processing functions in correct order.
     """
-    matplotlib.use("Agg")
-    
-    quals = [record.qual for record in VariantFile(snakemake.input[0])]
-    plt.hist(quals)
-    plt.savefig(snakemake.output[0])
+    create_plot()
+
 
 if __name__ == "__main__":
     main()
@@ -63,4 +74,3 @@ if __name__ == "__main__":
 # Additional information:
 # =======================
 #
-# 

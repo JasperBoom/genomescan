@@ -26,6 +26,11 @@ from bs4 import BeautifulSoup
 
 
 def read_xml(input_file):
+    """
+    The read_xml function:
+        This function reads in the input xml file and converts it into a
+        BeautifulSoup object.
+    """
     with open(input_file, "r") as file:
         data = file.read()
         bs_data = BeautifulSoup(data, "xml")
@@ -40,8 +45,7 @@ def parse_argvs():
         including version and help pages.
     """
     description = "A python script for reading in an xml file."
-    epilog = "This pythong script requires two dependencies, namely\
-              beautifulsoup4 & lxml."
+    epilog = "This python script has two dependencies: beautifulsoup4 & lxml."
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
@@ -66,7 +70,7 @@ def parse_argvs():
 def main():
     """
     The main function:
-        A
+        This function calls all processing functions in correct order.
     """
     user_arguments = parse_argvs()
     read_xml(user_arguments.input_file)
@@ -77,5 +81,4 @@ if __name__ == "__main__":
 
 # Additional information:
 # =======================
-#
 #

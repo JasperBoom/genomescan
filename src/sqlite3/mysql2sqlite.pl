@@ -1,3 +1,5 @@
+#!/usr/bin/env perl
+
 # -----------------------------------------------------------------------------
 # GenomeScan internship repository.
 # Copyright (C) 2023 Jasper Boom
@@ -18,13 +20,16 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-samples:
-    A: "data/samples/A.fastq"
-    B: "data/samples/B.fastq"
-    C: "data/samples/C.fastq"
-prior_mutation_rate:
-    default: "1.1e-3"
-directories:
-    input: "/mnt/titan/users/j.boom/snakemake-tutorial"
-    output: "/mnt/titan/users/j.boom/results"
-    script: "/mnt/titan/users/j.boom/genomescan/snakemake-tutorial"
+while (<>){
+    s/\\'/''/g;                # Use '' instead of \'
+    s/\\"/"/g;                 # Use " instead of \"
+    s/\\r\\n/\r\n/g;           # Convert escaped \r\n to literal
+    s/\\\\/\\/g;               # Convert escaped \ to literal
+    s/ auto_increment//g;      # Remove auto_increment
+    s/^[UN]*?LOCK TABLES.*//g; # Remove locking statements
+    print;
+}
+
+# Additional information:
+# =======================
+# cat dump.sql | perl mysql2sqlite.pl | sqlite3 database.sqlite3

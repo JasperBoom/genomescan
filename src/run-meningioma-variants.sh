@@ -24,10 +24,10 @@
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/meningioma-variants.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/meningioma-variants.error"
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --time=1:15:0
-#SBATCH --partition=high,low
+#SBATCH --partition=all
 
 investigate_clinvar_variants() {
     # The investigate_clinvar_variants function:
@@ -252,6 +252,9 @@ compare_gene_lists() {
 }
 
 investigate_xml_file() {
+    # The investigate_xml_file function:
+    #     Checks the entries in the ClinVar xml file for mentions of
+    #     meningioma.
     xml="/mnt/titan/users/j.boom/clinvar/ClinVarFullRelease_00-latest.xml"
     cat "${xml}" \
         | egrep --ignore-case "meningioma" \
@@ -261,9 +264,8 @@ investigate_xml_file() {
 main() {
     # The main function:
     #     Either call the first function that looks into the different
-    #     download from ClinVar, or the second function that compares gene
+    #     downloads from ClinVar, or the second function that compares gene
     #     names between what Alicia found and I found.
-
     #investigate_clinvar_variants
     #compare_gene_lists
     investigate_xml_file
@@ -290,7 +292,7 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs a search in the ClinVar database in order"
+            echo "This script runs a search in ClinVar downloads in order"
             echo "to find all variants reported to have some connection"
             echo "to meningioma."
             echo ""

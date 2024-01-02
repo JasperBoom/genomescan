@@ -20,62 +20,44 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="format-python-file"
-#SBATCH --mem=10G
-#SBATCH --cpus-per-task=10
-#SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=1:15:0
-#SBATCH --partition=all
-
 main() {
     # The main function:
-    #     This function runs black in singularity to format the input
-    #     python files.
-    singularity \
-        exec \
-            --containall \
-           --bind /home,/mnt docker://pyfound/black:latest_release \
-            black \
-                --line-length 80 \
-                --target-version py312 \
-                --verbose \
-                /home/j.boom/develop/galaxy-tools-umi-isolation/src/umi-isolation.py \
-                /home/j.boom/develop/genomescan/src/process-xml.py \
-                /home/j.boom/develop/genomescan/src/imiv.py \
-                /home/j.boom/develop/genomescan/snakemake-tutorial/scripts/plot-quals.py
-                # The script below is python 2. Black does not support python 2.
-                # /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.py
+    #     This function creates an interactive slurm job on an execution node.
+    srun \
+        --nodes=1 \
+        --ntasks=1 \
+        --ntasks-per-node=10 \
+        --job-name=interactive-job \
+        --partition=all \
+        --time=120:0:0 \
+        --mem=30GB \
+        --export=ALL \
+        --pty bash -i
 }
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPT_STRING="i:vh"
+OPT_STRING="vh"
 while getopts ${OPT_STRING} option;
 do
     case ${option} in
-        i)
-            python_file=${OPTARG}
-            ;;
         v)
             echo ""
-            echo "run-format-python-file.sh [1.0]"
+            echo "run-interactive-job.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-format-python-file.sh [-v] [-h]"
+            echo "Usage: run-interactive-job.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the black tool on an input python file."
-            echo "Black is used to format python code and convert to"
-            echo "their adjusted version of PEP8."
+            echo "This script runs the slurm srun command in order to create"
+            echo "an interactive job."
             echo ""
 
             exit
@@ -103,4 +85,4 @@ main
 
 # Additional information:
 # =======================
-# https://black.readthedocs.io/en/stable/usage_and_configuration/black_docker_image.html
+#
