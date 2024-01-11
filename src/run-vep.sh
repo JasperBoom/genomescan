@@ -29,6 +29,34 @@
 #SBATCH --time=200:15:0
 #SBATCH --partition=all
 
+create_benchmark_set(){
+    # The create_benchmark_set function:
+    #     This function contains commands used to create a sample set for
+    #     benchmarking.
+    #     GIAB vcf files can be found here:
+    #     https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/
+    source /home/j.boom/mambaforge/bin/activate base
+    #wget https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf.gz
+    singularity \
+        exec \
+            --containall \
+            --bind /mnt,/home \
+            docker://ensemblorg/ensembl-vep:release_110.1 \
+                vep \
+                    --input_file "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf" \
+                    --output_file "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
+                    --stats_file "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.summary.maxaf.html" \
+                    --species "human" \
+                    --format "vcf" \
+                    --assembly "GRCh37" \
+                    --dir_cache "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37" \
+                    --dir_plugins "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins" \
+                    --vcf \
+                    --cache \
+                    --fork 8 \
+                    --max_af
+}
+
 index_fathmm_mkl(){
     # The index_fathm_mkl function:
     #     This function creates an index of the FATHMM MKL database using tabix.
@@ -122,7 +150,8 @@ run_vep() {
     #     mysql -h localhost -P 3307 -u j.boom -p 12345 -e "CREATE DATABASE fathmm"
     #     mysql -h localhost -P 3307 -u j.boom -p 12345 -Dfathmm < /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.v2.3.SQL
     source /home/j.boom/mambaforge/bin/activate base
-    for file in /mnt/titan/users/j.boom/vcf/105861/adjusted/test/*sorted.vcf.gz;
+    #for file in /mnt/titan/users/j.boom/vcf/105861/adjusted/test/*sorted.vcf.gz;
+    for file in /home/j.boom/develop/genomescan/data/*benign.vcf;
     do
         singularity \
             exec \
@@ -131,8 +160,8 @@ run_vep() {
                 docker://ensemblorg/ensembl-vep:release_110.1 \
                     vep \
                         --input_file "${file}" \
-                        --output_file "${file::-3}.annotated.tab" \
-                        --stats_file "${file::-3}.summary.html" \
+                        --output_file "${file::-3}annotated.tab" \
+                        --stats_file "${file::-3}summary.html" \
                         --species "human" \
                         --format "vcf" \
                         --assembly "GRCh37" \
@@ -140,18 +169,19 @@ run_vep() {
                         --dir_plugins "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins" \
                         --tab \
                         --cache \
-                        --fork 8\
-                        --plugin "FATHMM,python /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.py";
+                        --fork 8 \
+                        --sift "b" \
+                        --polyphen "b" \
+                        --af \
+                        --max_af \
+                        --af_gnomade \
+                        --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/AlphaMissense_hg19.tsv.gz" \
+                        --plugin "CADD,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/InDels.tsv.gz" \
+                        --plugin "CAPICE,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
+                        --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm-MKL_Current.tab.gz" \
+                        --custom file=/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coord=0,fields=CLNSIG;
     done
-    #                    --sift "b" \
-    #                    --polyphen "b" \
-    #                    --af \
-    #                    --af_gnomade \
-    #                    --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/AlphaMissense_hg19.tsv.gz" \
-    #                    --plugin "CADD,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/InDels.tsv.gz" \
-    #                    --plugin "CAPICE,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
-    #                    --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm-MKL_Current.tab.gz" \
-    #                    --custom file=/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coord=0,fields=CLNSIG \
+    # --plugin "FATHMM,python /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.py";
 }
 
 main() {
@@ -162,6 +192,7 @@ main() {
     #index_alphamissense
     #install_plugins
     #index_fathmm_mkl
+    #create_benchmark_set
 }
 
 # The getopts function.

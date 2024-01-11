@@ -20,7 +20,7 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="format-python-file"
+#SBATCH --job-name="giab"
 #SBATCH --mem=10G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
@@ -31,23 +31,12 @@
 
 main() {
     # The main function:
-    #     This function runs black in singularity to format the input
-    #     python files.
-    singularity \
-        exec \
-            --containall \
-           --bind /home,/mnt docker://pyfound/black:latest_release \
-            black \
-                --line-length 80 \
-                --target-version py312 \
-                --verbose \
-                /home/j.boom/develop/galaxy-tools-umi-isolation/src/umi-isolation.py \
-                /home/j.boom/develop/genomescan/src/process-xml.py \
-                /home/j.boom/develop/genomescan/src/imiv.py \
-                /home/j.boom/develop/genomescan/snakemake-tutorial/scripts/plot-quals.py \
-                /home/j.boom/develop/genomescan/src/giab.py
-                # The script below is python 2. Black does not support python 2.
-                # /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.py
+    #     
+    source /home/j.boom/mambaforge/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/giab.py \
+        --input "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
+        --meningioma "/home/j.boom/develop/genomescan/data/meningioma.vcf" \
+        --output "/home/j.boom/develop/genomescan/data/benchmark.vcf"
 }
 
 # The getopts function.
@@ -61,22 +50,20 @@ do
             ;;
         v)
             echo ""
-            echo "run-format-python-file.sh [1.0]"
+            echo "run-imiv.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-format-python-file.sh [-v] [-h]"
+            echo "Usage: run-imiv.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the black tool on an input python file."
-            echo "Black is used to format python code and convert to"
-            echo "their adjusted version of PEP8."
+            echo "This script runs the imiv script that adjusts vcf files."
             echo ""
 
             exit
@@ -104,4 +91,4 @@ main
 
 # Additional information:
 # =======================
-# https://black.readthedocs.io/en/stable/usage_and_configuration/black_docker_image.html
+#
