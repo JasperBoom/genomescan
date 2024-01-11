@@ -40,7 +40,11 @@ Just a folder to direct temporary files to, for example when running java
 commands.
 
 ## tool-testing
-A
+This folder contains a collection of subfolders mostly targeted at different
+simulation tools. The **data** folder contains reference files from ensembl.
+The **simulated_data** contains output files from tests with NEAT. The rest are
+either install locations of tools or contain files required for running the
+tool.
 
 ## vcf
 This folder contains sample sets from diagnostic runs of DRAGEN by

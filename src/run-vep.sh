@@ -131,27 +131,27 @@ run_vep() {
                 docker://ensemblorg/ensembl-vep:release_110.1 \
                     vep \
                         --input_file "${file}" \
-                        --output_file "${file::-3}.annotated.vcf" \
+                        --output_file "${file::-3}.annotated.tab" \
                         --stats_file "${file::-3}.summary.html" \
                         --species "human" \
                         --format "vcf" \
                         --assembly "GRCh37" \
                         --dir_cache "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37" \
                         --dir_plugins "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins" \
-                        --vcf \
+                        --tab \
                         --cache \
                         --fork 8\
-                        --sift "b" \
-                        --polyphen "b" \
-                        --af \
-                        --af_gnomade \
-                        --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/AlphaMissense_hg19.tsv.gz" \
-                        --plugin "CADD,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/InDels.tsv.gz" \
-                        --plugin "CAPICE,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
-                        --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm-MKL_Current.tab.gz" \
-                        --custom file=/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coord=0,fields=CLNSIG \
                         --plugin "FATHMM,python /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.py";
     done
+    #                    --sift "b" \
+    #                    --polyphen "b" \
+    #                    --af \
+    #                    --af_gnomade \
+    #                    --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/AlphaMissense_hg19.tsv.gz" \
+    #                    --plugin "CADD,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/InDels.tsv.gz" \
+    #                    --plugin "CAPICE,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
+    #                    --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm-MKL_Current.tab.gz" \
+    #                    --custom file=/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coord=0,fields=CLNSIG \
 }
 
 main() {
