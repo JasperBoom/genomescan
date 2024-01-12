@@ -32,3 +32,6 @@ Contact information: info@jboom.org.
 + Move main data files to new location on HPC and adjust file paths.
     + New location: /mnt/titan/users/j.boom
 + Add scripts for converting MySQL dump to SQLite.
++ Add a python script for generating benchmarking vcf files. These include
+  both pathogenic variants (based on IDs) and benign variants (based on
+  allele frequency).

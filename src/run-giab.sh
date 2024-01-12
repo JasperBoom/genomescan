@@ -34,9 +34,13 @@ main() {
     #     
     source /home/j.boom/mambaforge/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/giab.py \
-        --input "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
-        --meningioma "/home/j.boom/develop/genomescan/data/meningioma.vcf" \
-        --output "/home/j.boom/develop/genomescan/data/benchmark.vcf"
+        --giab "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
+        --ids "/home/j.boom/develop/genomescan/data/pathogenic-variation-id/meningioma.txt" \
+        --clinvar "/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf" \
+        --header "/home/j.boom/develop/genomescan/data/default.vcf.header.txt" \
+        --output "/home/j.boom/develop/genomescan/data/benchmark-vcf/benchmark.vcf" \
+        --pathogenic "/home/j.boom/develop/genomescan/data/benchmark-vcf/pathogenic.vcf" \
+        --benign "/home/j.boom/develop/genomescan/data/benchmark-vcf/benign.vcf"
 }
 
 # The getopts function.

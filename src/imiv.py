@@ -137,7 +137,7 @@ def parse_argvs():
     """
     description = "A python script that processes GenomeScan vcf files that\
                    were created using the DRAGEN pipeline on the GenomeScan HPC"
-    epilog = "This python has one dependency: pandas"
+    epilog = "This python script has one dependency: pandas"
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,

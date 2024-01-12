@@ -1,0 +1,54 @@
+##fileformat=VCFv4.2
+##extrainforene=https://www.reneshbedre.com/blog/vcf-fields.html
+##extrainfogatk=https://gatk.broadinstitute.org/hc/en-us/articles/360035890471-Hard-filtering-germline-short-variants
+##FORMAT=<ID=AD,Number=R,Type=Integer,Description="Allelic depths (counting only informative reads out of the total reads) for the ref and alt alleles in the order listed">
+##FORMAT=<ID=AF,Number=A,Type=Float,Description="Allele fractions for alt alleles in the order listed">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
+##FORMAT=<ID=F1R2,Number=R,Type=Integer,Description="Count of reads in F1R2 pair orientation supporting each allele">
+##FORMAT=<ID=F2R1,Number=R,Type=Integer,Description="Count of reads in F2R1 pair orientation supporting each allele">
+##FORMAT=<ID=GP,Number=G,Type=Float,Description="Phred-scaled posterior probabilities for genotypes as defined in the VCF specification">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=MB,Number=4,Type=Integer,Description="Per-sample component statistics to detect mate bias">
+##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
+##FORMAT=<ID=PRI,Number=G,Type=Float,Description="Phred-scaled prior probabilities for genotypes">
+##FORMAT=<ID=PS,Number=1,Type=Integer,Description="Physical phasing ID information, where each unique ID within a given sample (but not across samples) connects records within a phasing group">
+##FORMAT=<ID=SB,Number=4,Type=Integer,Description="Per-sample component statistics which comprise the Fisher's Exact Test to detect strand bias">
+##FORMAT=<ID=SQ,Number=A,Type=Float,Description="Somatic quality">
+##DRAGENCommandLine=<ID=HashTableBuild,Version="SW: 01.003.044.3.8.4, HashTableVersion: 8",CommandLineOptions="dragen --build-hash-table true --ht-reference /staging/human/reference/hg19/human_g1k_v37_phiX.fasta --output-dir /staging/human/reference/hg19/human_g1k_v37_phiX">
+##DRAGENCommandLine=<ID=dragen,Version="SW: 07.021.645.4.0.3, HW: 07.021.645",Date="Wed Nov 22 16:32:27 CET 2023",CommandLineOptions="-f -r /staging/human/reference/hg19/human_g1k_v37_phiX --fastq-list krtadrocjk.fastq_list.csv --enable-variant-caller true --vc-emit-ref-confidence GVCF --vc-enable-vcf-output true --vc-enable-gatk-acceleration false --intermediate-results-dir /staging/tmp --output-directory /mnt/flashblade01/Collects/105861/Analysis/105861-001-001-DNA-111240 --output-file-prefix 105861-001-001-DNA-111240 --enable-duplicate-marking true --enable-map-align-output true --enable-bam-indexing true --fastq-list-sample-id 105861-001-001-DNA-111240 --qc-coverage-region-1 /mnt/shared/pipelines/dragen/wrapper/../roi/GCF_000001405.25_GRCh37.p13_genomic.nochr.slop20.bed --qc-coverage-reports-1 cov_report --read-trimmers polyg,quality,adapter --soft-read-trimmers none --trim-adapter-read1 /opt/edico/config/adapter_sequences.fasta --trim-adapter-read2 /opt/edico/config/adapter_sequences.fasta --trim-min-quality 20 --trim-min-length 20 --watchdog-active-timeout 3600">
+##INFO=<ID=AC,Number=A,Type=Integer,Description="Allele count in genotypes, for each ALT allele, in the same order as listed">
+##INFO=<ID=AF,Number=A,Type=Float,Description="Allele Frequency, for each ALT allele, in the same order as listed">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias">
+##INFO=<ID=QD,Number=1,Type=Float,Description="Variant Confidence/Quality by Depth">
+##INFO=<ID=SOR,Number=1,Type=Float,Description="Symmetric Odds Ratio of 2x2 contingency table to detect strand bias">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (informative and non-informative); some reads may have been filtered based on mapq etc.">
+##INFO=<ID=FractionInformativeReads,Number=1,Type=Float,Description="The fraction of informative reads out of the total reads">
+##INFO=<ID=MQ,Number=1,Type=Float,Description="RMS Mapping Quality">
+##INFO=<ID=MQRankSum,Number=1,Type=Float,Description="Z-score From Wilcoxon rank sum test of Alt vs. Ref read mapping qualities">
+##INFO=<ID=ReadPosRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt vs. Ref read position bias">
+##FILTER=<ID=DRAGENSnpHardQUAL,Description="Set if true:QUAL < 3">
+##FILTER=<ID=DRAGENIndelHardQUAL,Description="Set if true:QUAL < 3">
+##FILTER=<ID=LowDepth,Description="Set if true:DP <= 1">
+##FILTER=<ID=LowGQ,Description="Set if true:GQ = 0">
+##FILTER=<ID=PloidyConflict,Description="Genotype call from variant caller not consistent with chromosome ploidy">
+##FILTER=<ID=base_quality,Description="Site filtered because median base quality of alt reads at this locus does not meet threshold">
+##FILTER=<ID=filtered_reads,Description="Site filtered because too large a fraction of reads have been filtered out">
+##FILTER=<ID=fragment_length,Description="Site filtered because absolute difference between the median fragment length of alt reads and median fragment length of ref reads at this locus exceeds threshold">
+##FILTER=<ID=low_af,Description="Allele frequency does not meet threshold">
+##FILTER=<ID=low_depth,Description="Site filtered because the read depth is too low">
+##FILTER=<ID=low_frac_info_reads,Description="Site filtered because the fraction of informative reads is below threshold">
+##FILTER=<ID=low_normal_depth,Description="Site filtered because the normal sample read depth is too low">
+##FILTER=<ID=long_indel,Description="Site filtered because the indel length is too long">
+##FILTER=<ID=mapping_quality,Description="Site filtered because median mapping quality of alt reads at this locus does not meet threshold">
+##FILTER=<ID=multiallelic,Description="Site filtered because more than two alt alleles pass tumor LOD">
+##FILTER=<ID=non_homref_normal,Description="Site filtered because the normal sample genotype is not homozygous reference">
+##FILTER=<ID=no_reliable_supporting_read,Description="Site filtered because no reliable supporting somatic read exists">
+##FILTER=<ID=panel_of_normals,Description="Seen in at least one sample in the panel of normals vcf">
+##FILTER=<ID=read_position,Description="Site filtered because median of distances between start/end of read and this locus is below threshold">
+##FILTER=<ID=RMxNRepeatRegion,Description="Site filtered because all or part of the variant allele is a repeat of the reference">
+##FILTER=<ID=str_contraction,Description="Site filtered due to suspected PCR error where the alt allele is one repeat unit less than the reference">
+##FILTER=<ID=too_few_supporting_reads,Description="Site filtered because there are too few supporting reads in the tumor sample">
+##FILTER=<ID=weak_evidence,Description="Somatic variant score does not meet threshold">
+#CHROM 	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	105861-001-001-DNA-111240
