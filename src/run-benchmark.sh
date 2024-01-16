@@ -20,8 +20,8 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="giab"
-#SBATCH --mem=10G
+#SBATCH --job-name="benchmark"
+#SBATCH --mem=30G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
@@ -29,18 +29,42 @@
 #SBATCH --time=1:15:0
 #SBATCH --partition=all
 
-main() {
-    # The main function:
-    #     
+download_variation_ids() {
+    # The download_variation_ids function:
+    #     This function contains examples of how to search the clinvar database
+    #     using a rest api, the first command retrieves pathogenic variation
+    #     ids for a specific diseaese (search term), the second retrieves the
+    #     record for a variation id.
+    wget \
+        --verbose \
+        --output-document="/home/j.boom/develop/genomescan/data/api.txt" \
+        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=ependymomas+AND+single_gene+AND+(("clinsig+pathogenic"))&retmax=5000&retmode=json"
+
+    wget \
+        --verbose \
+        --output-document="/home/j.boom/develop/genomescan/data/gene.txt" \
+        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id=13919&retmode=json"
+}
+
+run_python_script() {
+    # The run_python_script function:
+    #     This function runs the python script benchmark.py.
     source /home/j.boom/mambaforge/bin/activate base
-    python3 /home/j.boom/develop/genomescan/src/giab.py \
+    python3 /home/j.boom/develop/genomescan/src/benchmark.py \
         --giab "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
-        --ids "/home/j.boom/develop/genomescan/data/pathogenic-variation-id/meningioma.txt" \
+        --disease-groups "meningioma,ependymomas" \
         --clinvar "/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf" \
         --header "/home/j.boom/develop/genomescan/data/default.vcf.header.txt" \
         --output "/home/j.boom/develop/genomescan/data/benchmark-vcf/benchmark.vcf" \
         --pathogenic "/home/j.boom/develop/genomescan/data/benchmark-vcf/pathogenic.vcf" \
         --benign "/home/j.boom/develop/genomescan/data/benchmark-vcf/benign.vcf"
+}
+
+main() {
+    # The main function:
+    #     This function calls all processing functions in correct order.
+    run_python_script
+    #download_variation_ids
 }
 
 # The getopts function.
@@ -54,20 +78,21 @@ do
             ;;
         v)
             echo ""
-            echo "run-imiv.sh [1.0]"
+            echo "run-benchmark.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-imiv.sh [-v] [-h]"
+            echo "Usage: run-benchmark.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the imiv script that adjusts vcf files."
+            echo "This script runs the benchmark script that generates a test"
+            echo "set of mutations on which threshold can be determined."
             echo ""
 
             exit

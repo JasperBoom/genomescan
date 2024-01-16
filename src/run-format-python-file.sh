@@ -45,7 +45,7 @@ main() {
                 /home/j.boom/develop/genomescan/src/process-xml.py \
                 /home/j.boom/develop/genomescan/src/imiv.py \
                 /home/j.boom/develop/genomescan/snakemake-tutorial/scripts/plot-quals.py \
-                /home/j.boom/develop/genomescan/src/giab.py
+                /home/j.boom/develop/genomescan/src/benchmark.py
                 # The script below is python 2. Black does not support python 2.
                 # /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.py
 }

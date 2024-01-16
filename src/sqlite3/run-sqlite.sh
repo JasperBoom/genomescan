@@ -65,7 +65,7 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script converts mysql to sqlite on the GenomeScan HPC."
+            echo "This script converts a mysql dump to sqlite3."
             echo ""
 
             exit

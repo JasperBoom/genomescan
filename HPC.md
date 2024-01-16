@@ -5,11 +5,11 @@ performed to generate the files.
 
 ## bed
 This folder contains bed files for both hg38 and hg19 (named hg37) used by
-GenomeScan when performing variant calling or other analysis steps. The bed
-file describes the Agilent capture kits.
+genomescan when performing variant calling or other analysis steps. The bed
+file describes the agilent capture kits.
 
 The 50bp flank files extend the regions by 50 basepairs.  
-S31285117 is used for Agilent SureSelect Human All Exon V7 on hg19 (named hg37).
+S31285117 is used for agilent sureselect human all exon v7 on hg19 (named hg37).
 
 ## clinvar
 This folder contains the downloads from the ClinVar database.  
@@ -21,11 +21,11 @@ https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/
 Furthermore, a number of txt files that are created by some comparison
 commands in the script run-meningioma-variant.sh.
 
-**clinvar_website_search** contains text files downloaded using the ClinVar
+**clinvar_website_search** contains text files downloaded using the clinvar
 search bar, using the human phenotype ontology term for meningioma, the term
 "meningioma" itself and "meningiomas". The files with manual are gene names
-from these downloads extracted by hand instead of using awk, since awk was not
-working right.
+from these downloads extracted by hand instead of using awk, since I wasn't able
+to get awk to perform the right actions.
 
 ## errors & logs
 Simply the error and log output from sbatch commands for all things I submit.
@@ -42,12 +42,12 @@ commands.
 ## tool-testing
 This folder contains a collection of subfolders mostly targeted at different
 simulation tools. The **data** folder contains reference files from ensembl.
-The **simulated_data** contains output files from tests with NEAT. The rest are
+The **simulated_data** contains output files from tests with neat. The rest are
 either install locations of tools or contain files required for running the
 tool.
 
 ## vcf
-This folder contains sample sets from diagnostic runs of DRAGEN by
-GenomeScan, meningioma.vcf has variants associated with pathogenic meningioma
+This folder contains sample sets from diagnostic runs of dragen by
+genomescan, meningioma.vcf has variants associated with pathogenic meningioma
 disease causes. temp.vcf was for testing. The coded folders contain all vcf
-files from DRAGEN for that project that passed the quality control.
+files from dragen for that project that passed the quality control.

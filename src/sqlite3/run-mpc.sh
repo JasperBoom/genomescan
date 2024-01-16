@@ -60,8 +60,8 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs mysql2sqlite-perl-commands on the GenomeScan"
-            echo "HPC in order to convery a mysql dump to sqlite."
+            echo "This script runs mysql2sqlite-perl-commands in order to"
+            echo "convert a mysql dump to sqlite."
             echo ""
 
             exit

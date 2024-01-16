@@ -151,7 +151,7 @@ run_vep() {
     #     mysql -h localhost -P 3307 -u j.boom -p 12345 -Dfathmm < /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.v2.3.SQL
     source /home/j.boom/mambaforge/bin/activate base
     #for file in /mnt/titan/users/j.boom/vcf/105861/adjusted/test/*sorted.vcf.gz;
-    for file in /home/j.boom/develop/genomescan/data/*benign.vcf;
+    for file in ~/develop/genomescan/data/benchmark-vcf/*.vcf;
     do
         singularity \
             exec \

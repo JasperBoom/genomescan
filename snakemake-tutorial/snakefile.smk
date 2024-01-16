@@ -34,9 +34,9 @@ configfile: "/home/j.boom/genomescan/snakemake-tutorial/envs/config.yaml"
 include: config["directories"]["script"] + "/rules/read-mapping.smk"
 
 
-# This rule is used to define the output of the Snakefile.
-# The first rule structured like this is used as the default output, which is
-# why it is defined at the top of the snakefile.
+# This rule is used to define the output of the Snakefile. The first rule
+# structured like this is used as the default output, which is why it is
+# defined at the top of the snakefile.
 rule all:
     input:
         config["directories"]["output"] + "/plots/quals.svg",
@@ -46,9 +46,9 @@ rule all:
 rule bcftools_call:
     input:
         fa=config["directories"]["input"] + "/data/genome.fa",
-        # Setting "expand" will create a python list of strings
-        # with all possible files it can find in "sorted_reads".
-        # The {sample} part will translate to A, B and C.
+        # Setting "expand" will create a python list of strings with all
+        # possible files it can find in "sorted_reads". The {sample} part will
+        # translate to A, B and C.
         bam=expand(
             "{output}/sorted_reads/{sample}.bam",
             output=config["directories"]["output"],

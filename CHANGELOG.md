@@ -23,15 +23,19 @@ Contact information: info@jboom.org.
 + Add files, scripts and workflow for the snakemake tutorial.
 + Restructure folders and files for the snakemake tutorial.
 + Add scripts for testing a bunch of simulation tools.
-    + PGsim.
-    + GeneBreaker.
-+ Add test scripts for Exomizer.
-+ Add test scripts for NEAT (3.4 & 4.0) and Phen2Gene.
-+ Add scripts for Python and Snakemake code formatting.
-+ Modify NEAT script and add a script for VEP annotation.
-+ Move main data files to new location on HPC and adjust file paths.
+    + pgsim.
+    + genebreaker.
++ Add test scripts for exomizer.
++ Add test scripts for neat (3.4 & 4.0) and phen2gene.
++ Add scripts for python and snakemake code formatting.
++ Modify neat script and add a script for vep annotation.
++ Move main data files to new location on hpc and adjust file paths.
     + New location: /mnt/titan/users/j.boom
-+ Add scripts for converting MySQL dump to SQLite.
++ Add scripts for converting mysql dump to sqlite.
 + Add a python script for generating benchmarking vcf files. These include
-  both pathogenic variants (based on IDs) and benign variants (based on
+  both pathogenic variants (based on ids) and benign variants (based on
   allele frequency).
++ Add scripts that download reference files, run picard for indexing, setup
+  an interactive slurm job, format both python and snake files to known
+  standards and add the python script from fathmm with a test to convert it
+  to using sqlite3.

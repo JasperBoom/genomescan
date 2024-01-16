@@ -33,7 +33,6 @@ def create_plot():
         This function creates the histogram.
     """
     matplotlib.use("Agg")
-
     quals = [record.qual for record in VariantFile(snakemake.input[0])]
     plt.hist(quals)
     plt.savefig(snakemake.output[0])
@@ -47,7 +46,7 @@ def parse_argvs():
     """
     description = "A python script created for the snakemake tutorial,\
                    which generates an image."
-    epilog = "This pythong script has two dependencies: matplotlib & pysam."
+    epilog = "This python script has two dependencies: matplotlib & pysam."
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,

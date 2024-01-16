@@ -22,6 +22,9 @@
 
 # Imports:
 import argparse
+import json
+import requests
+import numpy as np
 
 
 def write_output(
@@ -61,7 +64,7 @@ def collect_benign_variants(giab, gene_symbols, info_field):
         same genes as the pathogenic variants are found. These variants need
         to have an allele frequency of atleast 0.8. They are stored in a list
         which is returned. The info starting from column 6 is replaced a by
-        default place holder which mirrors standard DRAGEN output.
+        default place holder which mirrors standard dragen output.
     """
     variants = []
     with open(giab, "r") as file:
@@ -76,7 +79,7 @@ def collect_benign_variants(giab, gene_symbols, info_field):
                 info = line.split("CSQ=")[1].split("|")
                 if info[symbol] in gene_symbols:
                     if info[max_af] != "":
-                        if float(info[max_af]) > 0.8:
+                        if float(info[max_af]) > 0.7:
                             if line not in variants:
                                 variants.append(
                                     "\t".join(line.split("\t")[:5])
@@ -92,7 +95,7 @@ def collect_pathogenic_variants(ids, clinvar, info_field):
         This function uses the variation ids to collect vcf entries from the
         clinvar vcf. These variants are stored in a list and returned. The
         info starting from column 6 is replaced a by default place holder which
-        mirrors standard DRAGEN output.
+        mirrors standard dragen output.
     """
     variants = []
     with open(clinvar, "r") as file:
@@ -108,26 +111,47 @@ def collect_pathogenic_variants(ids, clinvar, info_field):
     return variants
 
 
-def collect_pathogenic_ids(ids):
+def collect_gene_symbol(id):
+    """
+    The collect_gene_symbol function:
+        This function recieves a clinvar variation id, which is used as query
+        in the clinvar rest api. The results are used to isolate the gene
+        symbol which is returned.
+    """
+    request = requests.get(
+        "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id="
+        + id
+        + "&retmode=json"
+    )
+    gene = request.content
+    return json.loads(gene)["result"][id]["genes"][0]["symbol"]
+
+
+def collect_pathogenic_ids(disease_groups):
     """
     The collect_pathogenic_ids function:
-        This function uses the files containing clinvar variation ids. The ids
-        and gene symbols are stored in seperate lists, these are returned.
+        This function uses clinvars rest api to first collect all variation ids
+        of variants that are designated as pathogenic of the disease groups
+        specified by the user. These ids are then send to the
+        collect_gene_symbol function. Both the ids and gene symbols are
+        collected in lists, which are made unique and returned.
     """
-    id_list = []
-    gene_symbol_list = []
-    for file in ids.split(","):
-        with open(file, "r") as txt:
-            for line in txt:
-                if line.strip("\n").startswith("#"):
-                    gene_symbol = line.strip("\n").split(" ")[1]
-                    if gene_symbol not in gene_symbol_list:
-                        gene_symbol_list.append(gene_symbol)
-                    else:
-                        print(gene_symbol + " has already been collected.")
-                else:
-                    id_list.append(line.strip("\n"))
-    return gene_symbol_list, id_list
+    variation_ids = []
+    gene_symbols = []
+    groups = disease_groups.split(",")
+    for disease in groups:
+        request = requests.get(
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term="
+            + disease
+            + '+AND+single_gene+AND+(("clinsig+pathogenic"))&retmax=5000&retmode=json'
+        )
+        ids = json.loads(request.content)["esearchresult"]["idlist"]
+        for id in ids:
+            gene_symbols.append(collect_gene_symbol(id))
+        variation_ids.append(ids)
+    return list(dict.fromkeys(gene_symbols)), list(
+        dict.fromkeys(np.concatenate(variation_ids))
+    )
 
 
 def parse_argvs():
@@ -137,9 +161,9 @@ def parse_argvs():
         including version and help pages.
     """
     description = "A python script for generating test vcf files. This uses\
-                   clinvar variation IDs of known pathogenic variants and a\
-                   vep annotated giab vcf file, and the clinvar vcf download."
-    epilog = "This python script has no dependencies"
+                   clinvar variation ids of known pathogenic variants, a\
+                   vep annotated giab vcf file and the clinvar vcf download."
+    epilog = "This python script has one dependency: numpy"
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
@@ -155,14 +179,14 @@ def parse_argvs():
         help="The input giab vcf file.",
     )
     parser.add_argument(
-        "-i",
-        "--ids",
+        "-dg",
+        "--disease-groups",
         action="store",
-        dest="id_files",
+        dest="disease_groups",
         type=str,
         default=argparse.SUPPRESS,
-        help="Files containing pathogenic associated variation IDs\
-              split on comma's, requires full path.",
+        help="A string containing disease groups to use as search terms,\
+              this list needs to be seperated by comma's.",
     )
     parser.add_argument(
         "-c",
@@ -171,11 +195,10 @@ def parse_argvs():
         dest="clinvar_file",
         type=str,
         default=argparse.SUPPRESS,
-        help="Files containing pathogenic associated variation IDs\
-              split on comma's, requires full path.",
+        help="Vcf file downloaded from clinvar containing all short variants.",
     )
     parser.add_argument(
-        "-d",
+        "-hd",
         "--header",
         action="store",
         dest="header_file",
@@ -191,7 +214,7 @@ def parse_argvs():
         dest="output_location",
         type=str,
         default=argparse.SUPPRESS,
-        help="The name and location for the output VCF file.",
+        help="The name and location for the main output vcf file.",
     )
     parser.add_argument(
         "-p",
@@ -200,8 +223,8 @@ def parse_argvs():
         dest="pathogenic_location",
         type=str,
         default=argparse.SUPPRESS,
-        help="The name and location for the output VCF file containing\
-              pathogenic variants.",
+        help="The name and location for the output vcf file containing\
+              just the pathogenic variants.",
     )
     parser.add_argument(
         "-b",
@@ -210,8 +233,8 @@ def parse_argvs():
         dest="benign_location",
         type=str,
         default=argparse.SUPPRESS,
-        help="The name and location for the output VCF file containing\
-              benign variants from giab.",
+        help="The name and location for the output vcf file containing\
+              just the benign variants from giab.",
     )
     parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s [1.0]]"
@@ -227,7 +250,7 @@ def main():
     """
     default_info_field = "24.24\tPASS\tAC=2;AF=1.000;AN=2;DP=250;FS=0.000;MQ=100;MQRankSum=0.5;QD=6;ReadPosRankSum=0.5;SOR=0.6;FractionInformativeReads=0.9\tGT:AD:AF:DP:F1R2:F2R1:GQ:PL:GP\t1/1:1,219:0.994:220:0,110:0,110:99:295,316,0:0.05,0.09,0.86\n"
     user_arguments = parse_argvs()
-    symbols, ids = collect_pathogenic_ids(user_arguments.id_files)
+    symbols, ids = collect_pathogenic_ids(user_arguments.disease_groups)
     pathogenic_variants = collect_pathogenic_variants(
         ids, user_arguments.clinvar_file, default_info_field
     )
