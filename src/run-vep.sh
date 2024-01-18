@@ -68,7 +68,7 @@ index_fathmm_mkl(){
             tabix \
                 -f \
                 -p "bed" \
-                "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm-MKL_Current.tab.gz"
+                "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm-MKL_Current.tab.gz"
 }
 
 index_alphamissense(){
@@ -86,7 +86,7 @@ index_alphamissense(){
                 -e 2 \
                 -f \
                 -S 1 \
-                "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/AlphaMissense_hg19.tsv.gz"
+                "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/AlphaMissense_hg19.tsv.gz"
 }
 
 install_plugins(){
@@ -148,10 +148,10 @@ run_vep() {
     #     This function runs the VEP annotation tool on all vcf files in the
     #     specified folder.
     #     mysql -h localhost -P 3307 -u j.boom -p 12345 -e "CREATE DATABASE fathmm"
-    #     mysql -h localhost -P 3307 -u j.boom -p 12345 -Dfathmm < /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.v2.3.SQL
+    #     mysql -h localhost -P 3307 -u j.boom -p 12345 -Dfathmm < /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm.v2.3.SQL
     source /home/j.boom/mambaforge/bin/activate base
     #for file in /mnt/titan/users/j.boom/vcf/105861/adjusted/test/*sorted.vcf.gz;
-    for file in ~/develop/genomescan/data/benchmark-vcf/*.vcf;
+    for file in /home/j.boom/develop/genomescan/data/benchmark-vcf/*.vcf;
     do
         singularity \
             exec \
@@ -175,13 +175,13 @@ run_vep() {
                         --af \
                         --max_af \
                         --af_gnomade \
-                        --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/AlphaMissense_hg19.tsv.gz" \
-                        --plugin "CADD,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/InDels.tsv.gz" \
-                        --plugin "CAPICE,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
-                        --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm-MKL_Current.tab.gz" \
-                        --custom file=/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coord=0,fields=CLNSIG;
+                        --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/AlphaMissense_hg19.tsv.gz" \
+                        --plugin "CADD,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/InDels.tsv.gz" \
+                        --plugin "CAPICE,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/capice_v1.0_build37_indels.tsv.gz" \
+                        --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm-MKL_Current.tab.gz" \
+                        --custom file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/clinvar.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coord=0,fields=CLNSIG;
     done
-    # --plugin "FATHMM,python /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.py";
+    # --plugin "FATHMM,python /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm.py";
 }
 
 main() {
