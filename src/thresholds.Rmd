@@ -1,0 +1,58 @@
+---
+title: "Variant thresholds"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Variant thresholds
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readr")
+library("readxl")
+library("dplyr")
+library("broom")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+knitr::opts_chunk$set(echo=TRUE, message=FALSE)
+knitr::opts_chunk$set(fig.width=9,
+                      fig.height=9,
+                      out.width="85%",
+                      fig.align="center")
+theme_set(theme_bw())
+```
+
+# Load data:
+```{r}
+#| label: tbl-data
+#| tbl-cap: _The first 8 rows of the data file._
+#| warning: false
+
+# Read in the tsv file in the data folder.
+data <- read_tsv("../data/benchmark-vcf/benchmark.tab",
+                 col_names=TRUE)
+
+# Display the first 8 lines of the data file.
+head(data, n=8) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+# Output session information
+```{r}
+sessionInfo()
+```
