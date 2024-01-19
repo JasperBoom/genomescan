@@ -27,6 +27,7 @@ library("factoextra")
 library("FactoMineR")
 library("PCAtools")
 library("ggplot2")
+library("ggfortify")
 ```
 
 # Run document setup
@@ -51,7 +52,7 @@ theme_set(theme_bw())
 # https://medium.com/@jamie84mclaughlin/installing-r-and-the-tidyverse-on-ubuntu-20-04-60170020649b
 
 # Read in the tsv file in the data folder.
-data <- read_tsv("../data/benchmark-vcf/benchmark.annotated.tab",
+data <- read_tsv("../data/benchmark-vcf/benchmark.annotated.edit.tab",
                  col_names=TRUE,
                  skip=67)
 
@@ -74,7 +75,7 @@ data_dedup <- data[!duplicated(data$`#Uploaded_variation`), ] |>
 # SIFT and PolyPhen were removed because they had not a single value.
 annotation_columns <- c("Variation_id", "AF", "MAX_AF", "am_pathogenicity",
                         "CADD_PHRED", "CADD_RAW", "CAPICE_SCORE",
-                        "FATHMM_MKL_C", "FATHMM_MKL_NC")
+                        "FATHMM_MKL_C", "FATHMM_MKL_NC", "ClinVar_CLNSIG")
 # Select just the annotation columns, replace dash with NA and make sure the
 # values are numeric.
 data_select <- data_dedup[,annotation_columns] |>
@@ -85,8 +86,19 @@ data_select <- data_dedup[,annotation_columns] |>
 # remove rows of remaining columns with missing values.
 data_nomissing <- data_select |>
     dplyr::select("Variation_id", "CADD_PHRED", "CADD_RAW", "CAPICE_SCORE",
-           "FATHMM_MKL_C", "FATHMM_MKL_NC") |>
-    drop_na() |>
+                  "FATHMM_MKL_C", "FATHMM_MKL_NC") |>
+    drop_na()
+
+# Include the pathogenic/benign identifier as a column.
+temp <- data_dedup[,c("Variation_id", "ClinVar_CLNSIG")]
+data_nomissing_groups <- left_join(data_nomissing,
+                                   temp,
+                                   by="Variation_id") |>
+    dplyr::mutate_at(c("ClinVar_CLNSIG"), as.factor) |>
+    tibble::column_to_rownames(var="Variation_id")
+
+
+data_nomissing <- data_nomissing |>
     tibble::column_to_rownames(var="Variation_id")
 
 # Display the first 8 lines of the data.
@@ -130,9 +142,15 @@ biplot(pca_data,
        sizeLoadingsName=5,
        legendPosition="right",
        title="Biplot")
+
+# Plot the mutations in a scatterplot.
+PCAtools_scatterplot <- pca_data$loadings
+ggplot(PCAtools_scatterplot,
+       aes(x=PC1, y=PC2)) +
+    geom_point()
 ```
 
-# Run PCA()
+# Run PCA
 ```{r}
 #| warning: false
 
@@ -144,24 +162,177 @@ pca.data <- PCA(data_nomissing,
                 scale.unit=TRUE)
 
 # Visualize eigenvalues/variances.
-fviz_screeplot(pca.data,
-               addlabels=TRUE)
+#fviz_screeplot(pca.data,
+#               addlabels=TRUE)
 
 # Extract the results for variables.
 pca.var <- get_pca_var(pca.data)
-head(pca.var$contrib)
 
-# Control variable colors using their contributions
+# Control variable colors using their contributions.
 fviz_pca_var(pca.data,
              col.var="contrib",
              gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE # Avoid text overlapping
+             repel = TRUE # Avoid text overlapping.
              )
 
-# Contributions of variables to PC1
-fviz_contrib(pca.data, choice = "var", axes = 1, top = 10)
-# Contributions of variables to PC2
-fviz_contrib(pca.data, choice = "var", axes = 2, top = 10)
+# Contributions of variables to PC1.
+contributions_pc1 <- fviz_contrib(pca.data, choice = "var", axes = 1, top = 10)
+# Contributions of variables to PC2.
+contributions_pc2 <- fviz_contrib(pca.data, choice = "var", axes = 2, top = 10)
+
+# Create a scatterplot.
+#fviz_pca_ind(pca.data,
+#             col.ind="cos2",
+#             )
+```
+
+# Run prcomp
+```{r}
+# Perform a principal component analysis, include centering and scaling of data.
+pcadata <- prcomp(data_nomissing,
+                  center=TRUE,
+                  scale.=TRUE)
+
+# Create a scatterplot.
+#autoplot(pcadata,
+#         data=data_nomissing_groups,
+#         colour="ClinVar_CLNSIG",
+#         label=TRUE)
+
+# Prepare data from PCA for ggplot scatterplot and create ggplot scatterplot.
+pcascatterplotdata <- cbind(pcadata$x[,1:2],
+                            as.character(data_nomissing_groups[,6])) |>
+    as_tibble() |>
+    dplyr::rename(PC1="PC1",
+                  PC2="PC2",
+                  CONDITION="V3") |>
+    dplyr::mutate_at(c("PC1"),
+                     as.numeric) |>
+    dplyr::mutate_at(c("PC2"),
+                     as.numeric)
+
+pcascatterplot <- ggplot(data=pcascatterplotdata,
+                         aes(x=PC1,
+                             y=PC2,
+                             colour=CONDITION)) +
+    geom_point(size=2) +
+    xlim(-4.0, 3.0) +
+    ylim(-1.0, 2.0) +
+    stat_smooth(method=lm,
+                se=TRUE,
+                colour="#ec9e62") +
+    theme(legend.position=c(0.95,0.75),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#83b96d",
+                                 "#00a6cf"))
+pcascatterplot
+
+# Prepare data from PCA for ggplot barplot and create ggplot barplot
+pcabarplotdata <- cbind(contributions_pc1$data[,c(1,2)],
+                        contributions_pc2$data[,2]) |>
+    as_tibble() |>
+    dplyr::rename(PC1="contrib",
+                  PC2="contributions_pc2$data[, 2]",
+                  METHOD="name") |>
+    dplyr::mutate_at(c("PC1"), as.numeric) |>
+    dplyr::mutate_at(c("PC2"), as.numeric) |>
+    pivot_longer(names_to="PCA",
+                 values_to="CONTRIBUTION",
+                 cols=c("PC1", "PC2")) |>
+    dplyr::mutate(across(c("CONTRIBUTION"),
+                         round,
+                         2))
+
+pcabarplot <- ggplot(data=pcabarplotdata,
+                     aes(x=METHOD,
+                         y=CONTRIBUTION,
+                         fill=PCA,
+                         colour=PCA)) +
+    ylim(c(0,70)) +
+    geom_bar(stat="identity",
+             position=position_dodge()) +
+    geom_text(aes(label=CONTRIBUTION),
+              fontface="bold",
+              vjust=-1,
+              position=position_dodge(0.9),
+              size=4,
+              colour="black") +
+    theme(legend.position=c(0.95,0.75),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#003670",
+                                 "#ec9e62")) +
+    scale_fill_manual(values=c("#003670",
+                               "#ec9e62"))
+pcabarplot
+```
+
+# Run logistic regression models
+```{r}
+# Stop the use of scientific notation.
+options(scipen=999)
+
+# The column names for the numeric annotation.
+column_names <- c("Variation_id", "CADD_PHRED", "CADD_RAW", "CAPICE_SCORE",
+                  "FATHMM_MKL_C", "FATHMM_MKL_NC", "ClinVar_CLNSIG")
+
+# Logistic regression models.
+model_logistic_regression_CADD_PHREDD <- glm(ClinVar_CLNSIG~CADD_PHRED,
+                                data_nomissing_groups,
+                                family="binomial")
+model_logistic_regression_CADD_RAW <- glm(ClinVar_CLNSIG~CADD_RAW,
+                             data_nomissing_groups,
+                             family="binomial")
+model_logistic_regression_CAPICE_SCORE <- glm(ClinVar_CLNSIG~CAPICE_SCORE,
+                                 data_nomissing_groups,
+                                 family="binomial")
+model_logistic_regression_FATHMM_MKL_C <- glm(ClinVar_CLNSIG~FATHMM_MKL_C,
+                                 data_nomissing_groups,
+                                 family="binomial")
+model_logistic_regression_FATHMM_MKL_NC <- glm(ClinVar_CLNSIG~FATHMM_MKL_NC,
+                                  data_nomissing_groups,
+                                  family="binomial")
+
+# Show tidy output of all models.
+bind_rows(tidy(model_logistic_regression_CADD_PHREDD),
+          tidy(model_logistic_regression_CADD_RAW),
+          tidy(model_logistic_regression_CAPICE_SCORE),
+          tidy(model_logistic_regression_FATHMM_MKL_C),
+          tidy(model_logistic_regression_FATHMM_MKL_NC)) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+# Run logistic regression in logarithmic model
+```{r}
+# The column names for the numeric annotation.
+column_names <- c("Variation_id", "CADD_PHRED", "CADD_RAW", "CAPICE_SCORE",
+                  "FATHMM_MKL_C", "FATHMM_MKL_NC", "ClinVar_CLNSIG")
+
+# Logistic regression in logarithmic.
+model_logistic_regression_logarithmic_CADD_PHREDD <- glm(ClinVar_CLNSIG ~ log(CADD_PHRED + 1),
+                                                         data_nomissing_groups,
+                                                         family="binomial")
+model_logistic_regression_logarithmic_CADD_RAW <- glm(ClinVar_CLNSIG ~ log(CADD_RAW + 1),
+                                                      data_nomissing_groups,
+                                                      family="binomial")
+model_logistic_regression_logarithmic_CAPICE_SCORE <- glm(ClinVar_CLNSIG ~ log(CAPICE_SCORE + 1),
+                                                          data_nomissing_groups,
+                                                          family="binomial")
+model_logistic_regression_logarithmic_FATHMM_MKL_C <- glm(ClinVar_CLNSIG ~ log(FATHMM_MKL_C + 1),
+                                                          data_nomissing_groups,
+                                                          family="binomial")
+model_logistic_regression_logarithmic_FATHMM_MKL_NC <- glm(ClinVar_CLNSIG ~ log(FATHMM_MKL_NC + 1),
+                                                           data_nomissing_groups,
+                                                           family="binomial")
+
+# Show tidy output of all models.
+bind_rows(tidy(model_logistic_regression_logarithmic_CADD_PHREDD),
+          tidy(model_logistic_regression_logarithmic_CADD_RAW),
+          tidy(model_logistic_regression_logarithmic_CAPICE_SCORE),
+          tidy(model_logistic_regression_logarithmic_FATHMM_MKL_C),
+          tidy(model_logistic_regression_logarithmic_FATHMM_MKL_NC)) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
 ```
 
 # Output session information
