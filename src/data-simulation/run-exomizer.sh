@@ -70,8 +70,7 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs trial commands for testing exomizer on the"
-            echo "GenomeScan HPC."
+            echo "This script runs test commands for exomizer."
             echo ""
 
             exit

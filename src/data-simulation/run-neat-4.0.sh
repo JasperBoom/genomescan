@@ -63,8 +63,7 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs trial commands for testing neat v4.0 on"
-            echo "the GenomeScan HPC."
+            echo "This script runs test commands for neat v4.0."
             echo ""
 
             exit

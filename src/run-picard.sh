@@ -34,18 +34,18 @@ main() {
     #     This function runs pbgzip and picard in order to sort, compress and
     #     index the input vcf files.
     source /home/j.boom/mambaforge/bin/activate base
-    #for file in /mnt/titan/users/j.boom/vcf/105861/adjusted/*.vcf;
     for file in /mnt/titan/users/j.boom/clinvar/*.vcf;
     do
-        #singularity \
-        #    exec \
-        #        --containall \
-        #        --bind /mnt \
-        #        docker://quay.io/biocontainers/picard:3.1.1--hdfd78af_0 \
-        #        picard SortVcf \
-        #            --INPUT "${file}" \
-        #            --OUTPUT "${file::-3}sorted.vcf" \
-        #            --TMP_DIR "/mnt/titan/users/j.boom/tmp"
+        singularity \
+            exec \
+                --containall \
+                --bind /mnt \
+                docker://quay.io/biocontainers/picard:3.1.1--hdfd78af_0 \
+                picard SortVcf \
+                    --INPUT "${file}" \
+                    --OUTPUT "${file::-3}sorted.vcf" \
+                    --TMP_DIR "/mnt/titan/users/j.boom/tmp"
+
         singularity \
             exec \
                 --containall \
@@ -53,8 +53,8 @@ main() {
                 docker://quay.io/biocontainers/pbgzip:2016.08.04--h9d449c0_4 \
                 pbgzip \
                     -n 5 \
-                    "${file}"
-                    #"${file::-3}sorted.vcf"
+                    "${file::-3}sorted.vcf"
+
         singularity \
             exec \
                 --containall \
@@ -62,8 +62,7 @@ main() {
                 docker://quay.io/biocontainers/tabix:1.11--hdfd78af_0 \
                 tabix \
                     --preset "vcf" \
-                    "${file}.gz"
-                    #"${file::-3}sorted.vcf.gz";
+                    "${file::-3}sorted.vcf.gz";
     done
 }
 

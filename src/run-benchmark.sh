@@ -39,7 +39,6 @@ download_variation_ids() {
         --verbose \
         --output-document="/home/j.boom/develop/genomescan/data/api.txt" \
         "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=ependymomas+AND+single_gene+AND+(("clinsig+pathogenic"))&retmax=5000&retmode=json"
-
     wget \
         --verbose \
         --output-document="/home/j.boom/develop/genomescan/data/gene.txt" \

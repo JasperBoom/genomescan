@@ -33,7 +33,7 @@ create_benchmark_set(){
     # The create_benchmark_set function:
     #     This function contains commands used to create a sample set for
     #     benchmarking.
-    #     GIAB vcf files can be found here:
+    #     Giab vcf files can be found here:
     #     https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/
     source /home/j.boom/mambaforge/bin/activate base
     #wget https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf.gz
@@ -92,6 +92,9 @@ index_alphamissense(){
 install_plugins(){
     # The install_plugins function:
     #     This function will install VEP plugins in the specified directory.
+    #     It also includes the link to the individual files for downloading
+    #     manually. There are some steps like indexing after download that are
+    #     described in the readme's for each annotation source.
     #     AlphaMissense:
     #         https://storage.googleapis.com/dm_alphamissense/AlphaMissense_hg19.tsv.gz
     #         tabix -s 1 -b 2 -e 2 -f -S 1 AlphaMissense_hg19.tsv.gz
@@ -127,7 +130,7 @@ install_plugins(){
 install_cache(){
     # The install_cache function:
     #     This function install the VEP cache in the VEP sif file using the
-    #     perl install script.
+    #     perl install script. Sadly this didn´t seem to work.
     #singularity pull --name vep.sif docker://ensemblorg/ensembl-vep:latest
     singularity \
         exec \
@@ -147,11 +150,11 @@ run_vep() {
     # The run_vep function:
     #     This function runs the VEP annotation tool on all vcf files in the
     #     specified folder.
+    #     https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
     #     mysql -h localhost -P 3307 -u j.boom -p 12345 -e "CREATE DATABASE fathmm"
     #     mysql -h localhost -P 3307 -u j.boom -p 12345 -Dfathmm < /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm.v2.3.SQL
     source /home/j.boom/mambaforge/bin/activate base
-    #for file in /mnt/titan/users/j.boom/vcf/105861/adjusted/test/*sorted.vcf.gz;
-    for file in /home/j.boom/develop/genomescan/data/benchmark-vcf/*.vcf;
+    for file in /mnt/titan/users/j.boom/vcf/personalgenomesuk/*.vcf.gz;
     do
         singularity \
             exec \
@@ -216,8 +219,8 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs vep or supporting commands on the GenomeScan"
-            echo "HPC."
+            echo "This script runs vep or supporting commands like indexing"
+            echo "annotation databases or downloading reference files."
             echo ""
 
             exit
@@ -245,4 +248,4 @@ main
 
 # Additional information:
 # =======================
-# https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
+#

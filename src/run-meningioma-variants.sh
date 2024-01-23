@@ -209,12 +209,14 @@ compare_gene_lists() {
     gene_list_script="/mnt/titan/users/j.boom/clinvar/gene_list_script_meningioma_variants.txt"
     results="/mnt/titan/users/j.boom/clinvar/gene_comparison.txt"
     rm "${results}"
+
     # Sort and deduplicate the gene list from Alicia.
     cat ${gene_list_alicia} \
         | sort \
         | uniq \
             --ignore-case \
         > "/mnt/titan/users/j.boom/clinvar/gene_list_alicia_SORTED.txt"
+
     # Sort and deduplicate the gene list from ClinVar.
     cat ${gene_list_script} \
         | sort \
@@ -223,6 +225,7 @@ compare_gene_lists() {
         > "/mnt/titan/users/j.boom/clinvar/gene_list_script_meningioma_variants_SORTED.txt"
     echo "Genes in both lists:" \
         >> "${results}"
+
     # Compare the gene lists and output the overlapping ones.
     comm \
         -12 \
@@ -233,6 +236,7 @@ compare_gene_lists() {
         >> "${results}"
     echo "Genes in list Alicia:" \
         >> "${results}"
+
     # Compare the gene lists and output the unique ones in the Alicia list.
     comm \
         -23 \
@@ -243,6 +247,7 @@ compare_gene_lists() {
         >> "${results}"
     echo "Genes in list ClinVar:" \
         >> "${results}"
+
     # Compare the gene lists and output the unique ones in the ClinVar list.
     comm \
         -13 \

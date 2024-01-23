@@ -33,7 +33,7 @@ def sort_vcf(vcf_file):
     """
     The sort_vcf function:
         This function uses the bcftools software to sort the adjustded vcf file.
-        Does not yet work due to issues using sbatch.
+        Does not yet work due to issues using sbatch on slurm.
     """
     output_file_name = vcf_file[:-3] + "sorted.vcf"
     bcftools = sp.Popen(
@@ -136,7 +136,8 @@ def parse_argvs():
         including version and help pages.
     """
     description = "A python script that processes GenomeScan vcf files that\
-                   were created using the DRAGEN pipeline on the GenomeScan HPC"
+                   were created using the DRAGEN pipeline on the GenomeScan HPC\
+                   [Insert Mutation In Vcf]"
     epilog = "This python script has one dependency: pandas"
     parser = argparse.ArgumentParser(
         description=description,

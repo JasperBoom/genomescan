@@ -21,11 +21,12 @@
 ## Template for gen_reads parallel
 ## Any parameter that is not required but has a default value will use the
 ## default value even if the variable is not included in the config. For
-## required items, they must be included in the config and the must be given a value.
-## All other items can be present or not. If present and the value is set to a single
-## period, the variable will be treated as though it had been omitted. Please do
-## not modify this template, but instead make a copy in your working directory. Done this
-## way, you can run without even needing to declare -c.
+## required items, they must be included in the config and the must be given a
+## value. All other items can be present or not. If present and the value is
+## set to a single period, the variable will be treated as though it had been
+## omitted. Please do not modify this template, but instead make a copy in
+## your working directory. Done this way, you can run without even needing to
+## declare -c.
 
 # Absolute path to input reference fasta file
 # type = string | required: yes
@@ -35,19 +36,21 @@ reference: "/mnt/titan/users/j.boom/tool-testing/data/Homo_sapiens.GRCh38.dna.pr
 # attempt to process one contig per thread. However, if you have very
 # large fasta files, you will see additional runtime benefit from choosing
 # the subdivision method, which will split the contigs up into equal sizes
-# for processing. If you need further speedups and have access to a distributed system
-# you can use a shell script wrapper around NEAT to split the fasta into
-# contigs, then join the results later. NEAT does not feature translocations, so
-# this will not affect NEAT's output. Note that subdivision will only activate for
-# number of threads > 1.
+# for processing. If you need further speedups and have access to a distributed
+# system you can use a shell script wrapper around NEAT to split the fasta into
+# contigs, then join the results later. NEAT does not feature translocations,
+# so this will not affect NEAT's output. Note that subdivision will only
+# activate for number of threads > 1.
 # type = string | required: No | default = chrom | possible values: chrom, subdivision
 partition_mode: .
 
-# Read length of the reads in the fastq output. Only required if @produce_fastq is set to true
+# Read length of the reads in the fastq output. Only required if @produce_fastq
+# is set to true
 # type = int | required: no | default = 101
 read_len: .
 
-# Number of threads to request for NEAT. The recommended amount is the number of chromosomes in
+# Number of threads to request for NEAT. The recommended amount is the number
+# of chromosomes in
 # your input fasta plus 1.
 # type = int | required: no | default = 1
 threads: .
@@ -64,13 +67,13 @@ error_model: .
 # type = float | required = no | must be between 0.0 and 0.3
 avg_seq_error: .
 
-# This scales the quality scores to match the desired average sequencing error rate
-# specified by avg_seq_error.
+# This scales the quality scores to match the desired average sequencing
+# error rate specified by avg_seq_error.
 # type: boolean | required = no | default = false
 rescale_qualities: .
 
-# This is the factor to add to the quality scores to get the ascii text version of the
-# score. The default follows the sanger quality offset
+# This is the factor to add to the quality scores to get the ascii text
+# version of the score. The default follows the sanger quality offset
 # type: int | required = no | default = 33
 quality_offset: .
 
@@ -78,9 +81,9 @@ quality_offset: .
 # type = int | required = no | default = 2
 ploidy: .
 
-# Absolute path to vcf file containing variants that will always be included, regardless
-# of genotype and filter. You can pre-filter your vcf for these fields before inputting it
-# if this is not the desired behavior.
+# Absolute path to vcf file containing variants that will always be included,
+# regardless of genotype and filter. You can pre-filter your vcf for these
+# fields before inputting it if this is not the desired behavior.
 # type: string | required = no
 input_variants: .
 
@@ -95,9 +98,9 @@ target_bed: .
 # type: float | required = no | default = 0.02
 off_target_scalar: .
 
-# Whether to discard areas outside the targeted bed region. By default, this is set
-# to false and NEAT will use a different model for off-target regions but still
-# include them in the final output.
+# Whether to discard areas outside the targeted bed region. By default, this
+# is set to false and NEAT will use a different model for off-target regions
+# but still include them in the final output.
 # TODO this may not be necessary
 # type: boolean | required = no | default = false
 discard_offtarget: .
@@ -107,13 +110,15 @@ discard_offtarget: .
 # type = string | required = no
 discard_bed: .
 
-# Absolute path to the mutation model pickle file. Omitting this value will cause
-# NEAT to use the default model, with some standard parameters, and generally uniform biases.
+# Absolute path to the mutation model pickle file. Omitting this value will
+# cause NEAT to use the default model, with some standard parameters, and
+# generally uniform biases.
 # type: string | required = no
 mutation_model: .
 
-# Average mutation rate per base pair. Overall average is 0.001, or model default
-# Use either this value to override the mutation rate for the default or input model.
+# Average mutation rate per base pair. Overall average is 0.001, or model
+# default Use either this value to override the mutation rate for the default
+# or input model.
 # type: float | required = no | must be between 0.0 and 0.3
 mutation_rate: .
 
@@ -127,10 +132,11 @@ mutation_bed: .
 # type: string | required = no | default: <NEAT_DIR>/neat/models/defaults/default_gc_bias_model.pickle.gz
 gc_model: .
 
-# Whether the output should be paired ended. For certain conditions (i.e., vcf only or
-# fasta only), this will be ignored. If this is true, then there must be an included fragment
-# length model output from runner.py or a mean and standard deviation
-# by declaring values for @fragment_mean and @fragment_std_dev.
+# Whether the output should be paired ended. For certain conditions (i.e.,
+# vcf only or fasta only), this will be ignored. If this is true, then there
+# must be an included fragment length model output from runner.py or a mean
+# and standard deviation by declaring values for @fragment_mean
+# and @fragment_std_dev.
 # type: boolean | required = no | default = false
 paired_ended: .
 
@@ -139,16 +145,19 @@ paired_ended: .
 # type: string | required = no | default: <NEAT_DIR>/neat/models/defaults/default_fraglen_model.pickle.gz
 fragment_model: .
 
-# Mean for the paired end fragment length. This only applies if paired-ended is set to true.
-# This number will form the mean for the sample distribution of the fragment lengths in the simulation
-# Note: This number is REQUIRED if paired_ended is set to true, unless a fragment length model is used.
+# Mean for the paired end fragment length. This only applies if paired-ended
+# is set to true. This number will form the mean for the sample distribution
+# of the fragment lengths in the simulation Note: This number is REQUIRED if
+# paired_ended is set to true, unless a fragment length model is used.
 # type: float | required: no (unless paired-ended)
 fragment_mean: .
 
-# Standard deviation for the paired end fragment length. This only applies if paired-ended is set to true.
-# This number will form the standard deviation about the mean specified above for the sample distribution
+# Standard deviation for the paired end fragment length. This only applies if
+# paired-ended is set to true. This number will form the standard deviation
+# about the mean specified above for the sample distribution
 # of the fragment lengths in the simulation.
-# Note: This number is REQUIRED if paired_ended is set to true, unless a fragment length model is used.
+# Note: This number is REQUIRED if paired_ended is set to true, unless a
+# fragment length model is used.
 # type: float | required: no (unless paired-ended)
 fragment_st_dev: .
 
@@ -162,9 +171,9 @@ produce_bam: .
 # type: boolean | required = no | default = false
 produce_vcf: .
 
-# Whether to output the mutated fasta. This will output a fasta file with mutations
-# inserted. It does not include sequencing errors or read information. Useful for
-# multigenerational mutations.
+# Whether to output the mutated fasta. This will output a fasta file with
+# mutations inserted. It does not include sequencing errors or read
+# information. Useful for multigenerational mutations.
 # type: boolean | required = no | default = false
 produce_fasta: .
 
@@ -178,18 +187,19 @@ produce_fastq: .
 # type: boolean | required = no | default = false
 no_coverage_bias: .
 
-# Set an RNG seed value. Runs using identical RNG values should produce identical results
-# so things like read locations, variant positions, error positions, etc. should be the same.
-# Useful for debugging.
+# Set an RNG seed value. Runs using identical RNG values should produce
+# identical results so things like read locations, variant positions, error
+# positions, etc. should be the same. Useful for debugging.
 # type: int | required = no
 rng_seed: .
 
-# Set an absolute minimum number of mutations. The program always adds at least 1 mutation.
-# Useful for very small datasets.
+# Set an absolute minimum number of mutations. The program always adds at
+# least 1 mutation. Useful for very small datasets.
 # type: int | required = no
 min_mutations: .
 
 # If you would like to produce 1 fasta per ploid, set this value to true.
-# Otherwise NEAT will attempt to write them all to one fasta (which may result in some data loss)
+# Otherwise NEAT will attempt to write them all to one fasta (which may result
+# in some data loss)
 # type: bool | required = no | default = false
 fasta_per_ploid: .

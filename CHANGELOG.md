@@ -39,3 +39,4 @@ Contact information: info@jboom.org.
   an interactive slurm job, format both python and snake files to known
   standards and add the python script from fathmm with a test to convert it
   to using sqlite3.
++ Checked formatting for all files, also include test vcf files.

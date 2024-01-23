@@ -39,7 +39,7 @@ def write_output(
     The write_output function:
         This function gets the output locations for three files. All variants
         including a correct vcf header are written to all_output. The other
-        two outputs speak for themselves.
+        two output files contain the described subsets.
     """
     with open(all_output, "a") as all, open(
         pathogenic_output, "a"

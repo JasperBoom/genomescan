@@ -48,6 +48,7 @@ tool.
 
 ## vcf
 This folder contains sample sets from diagnostic runs of dragen by
-genomescan, meningioma.vcf has variants associated with pathogenic meningioma
-disease causes. temp.vcf was for testing. The coded folders contain all vcf
-files from dragen for that project that passed the quality control.
+genomescan (**105421-099** & **105861**), then the **giab** folder contains
+a benchmark vcf file annotated using vep. And **personalgenomesuk** contains
+vcf data from the personal genome project in the uk, which I am using to see
+what kind of noise I can introduce to my threshold test variants.

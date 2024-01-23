@@ -15,19 +15,20 @@ execute:
 # Load packages
 ```{r}
 #| warning: false
+
 library("tidyverse")
 library("knitr")
-library("readr")
 library("readxl")
-library("dplyr")
 library("broom")
-library("tidyr")
 library("naniar")
 library("factoextra")
 library("FactoMineR")
 library("PCAtools")
-library("ggplot2")
 library("ggfortify")
+library("dlstats")
+library("PRROC")
+library("precrec")
+library("plotROC")
 ```
 
 # Run document setup
@@ -42,7 +43,7 @@ knitr::opts_chunk$set(fig.width=9,
 theme_set(theme_bw())
 ```
 
-# Load data:
+# Load data
 ```{r}
 #| label: tbl-data
 #| tbl-cap: _The first 8 rows of the data file._
@@ -54,7 +55,8 @@ theme_set(theme_bw())
 # Read in the tsv file in the data folder.
 data <- read_tsv("../data/benchmark-vcf/benchmark.annotated.edit.tab",
                  col_names=TRUE,
-                 skip=67)
+                 skip=67,
+                 show_col_types = FALSE)
 
 # Display the first 8 lines of the data file.
 head(data, n=8) |>
@@ -102,7 +104,7 @@ data_nomissing <- data_nomissing |>
     tibble::column_to_rownames(var="Variation_id")
 
 # Display the first 8 lines of the data.
-head(data_nomissing, n=8) |>
+head(data_nomissing_groups, n=8) |>
     knitr::kable(format="html") |>
     kableExtra::kable_classic(full_width=FALSE)
 ```
@@ -162,8 +164,8 @@ pca.data <- PCA(data_nomissing,
                 scale.unit=TRUE)
 
 # Visualize eigenvalues/variances.
-#fviz_screeplot(pca.data,
-#               addlabels=TRUE)
+fviz_screeplot(pca.data,
+               addlabels=TRUE)
 
 # Extract the results for variables.
 pca.var <- get_pca_var(pca.data)
@@ -181,23 +183,24 @@ contributions_pc1 <- fviz_contrib(pca.data, choice = "var", axes = 1, top = 10)
 contributions_pc2 <- fviz_contrib(pca.data, choice = "var", axes = 2, top = 10)
 
 # Create a scatterplot.
-#fviz_pca_ind(pca.data,
-#             col.ind="cos2",
-#             )
+fviz_pca_ind(pca.data,
+             col.ind="cos2",
+             )
 ```
 
 # Run prcomp
 ```{r}
+#| warning: false
+
 # Perform a principal component analysis, include centering and scaling of data.
 pcadata <- prcomp(data_nomissing,
                   center=TRUE,
                   scale.=TRUE)
+```
 
-# Create a scatterplot.
-#autoplot(pcadata,
-#         data=data_nomissing_groups,
-#         colour="ClinVar_CLNSIG",
-#         label=TRUE)
+# Create a scatterplot
+```{r}
+#| warning: false
 
 # Prepare data from PCA for ggplot scatterplot and create ggplot scatterplot.
 pcascatterplotdata <- cbind(pcadata$x[,1:2],
@@ -211,6 +214,7 @@ pcascatterplotdata <- cbind(pcadata$x[,1:2],
     dplyr::mutate_at(c("PC2"),
                      as.numeric)
 
+# Create the scatterplot.
 pcascatterplot <- ggplot(data=pcascatterplotdata,
                          aes(x=PC1,
                              y=PC2,
@@ -224,8 +228,15 @@ pcascatterplot <- ggplot(data=pcascatterplotdata,
     theme(legend.position=c(0.95,0.75),
           legend.justification=c(1,0)) +
     scale_colour_manual(values=c("#83b96d",
-                                 "#00a6cf"))
+                                 "#00a6cf"),
+                        name="Clinical significance") +
+    ggtitle("Projection of data on principal components one and two")
 pcascatterplot
+```
+
+# Create a barplot
+```{r}
+#| warning: false
 
 # Prepare data from PCA for ggplot barplot and create ggplot barplot
 pcabarplotdata <- cbind(contributions_pc1$data[,c(1,2)],
@@ -243,6 +254,7 @@ pcabarplotdata <- cbind(contributions_pc1$data[,c(1,2)],
                          round,
                          2))
 
+# Create the barplot.
 pcabarplot <- ggplot(data=pcabarplotdata,
                      aes(x=METHOD,
                          y=CONTRIBUTION,
@@ -260,14 +272,67 @@ pcabarplot <- ggplot(data=pcabarplotdata,
     theme(legend.position=c(0.95,0.75),
           legend.justification=c(1,0)) +
     scale_colour_manual(values=c("#003670",
-                                 "#ec9e62")) +
+                                 "#ec9e62"),
+                        name="Principal component") +
     scale_fill_manual(values=c("#003670",
-                               "#ec9e62"))
+                               "#ec9e62"),
+                      name="Principal component") +
+    ggtitle("Contribution of the different annotation sources to principal\
+            components one and two") +
+    xlab("Annotation source") +
+    ylab("Contribution (%)")
 pcabarplot
+```
+
+# Create a ROC plot
+```{r}
+#| warning: false
+
+# https://cran.r-project.org/web/packages/plotROC/vignettes/examples.html
+rocplot_multiple <- ggplot(melt_roc(data_nomissing_groups,
+                                    "ClinVar_CLNSIG",
+                                    c("CADD_PHRED",
+                                      "CADD_RAW",
+                                      "CAPICE_SCORE",
+                                      "FATHMM_MKL_C",
+                                      "FATHMM_MKL_NC")),
+                           aes(m=M,
+                               d=D,
+                               colour=name)) +
+    geom_roc(n.cuts=5,
+             labelsize=5,
+             labelround=2,
+             show.legend=TRUE,
+             labels=FALSE) +
+    xlim(-0.1, 1) +
+    ylim(0, 1.1)
+rocplot_multiple +
+    facet_wrap(~ name)
+
+calc_auc(rocplot_multiple) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+```{r}
+rocplot <- ggplot(data_nomissing_groups,
+                  aes(d=ClinVar_CLNSIG,
+                      m=CADD_RAW)) +
+    geom_roc(n.cuts=10,
+             labelsize=5,
+             labelround=2,
+             show.legend=TRUE,
+             labels=FALSE) +
+    xlim(-0.1, 1)
+rocplot
+
+?geom_roc
 ```
 
 # Run logistic regression models
 ```{r}
+#| warning: false
+
 # Stop the use of scientific notation.
 options(scipen=999)
 
@@ -304,6 +369,8 @@ bind_rows(tidy(model_logistic_regression_CADD_PHREDD),
 
 # Run logistic regression in logarithmic model
 ```{r}
+#| warning: false
+
 # The column names for the numeric annotation.
 column_names <- c("Variation_id", "CADD_PHRED", "CADD_RAW", "CAPICE_SCORE",
                   "FATHMM_MKL_C", "FATHMM_MKL_NC", "ClinVar_CLNSIG")
@@ -337,5 +404,7 @@ bind_rows(tidy(model_logistic_regression_logarithmic_CADD_PHREDD),
 
 # Output session information
 ```{r}
+#| warning: false
+
 sessionInfo()
 ```

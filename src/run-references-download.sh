@@ -54,7 +54,7 @@ download_genome() {
 
 create_dictionary() {
     # The create_dictionary function:
-    #     This function creates a dictionary using the genome reference using
+    #     This function creates a dictionary using the genome reference and
     #     picard.
     singularity \
         exec \
@@ -67,7 +67,7 @@ create_dictionary() {
 
 create_genome_index() {
     # The create_genome_index function:
-    #     This function creates an index using the genome reference using
+    #     This function creates an index using the genome reference and
     #     samtools.
     singularity \
         exec \

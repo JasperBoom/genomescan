@@ -43,6 +43,7 @@ main() {
             --bind /home docker://genomicslab/phen2gene:latest \
             python3 phen2gene.py \
                 --help
+
     python3 \
         /mnt/titan/users/j.boom/tool-testing/Phen2Gene/phen2gene.py \
             --help
@@ -69,8 +70,7 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs trial commands for testing phen2gene on"
-            echo "the GenomeScan HPC."
+            echo "This script runs trial commands for testing phen2gene."
             echo ""
 
             exit
