@@ -48,10 +48,10 @@ download_variation_ids() {
 run_python_script() {
     # The run_python_script function:
     #     This function runs the python script benchmark.py.
-    source /home/j.boom/mambaforge/bin/activate base
+    source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/benchmark.py \
         --giab "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
-        --disease-groups "meningioma,ependymomas" \
+        --disease-groups "meningioma,ependymomas,astrocytomas" \
         --clinvar "/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf" \
         --header "/home/j.boom/develop/genomescan/data/default-vcf-header.txt" \
         --output "/home/j.boom/develop/genomescan/data/benchmark-vcf/benchmark.vcf" \

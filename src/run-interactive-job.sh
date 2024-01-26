@@ -26,11 +26,11 @@ main() {
     srun \
         --nodes=1 \
         --ntasks=1 \
-        --ntasks-per-node=10 \
+        --ntasks-per-node=1 \
         --job-name=interactive-job \
         --partition=all \
         --time=120:0:0 \
-        --mem=30GB \
+        --mem=125GB \
         --export=ALL \
         --pty bash -i
 }

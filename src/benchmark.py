@@ -41,9 +41,11 @@ def write_output(
         including a correct vcf header are written to all_output. The other
         two output files contain the described subsets.
     """
-    with open(all_output, "a") as all, open(
-        pathogenic_output, "a"
-    ) as pathogenic, open(benign_output, "a") as benign:
+    with (
+        open(all_output, "a") as all,
+        open(pathogenic_output, "a") as pathogenic,
+        open(benign_output, "a") as benign,
+    ):
         with open(header, "r") as header:
             for line in header:
                 all.write(line)
@@ -62,7 +64,7 @@ def collect_benign_variants(giab, gene_symbols, info_field):
     The collect_benign_variants function:
         This function uses the giab vcf file to collect variants located the
         same genes as the pathogenic variants are found. These variants need
-        to have an allele frequency of atleast 0.8. They are stored in a list
+        to have an allele frequency of atleast 0.05. They are stored in a list
         which is returned. The info starting from column 6 is replaced a by
         default place holder which mirrors standard dragen output.
     """
@@ -79,7 +81,7 @@ def collect_benign_variants(giab, gene_symbols, info_field):
                 info = line.split("CSQ=")[1].split("|")
                 if info[symbol] in gene_symbols:
                     if info[max_af] != "":
-                        if float(info[max_af]) > 0.7:
+                        if float(info[max_af]) >= 0.05:
                             if line not in variants:
                                 variants.append(
                                     "\t".join(line.split("\t")[:5])

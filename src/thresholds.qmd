@@ -43,7 +43,8 @@ knitr::opts_chunk$set(fig.width=9,
 theme_set(theme_bw())
 ```
 
-# Load data
+# Threshold test data
+## Load data
 ```{r}
 #| label: tbl-data
 #| tbl-cap: _The first 8 rows of the data file._
@@ -53,7 +54,7 @@ theme_set(theme_bw())
 # https://medium.com/@jamie84mclaughlin/installing-r-and-the-tidyverse-on-ubuntu-20-04-60170020649b
 
 # Read in the tsv file in the data folder.
-data <- read_tsv("../data/benchmark-vcf/benchmark.annotated.edit.tab",
+data <- read_tsv("/home/j.boom/develop/genomescan/data/benchmark-vcf/2024-01-26/benchmark.annotated.tab",
                  col_names=TRUE,
                  skip=67,
                  show_col_types = FALSE)
@@ -64,14 +65,14 @@ head(data, n=8) |>
     kableExtra::kable_classic(full_width=FALSE)
 ```
 
-# Inspect & select data
+## Inspect & select data
 ```{r}
 #| label: tbl-data
 #| tbl-cap: _The first 8 rows of the most important numeric annotations._
 #| warning: false
 
 # Condense rows to one per variation id.
-data_dedup <- data[!duplicated(data$`#Uploaded_variation`), ] |>
+data_dedup <- data[!duplicated(data$`Uploaded_variation`), ] |>
     dplyr::rename("Variation_id" = 1)
 # Select just the important numeric annotation sources.
 # SIFT and PolyPhen were removed because they had not a single value.
@@ -109,50 +110,7 @@ head(data_nomissing_groups, n=8) |>
     kableExtra::kable_classic(full_width=FALSE)
 ```
 
-# Run PCAtools
-```{r}
-#| warning: false
-
-# Perform a principal component analysis, include centering and scaling of data.
-pca_data <- pca(data_nomissing,
-                center=TRUE,
-                scale=TRUE,
-                )
-
-# Perform horn's parallel analysis.
-# A method that determines how many components to keep.
-# It compares calculated eigenvalues to that from a Monte-Carlo simulated
-# data matrix of random data of the same size.
-pca_horn <- parallelPCA(data_nomissing)
-
-# Perform the elbow method.
-# By plotting the explained variation and determining the elbow of the line
-# you can determine where the line starts leveling out.
-pca_elbow <- findElbowPoint(pca_data$variance)
-
-# Show the explained variance in each component.
-screeplot(pca_data,
-          components = getComponents(pca_data, 1:20),
-          vline = c(pca_horn$n, pca_elbow)) +
-    geom_text(aes(pca_horn$n, 50, label = "Horn's", vjust = -1)) +
-    geom_text(aes(pca_elbow, 50, label = "Elbow", vjust = -1))
-
-# Output a biplot.
-biplot(pca_data,
-       labSize=5,
-       pointSize=5,
-       sizeLoadingsName=5,
-       legendPosition="right",
-       title="Biplot")
-
-# Plot the mutations in a scatterplot.
-PCAtools_scatterplot <- pca_data$loadings
-ggplot(PCAtools_scatterplot,
-       aes(x=PC1, y=PC2)) +
-    geom_point()
-```
-
-# Run PCA
+## Run PCA
 ```{r}
 #| warning: false
 
@@ -163,32 +121,16 @@ pca.data <- PCA(data_nomissing,
                 ncp=4,
                 scale.unit=TRUE)
 
-# Visualize eigenvalues/variances.
-fviz_screeplot(pca.data,
-               addlabels=TRUE)
-
 # Extract the results for variables.
 pca.var <- get_pca_var(pca.data)
-
-# Control variable colors using their contributions.
-fviz_pca_var(pca.data,
-             col.var="contrib",
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE # Avoid text overlapping.
-             )
 
 # Contributions of variables to PC1.
 contributions_pc1 <- fviz_contrib(pca.data, choice = "var", axes = 1, top = 10)
 # Contributions of variables to PC2.
 contributions_pc2 <- fviz_contrib(pca.data, choice = "var", axes = 2, top = 10)
-
-# Create a scatterplot.
-fviz_pca_ind(pca.data,
-             col.ind="cos2",
-             )
 ```
 
-# Run prcomp
+## Run prcomp
 ```{r}
 #| warning: false
 
@@ -198,7 +140,7 @@ pcadata <- prcomp(data_nomissing,
                   scale.=TRUE)
 ```
 
-# Create a scatterplot
+## Create a scatterplot
 ```{r}
 #| warning: false
 
@@ -234,7 +176,7 @@ pcascatterplot <- ggplot(data=pcascatterplotdata,
 pcascatterplot
 ```
 
-# Create a barplot
+## Create a barplot
 ```{r}
 #| warning: false
 
@@ -284,7 +226,7 @@ pcabarplot <- ggplot(data=pcabarplotdata,
 pcabarplot
 ```
 
-# Create a ROC plot
+## Create a ROC plot
 ```{r}
 #| warning: false
 
@@ -310,94 +252,6 @@ rocplot_multiple +
     facet_wrap(~ name)
 
 calc_auc(rocplot_multiple) |>
-    knitr::kable(format="html") |>
-    kableExtra::kable_classic(full_width=FALSE)
-```
-
-```{r}
-rocplot <- ggplot(data_nomissing_groups,
-                  aes(d=ClinVar_CLNSIG,
-                      m=CADD_RAW)) +
-    geom_roc(n.cuts=10,
-             labelsize=5,
-             labelround=2,
-             show.legend=TRUE,
-             labels=FALSE) +
-    xlim(-0.1, 1)
-rocplot
-
-?geom_roc
-```
-
-# Run logistic regression models
-```{r}
-#| warning: false
-
-# Stop the use of scientific notation.
-options(scipen=999)
-
-# The column names for the numeric annotation.
-column_names <- c("Variation_id", "CADD_PHRED", "CADD_RAW", "CAPICE_SCORE",
-                  "FATHMM_MKL_C", "FATHMM_MKL_NC", "ClinVar_CLNSIG")
-
-# Logistic regression models.
-model_logistic_regression_CADD_PHREDD <- glm(ClinVar_CLNSIG~CADD_PHRED,
-                                data_nomissing_groups,
-                                family="binomial")
-model_logistic_regression_CADD_RAW <- glm(ClinVar_CLNSIG~CADD_RAW,
-                             data_nomissing_groups,
-                             family="binomial")
-model_logistic_regression_CAPICE_SCORE <- glm(ClinVar_CLNSIG~CAPICE_SCORE,
-                                 data_nomissing_groups,
-                                 family="binomial")
-model_logistic_regression_FATHMM_MKL_C <- glm(ClinVar_CLNSIG~FATHMM_MKL_C,
-                                 data_nomissing_groups,
-                                 family="binomial")
-model_logistic_regression_FATHMM_MKL_NC <- glm(ClinVar_CLNSIG~FATHMM_MKL_NC,
-                                  data_nomissing_groups,
-                                  family="binomial")
-
-# Show tidy output of all models.
-bind_rows(tidy(model_logistic_regression_CADD_PHREDD),
-          tidy(model_logistic_regression_CADD_RAW),
-          tidy(model_logistic_regression_CAPICE_SCORE),
-          tidy(model_logistic_regression_FATHMM_MKL_C),
-          tidy(model_logistic_regression_FATHMM_MKL_NC)) |>
-    knitr::kable(format="html") |>
-    kableExtra::kable_classic(full_width=FALSE)
-```
-
-# Run logistic regression in logarithmic model
-```{r}
-#| warning: false
-
-# The column names for the numeric annotation.
-column_names <- c("Variation_id", "CADD_PHRED", "CADD_RAW", "CAPICE_SCORE",
-                  "FATHMM_MKL_C", "FATHMM_MKL_NC", "ClinVar_CLNSIG")
-
-# Logistic regression in logarithmic.
-model_logistic_regression_logarithmic_CADD_PHREDD <- glm(ClinVar_CLNSIG ~ log(CADD_PHRED + 1),
-                                                         data_nomissing_groups,
-                                                         family="binomial")
-model_logistic_regression_logarithmic_CADD_RAW <- glm(ClinVar_CLNSIG ~ log(CADD_RAW + 1),
-                                                      data_nomissing_groups,
-                                                      family="binomial")
-model_logistic_regression_logarithmic_CAPICE_SCORE <- glm(ClinVar_CLNSIG ~ log(CAPICE_SCORE + 1),
-                                                          data_nomissing_groups,
-                                                          family="binomial")
-model_logistic_regression_logarithmic_FATHMM_MKL_C <- glm(ClinVar_CLNSIG ~ log(FATHMM_MKL_C + 1),
-                                                          data_nomissing_groups,
-                                                          family="binomial")
-model_logistic_regression_logarithmic_FATHMM_MKL_NC <- glm(ClinVar_CLNSIG ~ log(FATHMM_MKL_NC + 1),
-                                                           data_nomissing_groups,
-                                                           family="binomial")
-
-# Show tidy output of all models.
-bind_rows(tidy(model_logistic_regression_logarithmic_CADD_PHREDD),
-          tidy(model_logistic_regression_logarithmic_CADD_RAW),
-          tidy(model_logistic_regression_logarithmic_CAPICE_SCORE),
-          tidy(model_logistic_regression_logarithmic_FATHMM_MKL_C),
-          tidy(model_logistic_regression_logarithmic_FATHMM_MKL_NC)) |>
     knitr::kable(format="html") |>
     kableExtra::kable_classic(full_width=FALSE)
 ```

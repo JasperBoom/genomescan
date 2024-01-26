@@ -21,12 +21,12 @@
 # -----------------------------------------------------------------------------
 
 #SBATCH --job-name="vep"
-#SBATCH --mem=30G
-#SBATCH --cpus-per-task=10
+#SBATCH --mem=15G
+#SBATCH --cpus-per-task=5
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=200:15:0
+#SBATCH --time=10:15:0
 #SBATCH --partition=all
 
 create_benchmark_set(){
@@ -35,7 +35,7 @@ create_benchmark_set(){
     #     benchmarking.
     #     Giab vcf files can be found here:
     #     https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/
-    source /home/j.boom/mambaforge/bin/activate base
+    source /home/j.boom/miniconda3/bin/activate base
     #wget https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf.gz
     singularity \
         exec \
@@ -153,8 +153,9 @@ run_vep() {
     #     https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
     #     mysql -h localhost -P 3307 -u j.boom -p 12345 -e "CREATE DATABASE fathmm"
     #     mysql -h localhost -P 3307 -u j.boom -p 12345 -Dfathmm < /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm.v2.3.SQL
-    source /home/j.boom/mambaforge/bin/activate base
-    for file in /mnt/titan/users/j.boom/vcf/personalgenomesuk/*.vcf.gz;
+    source /home/j.boom/miniconda3/bin/activate base
+    #for file in /mnt/titan/users/j.boom/vcf/personalgenomesuk/*.vcf;
+    for file in /home/j.boom/develop/genomescan/data/benchmark-vcf/*.vcf;
     do
         singularity \
             exec \
@@ -172,7 +173,7 @@ run_vep() {
                         --dir_plugins "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins" \
                         --tab \
                         --cache \
-                        --fork 8 \
+                        --fork 5 \
                         --sift "b" \
                         --polyphen "b" \
                         --af \
