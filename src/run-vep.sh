@@ -26,7 +26,7 @@
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=10:15:0
+#SBATCH --time=50:15:0
 #SBATCH --partition=all
 
 create_benchmark_set(){
@@ -89,6 +89,69 @@ index_alphamissense(){
                 "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/AlphaMissense_hg19.tsv.gz"
 }
 
+setup_bayesdel_plugin(){
+    # The setup_bayesdel_plugin function:
+    #     This function runs the bash commands required to setup the database
+    #     for the BayesDel plugin. These commands are described in the vep
+    #     plugin file for BayesDel.
+    tar \
+        -zxvf "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF.tgz" \
+        -C "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117"
+    rm \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/*.gz.tbi
+    gunzip \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/*.gz
+    for file in /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_chr*;
+    do
+        grep -v "^#" ${file} \
+            >> "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF.txt";
+    done
+    cat \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF.txt \
+        | sort \
+              -k1,1 \
+              -k2,2n \
+              > "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_sorted.txt"
+    grep \
+        "^#" \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_chr1 \
+        > /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
+    cat \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_sorted.txt \
+        >> /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
+    bgzip \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
+    tabix \
+        -s 1 \
+        -b 2 \
+        -e 2 \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz
+}
+
+setup_revel_plugin(){
+    # The setup_revel_plugin function:
+    #     This function runs the bash commands required to setup the database
+    #     for the REVEL plugin. These commands are described in the vep
+    #     plugin file for REVEL.
+    unzip \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/revel-v1.3_all_chromosomes.zip
+    cat \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/revel_with_transcript_ids \
+        | tr "," "\t" \
+            > /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/tabbed_revel.tsv
+    sed \
+        '1s/.*/#&/' \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/tabbed_revel.tsv \
+        > /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/new_tabbed_revel.tsv
+    bgzip /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/new_tabbed_revel.tsv
+    tabix \
+        -f \
+        -s 1 \
+        -b 2 \
+        -e 2 \
+        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/new_tabbed_revel.tsv.gz
+}
+
 install_plugins(){
     # The install_plugins function:
     #     This function will install VEP plugins in the specified directory.
@@ -108,11 +171,26 @@ install_plugins(){
     #         https://zenodo.org/records/3928295/files/capice_v1.0_build37_snvs.tsv.gz.tbi
     #         https://zenodo.org/records/3928295/files/capice_v1.0_build37_indels.tsv.gz
     #         https://zenodo.org/records/3928295/files/capice_v1.0_build37_indels.tsv.gz.tbi
-    #     Data for FATHMM:
-    #         https://raw.github.com/HAShihab/fathmm/master/cgi-bin/fathmm.py
-    #         http://fathmm.biocompute.org.uk/database/fathmm.v2.3.SQL.gz
     #     Data for FATHMM-MKL:
     #         http://fathmm.biocompute.org.uk/database/fathmm-MKL_Current.tab.gz
+    #     Data for BayesDel:
+    #         Requires a google account to access.
+    #         https://drive.google.com/drive/folders/1K4LI6ZSsUGBhHoChUtegC8bgCt7hbQlA
+    #         tar -zxvf BayesDel_170824_addAF.tgz
+    #         rm *.gz.tbi
+    #         gunzip *.gz
+    #         for f in BayesDel_170824_addAF_chr*; do grep -v "^#" $f >> BayesDel_170824_addAF.txt; done
+    #         cat BayesDel_170824_addAF.txt | sort -k1,1 -k2,2n > BayesDel_170824_addAF_sorted.txt
+    #         grep "^#" BayesDel_170824_addAF_chr1 > BayesDel_170824_addAF_all_scores.txt
+    #         cat BayesDel_170824_addAF_sorted.txt >> BayesDel_170824_addAF_all_scores.txt
+    #         bgzip BayesDel_170824_addAF_all_scores.txt
+    #         tabix -s 1 -b 2 -e 2 BayesDel_170824_addAF_all_scores.txt.gz
+    #     Data REVEL:
+    #         https://sites.google.com/site/revelgenomics/downloads
+    #         unzip revel-v1.3_all_chromosomes.zip
+    #         cat revel_with_transcript_ids | tr "," "\t" > tabbed_revel.tsv
+    #         sed '1s/.*/#&/' tabbed_revel.tsv > new_tabbed_revel.tsv
+    #         bgzip new_tabbed_revel.tsv
     singularity \
         exec \
             --containall \
@@ -123,7 +201,7 @@ install_plugins(){
                     --AUTO p \
                     --SPECIES homo_sapiens \
                     --ASSEMBLY GRCh37 \
-                    --PLUGINS AlphaMissense,CADD,CAPICE,FATHMM,FATHMM_MKL,dbNSFP \
+                    --PLUGINS AlphaMissense,CADD,CAPICE,FATHMM_MKL,dbNSFP \
                     --PLUGINSDIR "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins/"
 }
 
@@ -151,41 +229,35 @@ run_vep() {
     #     This function runs the VEP annotation tool on all vcf files in the
     #     specified folder.
     #     https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
-    #     mysql -h localhost -P 3307 -u j.boom -p 12345 -e "CREATE DATABASE fathmm"
-    #     mysql -h localhost -P 3307 -u j.boom -p 12345 -Dfathmm < /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm.v2.3.SQL
     source /home/j.boom/miniconda3/bin/activate base
-    #for file in /mnt/titan/users/j.boom/vcf/personalgenomesuk/*.vcf;
-    for file in /home/j.boom/develop/genomescan/data/benchmark-vcf/*.vcf;
+    for file in /home/j.boom/develop/genomescan/data/benchmark-vcf/2024-02-05/*.vcf;
     do
         singularity \
             exec \
                 --containall \
                 --bind /mnt,/home \
-                docker://ensemblorg/ensembl-vep:release_110.1 \
+                docker://ensemblorg/ensembl-vep:release_111.0 \
                     vep \
                         --input_file "${file}" \
-                        --output_file "${file::-3}annotated.tab" \
+                        --output_file "${file::-3}annotated.vcf" \
                         --stats_file "${file::-3}summary.html" \
                         --species "human" \
                         --format "vcf" \
                         --assembly "GRCh37" \
                         --dir_cache "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37" \
                         --dir_plugins "/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins" \
-                        --tab \
+                        --vcf \
                         --cache \
                         --fork 5 \
-                        --sift "b" \
-                        --polyphen "b" \
-                        --af \
                         --max_af \
-                        --af_gnomade \
                         --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/AlphaMissense_hg19.tsv.gz" \
                         --plugin "CADD,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/InDels.tsv.gz" \
                         --plugin "CAPICE,snv=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/capice_v1.0_build37_indels.tsv.gz" \
                         --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm-MKL_Current.tab.gz" \
-                        --custom file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/clinvar.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coord=0,fields=CLNSIG;
+                        --custom file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/clinvar.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG \
+                        --plugin "BayesDel,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz" \
+                        --plugin "REVEL,file=/mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/new_tabbed_revel.tsv.gz";
     done
-    # --plugin "FATHMM,python /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data_20240117/fathmm.py";
 }
 
 main() {
@@ -197,6 +269,8 @@ main() {
     #install_plugins
     #index_fathmm_mkl
     #create_benchmark_set
+    #setup_bayesdel_plugin
+    #setup_revel_plugin
 }
 
 # The getopts function.

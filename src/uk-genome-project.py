@@ -35,15 +35,9 @@ import pandas as pd
 def create_roc(variants):
     """
     The create_roc function:
+        This function creates a roc plot based on a logistic regression model.
         https://www.statology.org/plot-roc-curve-python/
     """
-    # url = "https://raw.githubusercontent.com/Statology/Python-Guides/main/default.csv"
-    # data = pd.read_csv(url)
-    # X = data[['student', 'balance', 'income']]
-    # y = data['default']
-    # print(y)
-    # print(type(y))
-
     predictor_x = variants[
         [
             "FATHMM_MKL_NC",
@@ -93,7 +87,7 @@ def extract_annotation(file):
     """
     The extract_annotation function:
         This function selects the columns of interest containing just the
-        annotation added by vep.
+        annotation added by vep, also dropping all rows containing NaN values.
     """
     column_names = [
         "Uploaded_variation",
@@ -105,69 +99,44 @@ def extract_annotation(file):
         "ClinVar_CLNSIG",
     ]
     annotation = file[column_names].dropna()
-    benign = [
-        "Likely_benign",
-        "Uncertain_significance",
-        "Benign/Likely_benign",
-        "Benign/Likely_benign|association",
-        "Benign|association",
-        "Benign|risk_factor",
-        "Benign|drug_response",
-        "Likely_benign|other",
-        "Benign|confers_sensitivity",
-    ]
-    pathogenic = [
-        "Conflicting_interpretations_of_pathogenicity|other",
-        "Conflicting_interpretations_of_pathogenicity",
-        "risk_factor",
-        "Likely_pathogenic",
-        "Likely_risk_allele",
-        "Pathogenic|risk_factor",
-        "Likely_pathogenic|protective",
-        "Conflicting_interpretations_of_pathogenicity|risk_factor",
-    ]
-    meaningless = [
-        "association",
-        "Uncertain_risk_allele",
-        "not_provided",
-        "drug_response",
-        "protective",
-        "Uncertain_significance|risk_factor",
-        "other",
-        "Affects|association|other",
-        "Uncertain_risk_allele|protective",
-        "Uncertain_significance|association",
-        "Affects",
-        "other|risk_factor",
-        "association_not_found",
-        "confers_sensitivity",
-        "protective|risk_factor",
-    ]
-    for item in meaningless:
-        annotation = annotation.drop(
-            annotation[annotation["ClinVar_CLNSIG"] == item].index
+    return annotation
+
+
+def replace_clinvar_column(file):
+    """
+    The replace_clinvar_column file:
+        This function reads in the truth set created using clinvar and
+        benchmark.py. The uk personal genome variant set is converted to purely
+        benign variants. These two tables are then merged and written to file.
+    """
+    truth_set = extract_annotation(
+        read_tabular(
+            "/home/j.boom/develop/genomescan/data/benchmark-vcf/2024-02-05/benchmark.annotated.tab",
+            57,
         )
-    for item in pathogenic:
-        annotation.loc[
-            annotation["ClinVar_CLNSIG"] == str(item), "ClinVar_CLNSIG"
-        ] = "Pathogenic"
-    for item in benign:
-        annotation.loc[
-            annotation["ClinVar_CLNSIG"] == str(item), "ClinVar_CLNSIG"
-        ] = "Benign"
-        return annotation
+    )
+    personal_genome = extract_annotation(file)
+    personal_genome.loc[
+        personal_genome["ClinVar_CLNSIG"] != "Benign", "ClinVar_CLNSIG"
+    ] = "Benign"
+    pd.concat([personal_genome, truth_set], axis=0).to_csv(
+        "/mnt/titan/users/j.boom/vcf/personalgenomesuk/FR07961005.pass.recode.annotated.edit.tab",
+        sep="\t",
+        index=False,
+        header=True,
+    )
 
 
-def read_tabular(path):
+def read_tabular(path, skip):
     """
     The read_tabular function:
-        This function reads in a tabular file, skips the first 67 rows
-        and converts dash values tot NaN.
+        This function reads in a tabular file, skips the number of rows
+        indicated by "skip" and converts dash values tot NaN.
     """
     file = pd.read_table(
         path,
         sep="\t",
-        skiprows=67,
+        skiprows=skip,
         na_values="-",
         keep_default_na=True,
         low_memory=False,
@@ -198,6 +167,15 @@ def parse_argvs():
         help="The input tabular file containing variants and annotation.",
     )
     parser.add_argument(
+        "--r",
+        "--replace",
+        action="store",
+        dest="replace_column",
+        type=bool,
+        default=False,
+        help="Replace the ClinVar column with just benign values.",
+    )
+    parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s [1.0]]"
     )
     argvs = parser.parse_args()
@@ -210,10 +188,14 @@ def main():
         This function calls all processing functions in correct order.
     """
     user_arguments = parse_argvs()
-    variant_file = read_tabular(user_arguments.tab_file)
-    variants_filtered = extract_annotation(variant_file)
-    count_clinical_relevance(variants_filtered)
-    create_roc(variants_filtered)
+    if user_arguments.replace_column == True:
+        variant_file = read_tabular(user_arguments.tab_file, 57)
+        replace_clinvar_column(variant_file)
+    elif user_arguments.replace_column == False:
+        variant_file = read_tabular(user_arguments.tab_file, 0)
+        variants_filtered = extract_annotation(variant_file)
+        count_clinical_relevance(variants_filtered)
+        create_roc(variants_filtered)
 
 
 if __name__ == "__main__":

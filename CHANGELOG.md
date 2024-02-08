@@ -40,3 +40,7 @@ Contact information: info@jboom.org.
   standards and add the python script from fathmm with a test to convert it
   to using sqlite3.
 + Checked formatting for all files, also include test vcf files.
++ Split the old Quarto document into two, the first looking into the ClinVar
+  and GIAB test dataset. The second looking into the combination of the
+  previously mentioned dataset and two individuals from the UK Personal Genome
+  project.
