@@ -1,0 +1,164 @@
+---
+title: "Investigate 105861-001-031-DNA-150734 sample"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Investigate 105861-001-031-DNA-150734 sample
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readxl")
+library("broom")
+library("naniar")
+library("factoextra")
+library("FactoMineR")
+library("plotROC")
+library("data.table")
+library("Rtsne")
+library("cutpointr")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+# Set a seed for reproducability.
+set.seed(1995)
+
+# Set other formatting settings of Quarto document.
+knitr::opts_chunk$set(echo=TRUE,
+                      message=FALSE,
+                      fig.width=9,
+                      fig.height=9,
+                      out.width="85%",
+                      fig.align="center")
+
+# Set a nice theme.
+theme_set(theme_bw())
+```
+
+# UK Personal Genome project
+## Load datasets for individual 105861-001-031-DNA-150734
+```{r}
+#| warning: false
+
+# Read in the tsv file in the data folder, based on the personal genome project.
+# This is individual S150734. It includes the variants from the GIAB/ClinVar
+# test set.
+S150734 <- read_tsv(
+    "/mnt/titan/users/j.boom/vcf/105861/adjusted/test1/105861-001-031-DNA-150734.male.PTEN.sorted.annotated.edit.tab",
+    col_names=TRUE,
+    show_col_types = FALSE,
+    skip=57)
+```
+
+## Inspect & select data for individual 105861-001-031-DNA-150734
+```{r}
+#| label: tbl-data
+#| tbl-cap: _The first 8 rows of the most important numeric annotations._
+#| warning: false
+
+# Condense rows to one per variation id, vep reports all transcripts it can
+# find by default.
+S150734.dedup <- S150734[!duplicated(
+    S150734$`Uploaded_variation`), ] |>
+    dplyr::rename("Variation_id" = 1)
+
+# Select just the important numeric annotation sources. Replace dash with NA
+# and make sure the values are numeric.
+S150734.select <- S150734.dedup[, c(
+    "Variation_id",
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC",
+    "ClinVar_CLNSIG")] |>
+    replace_with_na_all(condition = ~.x == "-") |>
+    mutate_at(c(
+        "CADD_PHRED",
+        "CADD_RAW",
+        "CAPICE_SCORE",
+        "FATHMM_MKL_C",
+        "FATHMM_MKL_NC"),
+        function(x) as.numeric(as.character(x)))
+
+# Remove rows of columns with missing values, set the category to a factor and
+# set the variant identifiers as rownames.
+S150734.nomissing <- S150734.select |>
+    drop_na() |>
+    dplyr::mutate_at(c("ClinVar_CLNSIG"),
+                     as.factor) |>
+    tibble::column_to_rownames(var="Variation_id")
+
+# Display the first 8 lines of the data.
+head(S150734.nomissing,
+     n=8) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+# Try out thresholds on S150734
+```{r}
+#| warning: false
+
+# Create a vector with the optimal thresholds, just as a reminder.
+MODEL.THRESHOLDS <- c(
+    21.5,
+    2.21509,
+    0.0089,
+    0.71714,
+    0.93525
+)
+
+# Select the variants that would classify as pathogenic.
+S150734.validation.pathogenic <- S150734.nomissing[
+    S150734.nomissing$CADD_PHRED > 21.5 &
+    S150734.nomissing$CADD_RAW > 2.21509 &
+    S150734.nomissing$CAPICE_SCORE > 0.0089 &
+    S150734.nomissing$FATHMM_MKL_C > 0.71714 &
+    S150734.nomissing$FATHMM_MKL_NC > 0.93525
+,] |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+S150734.validation.benign <- S150734.nomissing[
+    S150734.nomissing$CADD_PHRED <= 21.5 &
+    S150734.nomissing$CADD_RAW <= 2.21509 &
+    S150734.nomissing$CAPICE_SCORE <= 0.0089 &
+    S150734.nomissing$FATHMM_MKL_C <= 0.71714 &
+    S150734.nomissing$FATHMM_MKL_NC <= 0.93525
+,] |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+S150734.validation.total <- rbind(
+    S150734.validation.pathogenic,
+    S150734.validation.benign
+)
+
+# Create a confusion matrix with additional statistics.
+confusionMatrix(
+    data=factor(S150734.validation.total$MODEL),
+    reference=factor(S150734.validation.total$ClinVar_CLNSIG)
+)
+
+# Output a simple confusion matrix.
+table(
+    factor(S150734.validation.total$ClinVar_CLNSIG),
+    factor(S150734.validation.total$MODEL)
+) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```

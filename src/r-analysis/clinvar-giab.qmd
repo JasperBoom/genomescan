@@ -1,0 +1,621 @@
+---
+title: "Investigate ClinVar & GIAB test set"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Investigate ClinVar & GIAB test set
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readxl")
+library("broom")
+library("naniar")
+library("factoextra")
+library("FactoMineR")
+library("plotROC")
+library("data.table")
+library("Rtsne")
+library("cutpointr")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+# Set a seed for reproducability.
+set.seed(1995)
+
+# Set other formatting settings of Quarto document.
+knitr::opts_chunk$set(echo=TRUE,
+                      message=FALSE,
+                      fig.width=9,
+                      fig.height=9,
+                      out.width="85%",
+                      fig.align="center")
+
+# Set a nice theme.
+theme_set(theme_bw())
+```
+
+# ClinVar and GIAB project
+## Load data from the python script
+```{r}
+#| warning: false
+
+# Read in the tsv file in the data folder, the original test set based on
+# ClinVar and GIAB.
+giab <- read_tsv(
+    "/home/j.boom/develop/genomescan/data/benchmark-vcf/2024-02-05/benchmark.annotated.tab",
+    col_names=TRUE,
+    skip=57,
+    show_col_types = FALSE)
+```
+
+## Inspect & select data from ClinVar/GIAB data
+```{r}
+#| label: tbl-data
+#| tbl-cap: _The first 8 rows of the most important numeric annotations._
+#| warning: false
+
+# Condense rows to one per variation id, vep reports all transcripts it can
+# find by default.
+giab.dedup <- giab[!duplicated(
+    giab$`Uploaded_variation`), ] |>
+    dplyr::rename("Variation_id" = 1)
+
+# Select just the important numeric annotation sources. Replace dash with NA
+# and make sure the values are numeric.
+giab.select <- giab.dedup[, c("Variation_id",
+                              "CADD_PHRED",
+                              "CADD_RAW",
+                              "CAPICE_SCORE",
+                              "FATHMM_MKL_C",
+                              "FATHMM_MKL_NC",
+                              "ClinVar_CLNSIG")] |>
+    replace_with_na_all(condition = ~.x == "-") |>
+    mutate_at(c("CADD_PHRED",
+                "CADD_RAW",
+                "CAPICE_SCORE",
+                "FATHMM_MKL_C",
+                "FATHMM_MKL_NC"),
+              function(x) as.numeric(as.character(x)))
+
+# Remove rows of columns with missing values, set the category to a factor and
+# set the variant identifiers as rownames.
+giab.nomissing <- giab.select |>
+    drop_na() |>
+    dplyr::mutate_at(c("ClinVar_CLNSIG"),
+                     as.factor) |>
+    tibble::column_to_rownames(var="Variation_id")
+
+# Display the first 8 lines of the data.
+head(giab.nomissing,
+     n=8) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+## Run PCA package for ClinVar/GIAB data
+```{r}
+#| warning: false
+
+# http://www.sthda.com/english/wiki/factoextra-r-package-
+# easy-multivariate-data-analyses-and-elegant-visualization
+# Perform a principal component analysis, include centering and scaling of data.
+# Using the PCA command.
+giab.pca.data <- PCA(giab.nomissing[,1:5],
+                     graph=FALSE,
+                     ncp=4,
+                     scale.unit=TRUE)
+
+# Extract the results for variables.
+giab.pca.var <- get_pca_var(giab.pca.data)
+
+# Contributions of variables to PC1.
+giab.pc1.contribs <- fviz_contrib(giab.pca.data,
+                                  choice="var",
+                                  axes=1,
+                                  top=10)
+
+# Contributions of variables to PC2.
+giab.pc2.contribs <- fviz_contrib(giab.pca.data,
+                                  choice="var",
+                                  axes=2,
+                                  top=10)
+```
+
+## Run prcomp package for ClinVar/GIAB data
+```{r}
+#| warning: false
+
+# https://plotly.com/ggplot2/pca-visualization/
+# Perform a principal component analysis, include centering and scaling of data.
+# Using the prcomp command.
+giab.prcomp.data <- prcomp(
+    giab.nomissing[,1:5],
+    center=TRUE,
+    scale.=TRUE)
+```
+
+## Create a scatterplot for ClinVar/GIAB data
+```{r}
+#| warning: false
+
+# Prepare data from prcomp for ggplot scatterplot.
+giab.pca.scatterplot.data <- cbind(
+    giab.prcomp.data$x[,1:2],
+    as.character(giab.nomissing[,6])) |>
+    as_tibble() |>
+    dplyr::rename(PC1="PC1",
+                  PC2="PC2",
+                  CONDITION="V3") |>
+    dplyr::mutate_at(c("PC1"),
+                     as.numeric) |>
+    dplyr::mutate_at(c("PC2"),
+                     as.numeric)
+
+# Extract the variance explained by the first two components.
+giab.pca.variance <- summary(
+    giab.prcomp.data)$importance[2,]
+
+# Create the scatterplot.
+giab.pca.scatterplot <- ggplot(
+    data=giab.pca.scatterplot.data,
+    aes(x=PC1,
+        y=PC2,
+        colour=CONDITION)) +
+    geom_point(size=2) +
+    theme(legend.position=c(0.95,0.75),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#83b96d",
+                                 "#00a6cf"),
+                        name="Clinical significance") +
+    ggtitle("Projection of data on principal components one and two") +
+    xlab(paste(paste("PC1 -",
+                     format(round(giab.pca.variance["PC1"] * 100),
+                            2,
+                            nsmall=2),
+                     sep=" "),
+               "%",
+               sep="")) +
+    ylab(paste(paste("PC2 -",
+                     format(round(giab.pca.variance["PC2"] * 100),
+                            2,
+                            nsmall=2),
+                     sep=" "),
+               "%",
+               sep=""))
+
+# Print the scatterplot.
+giab.pca.scatterplot
+```
+
+## Create a barplot for ClinVar/GIAB data
+```{r}
+#| warning: false
+
+# Prepare data from prcomp for ggplot barplot.
+giab.pca.barplot.data <- cbind(giab.pc1.contribs$data[,c(1,2)],
+                               giab.pc2.contribs$data[,2]) |>
+    as_tibble() |>
+    dplyr::rename(PC1="contrib",
+                  PC2="giab.pc2.contribs$data[, 2]",
+                  METHOD="name") |>
+    dplyr::mutate_at(c("PC1"), as.numeric) |>
+    dplyr::mutate_at(c("PC2"), as.numeric) |>
+    pivot_longer(names_to="PCA",
+                 values_to="CONTRIBUTION",
+                 cols=c("PC1", "PC2")) |>
+    dplyr::mutate(across(c("CONTRIBUTION"),
+                         round,
+                         2))
+
+# Create the barplot.
+giab.pca.barplot <- ggplot(data=giab.pca.barplot.data,
+                           aes(x=METHOD,
+                               y=CONTRIBUTION,
+                               fill=PCA,
+                               colour=PCA)) +
+    ylim(c(0,70)) +
+    geom_bar(stat="identity",
+             position=position_dodge()) +
+    geom_text(aes(label=CONTRIBUTION),
+              fontface="bold",
+              vjust=-1,
+              position=position_dodge(0.9),
+              size=4,
+              colour="black") +
+    theme(legend.position=c(0.95,0.75),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#003670",
+                                 "#ec9e62"),
+                        name="Principal component") +
+    scale_fill_manual(values=c("#003670",
+                               "#ec9e62"),
+                      name="Principal component") +
+    ggtitle("Contribution of the different annotation sources in principal\
+             components one and two") +
+    xlab("Annotation source") +
+    ylab("Contribution (%)")
+
+# Print the barplot.
+giab.pca.barplot
+```
+
+## Create scatterplot using the annotation scores for ClinVar/GIAB data
+```{r}
+#| warning: false
+
+# Create a scatterplot of purely the scores we got from CAPICE and FATHMM
+# coding.
+giab.scores.scatterplot <- ggplot(
+    data=giab.nomissing,
+    aes(x=CAPICE_SCORE,
+        y=FATHMM_MKL_C,
+        colour=ClinVar_CLNSIG)) +
+    geom_point(size=2) +
+    theme(legend.position=c(0.6,0.2),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#83b96d",
+                                 "#003670"),
+                        name="Clinical significance") +
+    ggtitle("Annotation scores from CAPICE and FATHMM coding") +
+    xlab("CAPICE source") +
+    ylab("FATHMM coding score")
+
+# Print the scatterplot.
+giab.scores.scatterplot
+```
+
+## Create TSNE plot for GIAB/ClinVar data
+```{r}
+#| warning: false
+
+# https://plotly.com/ggplot2/pca-visualization/
+# Create a TSNE object using the annotation columns, make sure to ignore
+# duplicates, this has something to do with identical values generated by the
+# PCA which is done under the hood.
+giab.tsne <- Rtsne(
+    as.matrix(giab.nomissing[,1:5]),
+    check_duplicates=FALSE)
+
+# Extract the coordinates created by TSNE and add a column for colouring.
+giab.tsne.data <- data.frame(
+    x=giab.tsne$Y[,1],
+    y=giab.tsne$Y[,2],
+    colour=giab.nomissing$ClinVar_CLNSIG)
+```
+
+## Display the TSNE plot
+```{r}
+#| warning: false
+
+# Use ggplot to display the TSNE results.
+giab.tsne.plot <- ggplot(
+    data=giab.tsne.data,
+    aes(x=x,
+        y=y,
+        colour=colour)) +
+    geom_point(size=2) +
+    scale_colour_manual(values=c("#ec9e62",
+                                 "#00a6cf"),
+                        name="Clinical significance") +
+    ggtitle("TSNE clustering of all annotation sources") +
+    xlab("") +
+    ylab("")
+
+# Print the TSNE plot.
+giab.tsne.plot
+```
+
+# Use the cutpointr package for creating ROC plots
+```{r}
+#| warning: false
+
+# Create the ROC objects with all required information.
+## CADD_PHRED.
+giab.cp.CADD_PHRED <- cutpointr(
+    giab.nomissing,
+    CADD_PHRED,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE)
+
+## CADD_RAW.
+giab.cp.CADD_RAW <- cutpointr(
+    giab.nomissing,
+    CADD_RAW,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE)
+
+## CAPICE_SCORE.
+giab.cp.CAPICE_SCORE <- cutpointr(giab.nomissing,
+                                  CAPICE_SCORE,
+                                  ClinVar_CLNSIG,
+                                  method=maximize_metric,
+                                  metric=sum_sens_spec,
+                                  pos_class="Pathogenic",
+                                  neg_class="Benign",
+                                  silent=TRUE)
+
+## FATHMM_MKL_C.
+giab.cp.FATHMM_MKL_C <- cutpointr(giab.nomissing,
+                                  FATHMM_MKL_C,
+                                  ClinVar_CLNSIG,
+                                  method=maximize_metric,
+                                  metric=sum_sens_spec,
+                                  pos_class="Pathogenic",
+                                  neg_class="Benign",
+                                  silent=TRUE)
+
+## FATHMM_MKL_NC.
+giab.cp.FATHMM_MKL_NC <- cutpointr(giab.nomissing,
+                                   FATHMM_MKL_NC,
+                                   ClinVar_CLNSIG,
+                                   method=maximize_metric,
+                                   metric=sum_sens_spec,
+                                   pos_class="Pathogenic",
+                                   neg_class="Benign",
+                                   silent=TRUE)
+```
+
+## Prepare the data for plotting ROC lines
+```{r}
+#| warning: false
+
+# Prepare the data for plotting the ROC line.
+giab.cp.CADD_PHRED.roc <- as.data.frame(
+    giab.cp.CADD_PHRED[["roc_curve"]]) |>
+    mutate(annotation = "CADD_PHRED")
+giab.cp.CADD_RAW.roc <- as.data.frame(
+    giab.cp.CADD_RAW[["roc_curve"]]) |>
+    mutate(annotation = "CADD_RAW")
+giab.cp.CAPICE_SCORE.roc <- as.data.frame(
+    giab.cp.CAPICE_SCORE[["roc_curve"]]) |>
+    mutate(annotation = "CAPICE_SCORE")
+giab.cp.FATHMM_MKL_C.roc <- as.data.frame(
+    giab.cp.FATHMM_MKL_C[["roc_curve"]]) |>
+    mutate(annotation = "FATHMM_MKL_C")
+giab.cp.FATHMM_MKL_NC.roc <- as.data.frame(
+    giab.cp.FATHMM_MKL_NC[["roc_curve"]]) |>
+    mutate(annotation = "FATHMM_MKL_NC")
+
+## Combine all tables.
+giab.cp.roc.data <- rbind(giab.cp.CADD_PHRED.roc,
+                          giab.cp.CADD_RAW.roc,
+                          giab.cp.CAPICE_SCORE.roc,
+                          giab.cp.FATHMM_MKL_C.roc,
+                          giab.cp.FATHMM_MKL_NC.roc)
+```
+
+## Also extract the optimal thresholds for classification
+```{r}
+#| warning: false
+
+# Prepare the data for plotting the thresholds in the ROC plots.
+## CADD_PHRED.
+giab.cp.roc.CADD_PHRED.threshold <- as.data.frame(
+    giab.cp.CADD_PHRED[["optimal_cutpoint"]]) |>
+    mutate(annotation = "CADD_PHRED") |>
+    rename(threshold = 1)
+giab.cp.roc.CADD_PHRED.threshold.location <- giab.cp.CADD_PHRED.roc[
+    giab.cp.CADD_PHRED.roc$x.sorted == giab.cp.CADD_PHRED[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+giab.cp.roc.CADD_PHRED.threshold.location.total <- merge(
+    giab.cp.roc.CADD_PHRED.threshold,
+    giab.cp.roc.CADD_PHRED.threshold.location,
+    by="threshold")
+
+## CADD_RAW.
+giab.cp.roc.CADD_RAW.threshold <- as.data.frame(
+    giab.cp.CADD_RAW[["optimal_cutpoint"]]) |>
+    mutate(annotation = "CADD_RAW") |>
+    rename(threshold = 1)
+giab.cp.roc.CADD_RAW.threshold.location <- giab.cp.CADD_RAW.roc[
+    giab.cp.CADD_RAW.roc$x.sorted == giab.cp.CADD_RAW[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+giab.cp.roc.CADD_RAW.threshold.location.total <- merge(
+    giab.cp.roc.CADD_RAW.threshold,
+    giab.cp.roc.CADD_RAW.threshold.location,
+    by="threshold")
+
+## CAPICE_SCORE.
+giab.cp.roc.CAPICE_SCORE.threshold <- as.data.frame(
+    giab.cp.CAPICE_SCORE[["optimal_cutpoint"]]) |>
+    mutate(annotation = "CAPICE_SCORE") |>
+    rename(threshold = 1)
+giab.cp.roc.CAPICE_SCORE.threshold.location <- giab.cp.CAPICE_SCORE.roc[
+    giab.cp.CAPICE_SCORE.roc$x.sorted == giab.cp.CAPICE_SCORE[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+giab.cp.roc.CAPICE_SCORE.threshold.location.total <- merge(
+    giab.cp.roc.CAPICE_SCORE.threshold,
+    giab.cp.roc.CAPICE_SCORE.threshold.location,
+    by="threshold")
+
+## FATHMM_MKL_C.
+giab.cp.roc.FATHMM_MKL_C.threshold <- as.data.frame(
+    giab.cp.FATHMM_MKL_C[["optimal_cutpoint"]]) |>
+    mutate(annotation = "FATHMM_MKL_C") |>
+    rename(threshold = 1)
+giab.cp.roc.FATHMM_MKL_C.threshold.location <- giab.cp.FATHMM_MKL_C.roc[
+    giab.cp.FATHMM_MKL_C.roc$x.sorted == giab.cp.FATHMM_MKL_C[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+giab.cp.roc.FATHMM_MKL_C.threshold.location.total <- merge(
+    giab.cp.roc.FATHMM_MKL_C.threshold,
+    giab.cp.roc.FATHMM_MKL_C.threshold.location,
+    by="threshold")
+
+## FATHMM_MKL_NC.
+giab.cp.roc.FATHMM_MKL_NC.threshold <- as.data.frame(
+    giab.cp.FATHMM_MKL_NC[["optimal_cutpoint"]]) |>
+    mutate(annotation = "FATHMM_MKL_NC") |>
+    rename(threshold = 1)
+giab.cp.roc.FATHMM_MKL_NC.threshold.location <- giab.cp.FATHMM_MKL_NC.roc[
+    giab.cp.FATHMM_MKL_NC.roc$x.sorted == giab.cp.FATHMM_MKL_NC[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+giab.cp.roc.FATHMM_MKL_NC.threshold.location.total <- merge(
+    giab.cp.roc.FATHMM_MKL_NC.threshold,
+    giab.cp.roc.FATHMM_MKL_NC.threshold.location,
+    by="threshold")
+
+## Combine all tables.
+giab.cp.roc.thresholds <- rbind(
+    giab.cp.roc.CADD_PHRED.threshold.location.total,
+    giab.cp.roc.CADD_RAW.threshold.location.total,
+    giab.cp.roc.CAPICE_SCORE.threshold.location.total,
+    giab.cp.roc.FATHMM_MKL_C.threshold.location.total,
+    giab.cp.roc.FATHMM_MKL_NC.threshold.location.total)
+```
+
+## Display the ROC plots
+```{r}
+#| warning: false
+
+# Create ROC plots for the annotation sources, split over multiple windows.
+giab.lineplot <- ggplot(
+    data=giab.cp.roc.data,
+    aes(x=fpr,
+        y=tpr,
+        colour=annotation)) +
+    geom_line() +
+    geom_point(data=giab.cp.roc.thresholds,
+               aes(x=fpr,
+                   y=tpr,
+                   col=annotation)) +
+    geom_text(data=giab.cp.roc.thresholds,
+              aes(x=fpr,
+                  y=tpr,
+                  label=threshold),
+              vjust=2,
+              hjust=-0.25) +
+    theme(legend.position=c(0.95,0.001),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#ec9e62",
+                                 "#00a6cf",
+                                 "#83b96d",
+                                 "#003670",
+                                 "#C73B1D"),
+                        name="Annotation source") +
+    ggtitle("Receiver Operating Curves based on the five annotation\
+             score sets") +
+    xlab("False Positive Rate") +
+    ylab("True Positive Rate") +
+    xlim(-0.1, 1) +
+    ylim(0, 1.1)
+
+## Change the title of all plots.
+giab.lineplot.facet.titles <- c(
+    paste("CADD PHRED - AUC:", substr(
+        as.character(giab.cp.CADD_PHRED$AUC), 1, 6)),
+    paste("CADD RAW - AUC:", substr(
+        as.character(giab.cp.CADD_RAW$AUC), 1, 6)),
+    paste("CAPICE SCORE - AUC:", substr(
+        as.character(giab.cp.CAPICE_SCORE$AUC), 1, 6)),
+    paste("FATHMM MKL C - AUC:", substr(
+        as.character(giab.cp.FATHMM_MKL_C$AUC), 1, 6)),
+    paste("FATHMM MKL NC - AUC:", substr(
+        as.character(giab.cp.FATHMM_MKL_NC$AUC), 1, 6)))
+
+## Add names to the vector.
+names(giab.lineplot.facet.titles) <- c(
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC")
+
+## Display the windowed ROC plots.
+giab.lineplot +
+    facet_wrap(. ~ annotation,
+               labeller=labeller(
+                   annotation=giab.lineplot.facet.titles))
+```
+
+# Try out thresholds on ClinVar/GIAB data
+```{r}
+#| warning: false
+
+# Create a vector with the optimal thresholds, just as a reminder.
+MODEL.THRESHOLDS <- c(
+    21.5,
+    2.21509,
+    0.0089,
+    0.71714,
+    0.93525
+)
+
+# Select the variants that would classify as pathogenic.
+giab.validation.pathogenic <- giab.nomissing[
+    giab.nomissing$CADD_PHRED > 21.5 &
+    giab.nomissing$CADD_RAW > 2.21509 &
+    giab.nomissing$CAPICE_SCORE > 0.0089 &
+    giab.nomissing$FATHMM_MKL_C > 0.71714 &
+    giab.nomissing$FATHMM_MKL_NC > 0.93525
+,] |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+giab.validation.benign <- giab.nomissing[
+    giab.nomissing$CADD_PHRED <= 21.5 &
+    giab.nomissing$CADD_RAW <= 2.21509 &
+    giab.nomissing$CAPICE_SCORE <= 0.0089 &
+    giab.nomissing$FATHMM_MKL_C <= 0.71714 &
+    giab.nomissing$FATHMM_MKL_NC <= 0.93525
+,] |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+giab.validation.total <- rbind(
+    giab.validation.pathogenic,
+    giab.validation.benign
+)
+
+# Output a simple confusion matrix.
+table(
+    factor(giab.validation.total$ClinVar_CLNSIG),
+    factor(giab.validation.total$MODEL)
+) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+# Output session information
+```{r}
+#| warning: false
+
+# Print the session info including packages and version used.
+sessionInfo()
+```

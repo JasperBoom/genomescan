@@ -44,3 +44,7 @@ Contact information: info@jboom.org.
   and GIAB test dataset. The second looking into the combination of the
   previously mentioned dataset and two individuals from the UK Personal Genome
   project.
++ Remove time limit from all bash scripts.
++ Update the R analysis with fully annotated plots.
++ Remove scripts that were either unfinished and not needed or scripts that
+  were replaced by others.

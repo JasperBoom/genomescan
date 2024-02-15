@@ -26,30 +26,22 @@
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=1:15:0
 #SBATCH --partition=all
 
 run_replace(){
     # The run_replace function:
-    #     
+    #     This function calls the uk-genome-project python script which
+    #     replaces the ClinVar clinical significance column into just benign
+    #     classification and adds the pathogenic variants extracted from
+    #     ClinVar as additional variants.
     source /home/j.boom/miniconda3/bin/activate base
-    python3 /home/j.boom/develop/genomescan/src/uk-genome-project.py \
-        --replace True \
-        --tab "/mnt/titan/users/j.boom/vcf/personalgenomesuk/FR07961005.pass.recode.annotated.tab"
-}
-
-run_roc(){
-    # The run_roc function:
-    #     
-    source /home/j.boom/miniconda3/bin/activate base
-    python3 /home/j.boom/develop/genomescan/src/uk-genome-project.py \
-        --tab "/mnt/titan/users/j.boom/vcf/personalgenomesuk/FR07961003.pass.recode.annotated.edit.tab"
+    python3 /home/j.boom/develop/genomescan/src/python/uk-genome-project.py \
+        --tab "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961000/FR07961005.pass.recode.annotated.tab"
 }
 
 main() {
     # The main function:
     #     This function calls all processing functions in correct order.
-    #run_roc
     run_replace
 }
 
@@ -77,8 +69,7 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the uk-genome-project script that generates"
-            echo "a PCA plot for a large dataset."
+            echo "This script runs the uk-genome-project script."
             echo ""
 
             exit

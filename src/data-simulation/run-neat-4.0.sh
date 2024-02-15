@@ -26,7 +26,6 @@
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=1:15:0
 #SBATCH --partition=all
 
 main() {
@@ -38,7 +37,7 @@ main() {
     time_stamp="$(date +"%d-%m-%y-%T")"
     neat \
         read-simulator \
-        -c "/mnt/titan/users/j.boom/genomescan/src/template_neat_config.yml" \
+        -c "/home/j.boom/develop/genomescan/src/data-simulation/template_neat_config.yml" \
         -o "/mnt/titan/users/j.boom/tool-testing/simulated_data/${time_stamp}"
 }
 

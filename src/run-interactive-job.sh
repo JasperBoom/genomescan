@@ -29,7 +29,6 @@ main() {
         --ntasks-per-node=1 \
         --job-name=interactive-job \
         --partition=all \
-        --time=120:0:0 \
         --mem=125GB \
         --export=ALL \
         --pty bash -i

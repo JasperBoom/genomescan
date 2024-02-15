@@ -26,7 +26,6 @@
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=1:15:0
 #SBATCH --partition=all
 
 main() {
@@ -34,7 +33,7 @@ main() {
     #     This function runs the imiv script on all vcf files in the specified
     #     folder. This inserts a meningioma pathogenic variant, sorts the vcf
     #     file, compresses it and creates an index.
-    source /home/j.boom/mambaforge/bin/activate base
+    source /home/j.boom/miniconda3/bin/activate base
     for file_105861 in /mnt/titan/users/j.boom/vcf/105861/*.vcf;
     do
         python3 /home/j.boom/develop/genomescan/src/imiv.py \

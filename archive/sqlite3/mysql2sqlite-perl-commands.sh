@@ -68,14 +68,14 @@ do
     case ${option} in
         v)
             echo ""
-            echo "run-mysql2sqlite-perl-commands.sh [1.0]"
+            echo "mysql2sqlite-perl-commands.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-mysql2sqlite-perl-commands.sh [-v] [-h]"
+            echo "Usage: mysql2sqlite-perl-commands.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."

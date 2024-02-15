@@ -26,7 +26,6 @@
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=1:15:0
 #SBATCH --partition=all
 
 download_variation_ids() {
@@ -48,15 +47,20 @@ download_variation_ids() {
 run_python_script() {
     # The run_python_script function:
     #     This function runs the python script benchmark.py.
+    #     The main subject is meningioma.
+    #     https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/
+    #     Brain tumours: astrocytomas,oligodendroglioma,glioblastoma,
+    #                    craniopharyngioma,ependymoma,medulloblastoma,glioma
+    #     Cancer in general: cancer
     source /home/j.boom/miniconda3/bin/activate base
-    python3 /home/j.boom/develop/genomescan/src/benchmark.py \
-        --giab "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
-        --disease-groups "meningioma,ependymomas,astrocytomas" \
-        --clinvar "/mnt/titan/users/j.boom/clinvar/clinvar.grch37.vcf" \
+    python3 /home/j.boom/develop/genomescan/src/python/benchmark.py \
+        --giab "/mnt/titan/users/j.boom/r-analysis/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
+        --disease-groups "breast,prostate,lung,bronchus,colon,rectum,pancreas,cancer,tumour" \
+        --clinvar "/mnt/titan/users/j.boom/r-analysis/clinvar/clinvar_20240206.vcf" \
         --header "/home/j.boom/develop/genomescan/data/default-vcf-header.txt" \
-        --output "/home/j.boom/develop/genomescan/data/benchmark-vcf/benchmark.vcf" \
-        --pathogenic "/home/j.boom/develop/genomescan/data/benchmark-vcf/pathogenic.vcf" \
-        --benign "/home/j.boom/develop/genomescan/data/benchmark-vcf/benign.vcf"
+        --output "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/giab-clinvar.vcf" \
+        --pathogenic "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/pathogenic.vcf" \
+        --benign "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/benign.vcf"
 }
 
 main() {

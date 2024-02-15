@@ -1,7 +1,7 @@
 # GenomeScan Internship Repository
-A repository that contains all scripts and other documents used on the
-genomescan hpc for back-up purposes. This includes testing different tools,
-the snakemake tutorial and actually analysis scripts.
+A repository that contains all scripts and other documents used during my
+genomescan internship. This includes testing different tools,
+the snakemake tutorial and analysis scripts.
 
 ## Author(s)
 * [Jasper Boom](https://github.com/JasperBoom)

@@ -26,7 +26,6 @@
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=12:15:0
 #SBATCH --partition=all
 
 main() {
@@ -36,7 +35,6 @@ main() {
     #     the developers created is not working. The tool isn't actually
     #     reachable via $PATH. It is also unclear where in the container
     #     the tools python file can be found.
-    source /mnt/titan/users/j.boom/mambaforge/bin/activate phen2gene
     singularity \
         exec \
             --containall \
