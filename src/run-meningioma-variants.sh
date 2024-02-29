@@ -30,11 +30,11 @@
 
 investigate_clinvar_variants() {
     # The investigate_clinvar_variants function:
-    #     The comparison and investigation is this function focusses on three
+    #     The comparison and investigation in this function focusses on three
     #     different downloads.
     #     The first via the website using the term "meingioma".
     #     The second via the website using the term "meningiomas".
-    #     And the last using the HPO term "HP:0002858".
+    #     And the last using the hpo term "HP:0002858".
     #     Another distinction is how I collected the gene names from the
     #     download. I first tried using awk, but I was missing genes that
     #     way, so I simply copy pasted the gene collumn to a file "manual".
@@ -155,8 +155,8 @@ investigate_clinvar_variants() {
     # Seems like some gene names are missing, try extracting the names manually.
     # Two hits were manually corrected (a shift in the columns caused the wrong
     # entry to be selected)
-    # 1897C>G was replaced with RET
-    # 30063345_30067790del] was replaced with NF2
+    # 1897C>G was replaced with ret
+    # 30063345_30067790del] was replaced with nf2
     # Don't focus on "hereditary" this time.
     echo "Get the unique gene names for "meningiomas" from a manual list:" \
         >> ${clinvar_stats}
@@ -181,7 +181,7 @@ investigate_clinvar_variants() {
     # HP:0033714 ("HP 0033714"[Trait identifier])
     # HP:0100009 ("HP 0100009"[Trait identifier])
     # ORPHA:2495 ("ORPHA:2495"[Trait identifier])
-    # Only the general HP term had any results, but few in number, 7.
+    # Only the general hpo term had any results, but few in number, 7.
     echo "----------------------------------------------------------------" \
         >> ${clinvar_stats}
     echo "Get the unique gene names for "meningiomas" from a manual list:" \
@@ -202,7 +202,7 @@ investigate_clinvar_variants() {
 compare_gene_lists() {
     # The compare_gene_lists function:
     #     This function compares the gene names from the list Alicia created
-    #     with the list I created using the ClinVar website. The results
+    #     with the list I created using the clinvar website. The results
     #     are written to a file called gene_comparison.txt.
     gene_list_alicia="/mnt/titan/users/j.boom/clinvar/gene_list_alicia.txt"
     gene_list_script="/mnt/titan/users/j.boom/clinvar/gene_list_script_meningioma_variants.txt"
@@ -216,7 +216,7 @@ compare_gene_lists() {
             --ignore-case \
         > "/mnt/titan/users/j.boom/clinvar/gene_list_alicia_SORTED.txt"
 
-    # Sort and deduplicate the gene list from ClinVar.
+    # Sort and deduplicate the gene list from clinvar.
     cat ${gene_list_script} \
         | sort \
         | uniq \
@@ -247,7 +247,7 @@ compare_gene_lists() {
     echo "Genes in list ClinVar:" \
         >> "${results}"
 
-    # Compare the gene lists and output the unique ones in the ClinVar list.
+    # Compare the gene lists and output the unique ones in the clinvar list.
     comm \
         -13 \
         "/mnt/titan/users/j.boom/clinvar/gene_list_alicia_SORTED.txt" \
@@ -257,7 +257,7 @@ compare_gene_lists() {
 
 investigate_xml_file() {
     # The investigate_xml_file function:
-    #     Checks the entries in the ClinVar xml file for mentions of
+    #     Checks the entries in the clinvar xml file for mentions of
     #     meningioma.
     xml="/mnt/titan/users/j.boom/clinvar/ClinVarFullRelease_00-latest.xml"
     cat "${xml}" \
@@ -267,9 +267,7 @@ investigate_xml_file() {
 
 main() {
     # The main function:
-    #     Either call the first function that looks into the different
-    #     downloads from ClinVar, or the second function that compares gene
-    #     names between what Alicia found and I found.
+    #     This function calls all processing functions in correct order.
     #investigate_clinvar_variants
     #compare_gene_lists
     investigate_xml_file
@@ -296,7 +294,7 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs a search in ClinVar downloads in order"
+            echo "This script runs a search in clinvar downloads in order"
             echo "to find all variants reported to have some connection"
             echo "to meningioma."
             echo ""
@@ -326,19 +324,19 @@ main
 
 # Additional information:
 # =======================
-# The ClinVar database vcf file: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/
-# The ClinVar database xml file: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/
+# The clinvar database vcf file: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/
+# The clinvar database xml file: https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/
 # The clinvar directory files/folders:
-#     ClinVarFullRelease_00-latest.xml (the XML version of the full ClinVar
+#     ClinVarFullRelease_00-latest.xml (the XML version of the full clinvar
 #                                       database).
-#     clinvar.vcf (the VCF version of the full ClinVar database).
+#     clinvar.vcf (the VCF version of the full clinvar database).
 #     gene_comparison.txt (the output of this script comparing the gene list
-#                          from alicia to the one from ClinVar).
+#                          from alicia to the one from clinvar).
 #     gene_list_alicia.txt (genes found by Alicia that are associated to
 #                           meningiomas, there is also a sorted version in this
 #                           folder).
 #     gene_list_script_meningioma-variants.txt (genes found by me using the
-#                                               ClinVar website, also a sorted
+#                                               clinvar website, also a sorted
 #                                               version present).
 #     stats.txt (the output from the first function in this script, simply
 #                counting the number of genes found through variations on

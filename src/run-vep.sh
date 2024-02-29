@@ -34,13 +34,12 @@ create_benchmark_set(){
     #     benchmarking.
     #     Giab vcf files can be found here:
     #     https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/
-    source /home/j.boom/miniconda3/bin/activate base
-    #wget https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf.gz
+    wget https://ftp-trace.ncbi.nlm.nih.gov/ReferenceSamples/giab/release/NA12878_HG001/NISTv4.2.1/GRCh37/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf.gz
     singularity \
         exec \
             --containall \
             --bind /mnt,/home \
-            docker://ensemblorg/ensembl-vep:release_110.1 \
+            docker://ensemblorg/ensembl-vep:release_111.0 \
                 vep \
                     --input_file "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf" \
                     --output_file "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
@@ -58,7 +57,7 @@ create_benchmark_set(){
 
 index_fathmm_mkl(){
     # The index_fathm_mkl function:
-    #     This function creates an index of the FATHMM MKL database using tabix.
+    #     This function creates an index of the fathmm mkl database using tabix.
     singularity \
         exec \
             --containall \
@@ -72,7 +71,7 @@ index_fathmm_mkl(){
 
 index_alphamissense(){
     # The index_alphamissense function:
-    #     This function creates an index of the AlphaMissenese database using
+    #     This function creates an index of the alphamissenese database using
     #     tabix.
     singularity \
         exec \
@@ -91,8 +90,9 @@ index_alphamissense(){
 setup_bayesdel_plugin(){
     # The setup_bayesdel_plugin function:
     #     This function runs the bash commands required to setup the database
-    #     for the BayesDel plugin. These commands are described in the vep
-    #     plugin file for BayesDel.
+    #     for the bayesdel plugin. These commands are described in the vep
+    #     plugin file for bayesdel.
+    source /home/j.boom/miniconda3/bin/activate base
     tar \
         -zxvf "/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF.tgz" \
         -C "/mnt/titan/users/j.boom/r-analysis/vep/plugins_data"
@@ -130,8 +130,9 @@ setup_bayesdel_plugin(){
 setup_revel_plugin(){
     # The setup_revel_plugin function:
     #     This function runs the bash commands required to setup the database
-    #     for the REVEL plugin. These commands are described in the vep
-    #     plugin file for REVEL.
+    #     for the revel plugin. These commands are described in the vep
+    #     plugin file for revel.
+    source /home/j.boom/miniconda3/bin/activate base
     unzip \
         /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/revel-v1.3_all_chromosomes.zip
     cat \
@@ -153,7 +154,7 @@ setup_revel_plugin(){
 
 install_plugins(){
     # The install_plugins function:
-    #     This function will install VEP plugins in the specified directory.
+    #     This function will install vep plugins in the specified directory.
     #     It also includes the link to the individual files for downloading
     #     manually. There are some steps like indexing after download that are
     #     described in the readme's for each annotation source.
@@ -194,7 +195,7 @@ install_plugins(){
         exec \
             --containall \
             --bind /mnt,/home \
-            docker://ensemblorg/ensembl-vep:release_110.1 \
+            docker://ensemblorg/ensembl-vep:release_111.0 \
                 INSTALL.pl \
                     --CACHEDIR "/mnt/titan/users/j.boom/r-analysis/vep" \
                     --AUTO p \
@@ -206,14 +207,14 @@ install_plugins(){
 
 install_cache(){
     # The install_cache function:
-    #     This function install the VEP cache in the VEP sif file using the
+    #     This function installs the vep cache in the vep sif file using the
     #     perl install script. Sadly this didn´t seem to work.
-    #singularity pull --name vep.sif docker://ensemblorg/ensembl-vep:latest
+    singularity pull --name vep.sif docker://ensemblorg/ensembl-vep:latest
     singularity \
         exec \
             --containall \
             --bind /mnt,/home \
-            docker://ensemblorg/ensembl-vep:release_110.1 \
+            docker://ensemblorg/ensembl-vep:release_111.0 \
                 INSTALL.pl \
                     --CACHEDIR "/mnt/titan/users/j.boom/r-analysis/vep" \
                     --AUTO cf \
@@ -225,11 +226,10 @@ install_cache(){
 
 run_vep() {
     # The run_vep function:
-    #     This function runs the VEP annotation tool on all vcf files in the
+    #     This function runs the vep annotation tool on all vcf files in the
     #     specified folder.
     #     https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
-    source /home/j.boom/miniconda3/bin/activate base
-    for file in /home/j.boom/develop/genomescan/data/clinvar-giab-test-data/meningioma/*.vcf;
+    for file in /mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961009/*.vcf;
     do
         singularity \
             exec \

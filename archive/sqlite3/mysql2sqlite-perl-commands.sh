@@ -26,13 +26,13 @@
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=200:15:0
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+convert_dump(){
+    # The convert_dump function:
     #     This functions runs a number of bash and perl commands in order to
     #     prepare a mysql database dump for conversion to sqlite.
+    source /home/j.boom/miniconda3/bin/activate base
     cat $1 |
     grep -v 'LOCK' |
     grep -v ' KEY ' |
@@ -58,6 +58,12 @@ main() {
        s/\),\(/\);\n$a\(/g;
     }
     '
+}
+
+main() {
+    # The main function:
+    #     This function runs all processing function in correct order.
+    convert_dump
 }
 
 # The getopts function.

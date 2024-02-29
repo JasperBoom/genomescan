@@ -36,6 +36,8 @@ def extract_annotation(file):
     """
     column_names = [
         "Uploaded_variation",
+        "Consequence",
+        "IMPACT",
         "CADD_PHRED",
         "CADD_RAW",
         "CAPICE_SCORE",
@@ -47,25 +49,31 @@ def extract_annotation(file):
     return annotation
 
 
-def replace_clinvar_column(file):
+def replace_clinvar_column(file, clinvar_file, skip, clinvar_skip, output_file):
     """
     The replace_clinvar_column file:
         This function reads in the truth set created using clinvar and
         benchmark.py. The uk personal genome variant set is converted to purely
-        benign variants. These two tables are then merged and written to file.
+        benign variants. These two tables are then merged and written to a file.
     """
     truth_set = extract_annotation(
         read_tabular(
-            "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/pathogenic.annotated.edit.tab",
-            52,
+            clinvar_file,
+            clinvar_skip,
         )
+    )
+    truth_set_dedup = truth_set.drop_duplicates(
+        subset="Uploaded_variation", keep="first"
     )
     personal_genome = extract_annotation(file)
     personal_genome.loc[
         personal_genome["ClinVar_CLNSIG"] != "Benign", "ClinVar_CLNSIG"
     ] = "Benign"
-    pd.concat([personal_genome, truth_set], axis=0).to_csv(
-        "/mnt/titan/users/j.boom/vcf/personalgenomesuk/FR07961005.pass.recode.annotated.edit.tab",
+    personal_genome_dedup = personal_genome.drop_duplicates(
+        subset="Uploaded_variation", keep="first"
+    )
+    pd.concat([personal_genome_dedup, truth_set_dedup], axis=0).to_csv(
+        output_file,
         sep="\t",
         index=False,
         header=True,
@@ -76,7 +84,7 @@ def read_tabular(path, skip):
     """
     The read_tabular function:
         This function reads in a tabular file, skips the number of rows
-        indicated by "skip" and converts dash values tot NaN.
+        indicated by "skip" and converts dash values tot nan.
     """
     file = pd.read_table(
         path,
@@ -95,7 +103,10 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = ""
+    description = "This function combines an individuals vcf file with\
+                   pathogenic variants extracted from clinvar. This combined\
+                   vcf is deduplicated and only the interesting annotation\
+                   columns are kept."
     epilog = "This python script has one dependencie: pandas"
     parser = argparse.ArgumentParser(
         description=description,
@@ -112,6 +123,44 @@ def parse_argvs():
         help="The input tabular file containing variants and annotation.",
     )
     parser.add_argument(
+        "-s",
+        "--skip",
+        action="store",
+        dest="skip_lines",
+        type=int,
+        default=argparse.SUPPRESS,
+        help="The number of lines to skip when reading in the main sample\
+              tabular file.",
+    )
+    parser.add_argument(
+        "-k",
+        "--clinvar-skip",
+        action="store",
+        dest="clinvar_skip_lines",
+        type=int,
+        default=argparse.SUPPRESS,
+        help="The number of lines to skip when reading in the clinvar\
+              tabular file.",
+    )
+    parser.add_argument(
+        "-c",
+        "--clinvar",
+        action="store",
+        dest="clinvar_file",
+        type=str,
+        default=argparse.SUPPRESS,
+        help="The clinvar tabular file containing pathogenic variants.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        action="store",
+        dest="output_file",
+        type=str,
+        default=argparse.SUPPRESS,
+        help="The output file location.",
+    )
+    parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s [1.0]]"
     )
     argvs = parser.parse_args()
@@ -124,8 +173,16 @@ def main():
         This function calls all processing functions in correct order.
     """
     user_arguments = parse_argvs()
-    variant_file = read_tabular(user_arguments.tab_file, 57)
-    replace_clinvar_column(variant_file)
+    variant_file = read_tabular(
+        user_arguments.tab_file, user_arguments.skip_lines
+    )
+    replace_clinvar_column(
+        variant_file,
+        user_arguments.clinvar_file,
+        user_arguments.skip_lines,
+        user_arguments.clinvar_skip_lines,
+        user_arguments.output_file,
+    )
 
 
 if __name__ == "__main__":

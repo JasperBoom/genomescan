@@ -26,5 +26,5 @@ prior_mutation_rate:
     default: "1.1e-3"
 directories:
     input: "/mnt/titan/users/j.boom/snakemake-tutorial"
-    output: "/mnt/titan/users/j.boom/results"
-    script: "/mnt/titan/users/j.boom/genomescan/snakemake-tutorial"
+    output: "/home/j.boom/develop/genomescan/snakemake-tutorial/results"
+    script: "/home/j.boom/develop/genomescan/snakemake-tutorial"

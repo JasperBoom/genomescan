@@ -28,15 +28,22 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+run_pgsim() {
+    # The run_pgsim function:
     #     This function contains all test code for running pgsim code locally.
     #     The only problem here is that we can't give pgsim our own list of
     #     variants, and it will generate purely on random. Not serving our
     #     purpose.
+    source /home/j.boom/miniconda3/bin/activate base
     perl \
         /mnt/titan/users/j.boom/tool-testing/PGsim/PG_planner.pl \
             --help
+}
+
+main() {
+    # The main function:
+    #     This function runs all processing function in correct order.
+    run_pgsim
 }
 
 # The getopts function.

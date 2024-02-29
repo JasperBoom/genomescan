@@ -26,17 +26,22 @@
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
-#SBATCH --time=200:15:0
 #SBATCH --partition=all
+
+convert_dump() {
+    # The convert_dump function:
+    #     This function runs the mysql2sqlite-perl-commands script that is
+    #     based on perl.
+    source /home/j.boom/miniconda3/bin/activate base
+    /home/j.boom/develop/genomescan/archive/sqlite3/mysql2sqlite-perl-commands.sh \
+        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/fathmm.v2.3.SQL \
+        | sqlite3 /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/fathmm.v2.3.db
+}
 
 main() {
     # The main function:
-    #     This function runs the mysql2sqlite-perl-commands script that is
-    #     based on perl.
-    source /home/j.boom/mambaforge/bin/activate perl
-    /home/j.boom/develop/genomescan/src/sqlite3/mysql2sqlite-perl-commands.sh \
-        /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.v2.3.SQL \
-        | sqlite3 /mnt/titan/users/j.boom/tool-testing/vep/vep_grch37/plugins_data/fathmm.v2.3.db
+    #     This function runs all processing function in correct order.
+    convert_dump
 }
 
 # The getopts function.

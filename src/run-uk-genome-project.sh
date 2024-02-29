@@ -31,12 +31,23 @@
 run_replace(){
     # The run_replace function:
     #     This function calls the uk-genome-project python script which
-    #     replaces the ClinVar clinical significance column into just benign
+    #     replaces the clinvar clinical significance column into just benign
     #     classification and adds the pathogenic variants extracted from
-    #     ClinVar as additional variants.
+    #     clinvar as additional variants.
+    #     FR07961000: general-cancer
+    #     FR07961001: general-cancer
+    #     FR07961002: general-cancer
+    #     FR07961003: general-cancer
+    #     FR07961004: brain-tumour
+    #     FR07961005: brain-tumour
+    #     FR07961006: meningioma
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/uk-genome-project.py \
-        --tab "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961000/FR07961005.pass.recode.annotated.tab"
+        --tab "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961001/FR07961001.pass.recode.annotated.edit.tab" \
+        --skip 52 \
+        --clinvar-skip 0 \
+        --clinvar "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/general.cancer.subset.2.tsv" \
+        --output "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961001.general.cancer.subset.2.tsv"
 }
 
 main() {
@@ -69,7 +80,7 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the uk-genome-project script."
+            echo "This script runs the uk-genome-project python script."
             echo ""
 
             exit

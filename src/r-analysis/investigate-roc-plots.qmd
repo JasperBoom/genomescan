@@ -1,0 +1,232 @@
+---
+title: "Test code for creating ROC plots"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Test code for creating ROC plots
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readxl")
+library("broom")
+library("naniar")
+library("factoextra")
+library("FactoMineR")
+library("plotROC")
+library("data.table")
+library("Rtsne")
+library("cutpointr")
+library("quarto")
+library("umap")
+library("fANCOVA")
+library("caret")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+# Set a seed for reproducability.
+set.seed(1995)
+
+# Set other formatting settings of Quarto document.
+knitr::opts_chunk$set(echo=TRUE,
+                      message=FALSE,
+                      fig.width=9,
+                      fig.height=9,
+                      out.width="85%",
+                      fig.align="center")
+
+# Set a nice theme.
+theme_set(theme_bw())
+```
+
+# UK Personal Genome project
+## Load validation datasets
+```{r}
+#| warning: false
+
+# Read in the tsv files.
+FR07961000 <- read_tsv(
+    "/mnt/titan/users/j.boom/r-analysis/combined/FR07961000.general.cancer.subset.1.tsv",
+    col_names=TRUE,
+    show_col_types = FALSE)
+```
+
+## Inspect & select data for individual FR07961000
+```{r}
+#| warning: false
+
+# Condense rows to one per variation id, vep reports all transcripts it can
+# find by default.
+FR07961000.dedup <- FR07961000[!duplicated(
+    FR07961000$`Uploaded_variation`), ] |>
+    dplyr::rename("Variation_id" = 1)
+
+# Select just the important numeric annotation sources. Replace dash with NA
+# and make sure the values are numeric.
+FR07961000.select <- FR07961000.dedup[, c("Variation_id",
+                                          "CADD_PHRED",
+                                          "CADD_RAW",
+                                          "CAPICE_SCORE",
+                                          "FATHMM_MKL_C",
+                                          "FATHMM_MKL_NC",
+                                          "ClinVar_CLNSIG")] |>
+    mutate_at(c("CADD_PHRED",
+                "CADD_RAW",
+                "CAPICE_SCORE",
+                "FATHMM_MKL_C",
+                "FATHMM_MKL_NC"),
+              function(x) as.numeric(as.character(x)))
+
+# Remove rows of columns with missing values, set the category to a factor and
+# set the variant identifiers as rownames.
+FR07961000.nomissing <- FR07961000.select |>
+    drop_na() |>
+    dplyr::mutate_at(c("ClinVar_CLNSIG"),
+                     as.factor) |>
+    tibble::column_to_rownames(var="Variation_id")
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create one subsets with a size of 10000 variants.
+FR07961000.set.1 <- FR07961000.nomissing |>
+    sample_n(10000) |>
+    dplyr::select(-ClinVar_CLNSIG)
+
+# Create a vector with the possible conditions for variants.
+CONDITION <- c("Benign", "Pathogenic")
+
+# Assign the conditions set in the vector above randomly to all variants,
+# making sure we get 5000 of each.
+FR07961000.set.1$CONDITION[sample(1:nrow(FR07961000.set.1),
+                                  nrow(FR07961000.set.1),
+                                  FALSE)] <- rep(CONDITION,
+                                                 c(5000,
+                                                   5000))
+```
+
+## Create a ROC plot based on the random dataset
+```{r}
+#| warning: false
+#| echo: false
+
+# https://cran.r-project.org/web/packages/plotROC/vignettes/examples.html
+# Use ggplot and plotROC to create ROC plots for each annotation source.
+FR07961000.set.1.combined.roc.plots <- ggplot(
+    melt_roc(FR07961000.set.1,
+             "CONDITION",
+             c("CADD_PHRED",
+               "CADD_RAW",
+               "CAPICE_SCORE",
+               "FATHMM_MKL_C",
+               "FATHMM_MKL_NC")),
+    aes(m=M,
+        d=D,
+        colour=name)) +
+    geom_roc(n.cuts=5,
+             labelsize=5,
+             labelround=2,
+             show.legend=TRUE,
+             labels=FALSE) +
+    xlim(-0.1, 1) +
+    ylim(0, 1.1)
+
+FR07961000.set.1.combined.roc.plots +
+    facet_wrap(~ name)
+
+# Calculate the AUC of each ROC plot.
+calc_auc(FR07961000.set.1.combined.roc.plots) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# https://plotly.com/ggplot2/pca-visualization/
+# Perform a principal component analysis, include centering and scaling of data.
+# Using the prcomp command.
+FR07961000.set.1.prcomp.data <- prcomp(
+    FR07961000.set.1[,1:5],
+    center=TRUE,
+    scale.=TRUE)
+```
+
+## Create a scatterplot for the random set
+```{r}
+#| warning: false
+#| echo: false
+
+# Prepare data from prcomp for ggplot scatterplot.
+FR07961000.set.1.pca.scatterplot.data <- cbind(
+    FR07961000.set.1.prcomp.data$x[,1:2],
+    as.character(FR07961000.set.1[,6])) |>
+    as_tibble() |>
+    dplyr::rename(PC1="PC1",
+                  PC2="PC2",
+                  CONDITION="V3") |>
+    dplyr::mutate_at(c("PC1"),
+                     as.numeric) |>
+    dplyr::mutate_at(c("PC2"),
+                     as.numeric) |>
+    dplyr::arrange(CONDITION) |>
+    dplyr::filter(PC1 > -11) |>
+    dplyr::filter(PC2 < 15)
+
+# Extract the variance explained by the first two components.
+FR07961000.set.1.pca.variance <- summary(
+    FR07961000.set.1.prcomp.data)$importance[2,]
+
+# Create the scatterplot.
+FR07961000.set.1.pca.scatterplot <- ggplot(
+    data=FR07961000.set.1.pca.scatterplot.data,
+    aes(x=PC1,
+        y=PC2,
+        colour=CONDITION)) +
+    geom_point(size=2) +
+    scale_colour_manual(values=c("#83b96d",
+                                 "#00a6cf"),
+                        name="Clinical significance") +
+    ggtitle("Projection of data on principal components one and two") +
+    xlab(paste(paste("PC1 -",
+                     format(round(FR07961000.set.1.pca.variance["PC1"] * 100),
+                            2,
+                            nsmall=2),
+                     sep=" "),
+               "%",
+               sep="")) +
+    ylab(paste(paste("PC2 -",
+                     format(round(FR07961000.set.1.pca.variance["PC2"] * 100),
+                            2,
+                            nsmall=2),
+                     sep=" "),
+               "%",
+               sep=""))
+
+# Print the scatterplot.
+FR07961000.set.1.pca.scatterplot
+```
+
+# Output session information
+```{r}
+#| warning: false
+
+# Print the session info including packages and version used.
+sessionInfo()
+```

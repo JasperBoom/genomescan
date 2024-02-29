@@ -22,54 +22,11 @@
 
 # Imports:
 import argparse
-import pandas as pd
+import os
 import random
 import shutil
+import pandas as pd
 import subprocess as sp
-import os
-
-
-def sort_vcf(vcf_file):
-    """
-    The sort_vcf function:
-        This function uses the bcftools software to sort the adjustded vcf file.
-        Does not yet work due to issues using sbatch on slurm.
-    """
-    output_file_name = vcf_file[:-3] + "sorted.vcf"
-    bcftools = sp.Popen(
-        [
-            "bcftools",
-            "sort",
-            "--output-type",
-            "v",
-            "--output",
-            output_file_name,
-            vcf_file,
-        ],
-        stdout=sp.PIPE,
-        stderr=sp.PIPE,
-    )
-    bcftools_output, bcftools_error = bcftools.communicate()
-    bgzip = sp.Popen(
-        [
-            "bgzip",
-            output_file_name,
-        ],
-        stdout=sp.PIPE,
-        stderr=sp.PIPE,
-    )
-    bgzip_output, bgzip_error = bgzip.communicate()
-    tabix = sp.Popen(
-        [
-            "tabix",
-            "--preset",
-            "vcf",
-            str(output_file_name) + ".gz",
-        ],
-        stdout=sp.PIPE,
-        stderr=sp.PIPE,
-    )
-    tabix_output, tabix_error = tabix.communicate()
 
 
 def add_variant(vcf_file, gender, meningioma, output_location):
@@ -104,7 +61,7 @@ def select_variant(meningioma_file):
         This function creates a list of all variants in the meningioma vcf and
         selects a random one. It also extracts the gene name associated with
         the variant to be included in the output filename and remove this
-        novel GENE field from the variant entry.
+        novel gene field from the variant entry.
     """
     variants = []
     with open(meningioma_file, "r") as file:
@@ -135,8 +92,8 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = "A python script that processes GenomeScan vcf files that\
-                   were created using the DRAGEN pipeline on the GenomeScan HPC\
+    description = "A python script that processes genomescan vcf files that\
+                   were created using the dragen pipeline on the hpc\
                    [Insert Mutation In Vcf]"
     epilog = "This python script has one dependency: pandas"
     parser = argparse.ArgumentParser(
@@ -151,7 +108,7 @@ def parse_argvs():
         dest="vcf_file",
         type=str,
         default=argparse.SUPPRESS,
-        help="The DRAGEN vcf file.",
+        help="The genomescan dragen vcf file.",
     )
     parser.add_argument(
         "-s",
@@ -160,7 +117,7 @@ def parse_argvs():
         dest="stats_file",
         type=str,
         default=argparse.SUPPRESS,
-        help="The GenomeScan stats tabular file.",
+        help="The genomescan stats tabular file.",
     )
     parser.add_argument(
         "-m",
@@ -169,7 +126,7 @@ def parse_argvs():
         dest="meningioma_file",
         type=str,
         default=argparse.SUPPRESS,
-        help="VCF file containing meningioma associated variants.",
+        help="Vcf file containing meningioma associated variants.",
     )
     parser.add_argument(
         "-o",
@@ -178,7 +135,7 @@ def parse_argvs():
         dest="output_location",
         type=str,
         default=argparse.SUPPRESS,
-        help="Location of the altered VCF output directory including\
+        help="Location of the altered vcf output directory including\
               a trailing forward slash.",
     )
     parser.add_argument(
@@ -204,8 +161,6 @@ def main():
         meningioma,
         user_arguments.output_location,
     )
-    # REQUIRES FIX!
-    # sort_vcf(output_file)
 
 
 if __name__ == "__main__":

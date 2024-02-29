@@ -20,8 +20,8 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-main() {
-    # The main function:
+start_job() {
+    # The start_job function:
     #     This function creates an interactive slurm job on an execution node.
     srun \
         --nodes=1 \
@@ -32,6 +32,12 @@ main() {
         --mem=125GB \
         --export=ALL \
         --pty bash -i
+}
+
+main() {
+    # The main function:
+    #     This function calls all processing functions in correct order.
+    start_job
 }
 
 # The getopts function.

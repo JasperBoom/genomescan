@@ -28,8 +28,8 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+run_tutorial() {
+    # The run_tutorial function:
     #     This function contains all test code for running the snakemake
     #     tutorial code locally.
     source /mnt/titan/users/j.boom/mambaforge/bin/activate snakemake-tutorial
@@ -65,6 +65,12 @@ main() {
     # If I want to archive my workflow and share it with other people I could
     # use the "--archive" argument to create a tarball.
     snakemake --archive my-workflow.tar.gz
+}
+
+main() {
+    # The main function:
+    #     This function calls all processing functions in correct order.
+    run_tutorial
 }
 
 # The getopts function.

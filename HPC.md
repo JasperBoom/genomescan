@@ -35,8 +35,10 @@ Are deleted regularly when doing tests.
 
 ## r-analysis
 This folder contains all files used for the R analysis. So, the test data from
-the personal genome project uk, an annotated giab sample, de input files for
-the vep plugins and reference. And the clinvar download.
+the personal genome project uk (**pgpuk**), an annotated giab
+sample (**giab**), the input files for the vep plugins and reference (**vep**)
+and the clinvar download (**clinvar**). Additionally, datestamped folders
+that contain uk personal genome vcf files combined with pathogenic variants.
 
 ## snakemake-tutorial
 This folder has the data files for the snakemake tutorial: 
@@ -44,7 +46,7 @@ https://snakemake.readthedocs.io/en/stable/tutorial/basics.html
 
 ## tmp
 Just a folder to direct temporary files to, for example when running java
-commands.
+based tools.
 
 ## tool-testing
 This folder contains a collection of subfolders mostly targeted at different
@@ -52,3 +54,23 @@ simulation tools. The **data** folder contains reference files from ensembl.
 The **simulated_data** contains output files from tests with neat. The rest are
 either install locations of tools or contain files required for running the
 tool.
+
+```
+GenomeScan internship repository.
+Copyright (C) 2023 Jasper Boom
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+Contact information: info@jboom.org.
+```

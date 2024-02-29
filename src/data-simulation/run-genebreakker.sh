@@ -28,18 +28,24 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+run_genebreaker() {
+    # The run_genebreaker function:
     #     Contains all test code for running genebreaker code locally.
     #     A python based program which is designed to work via the website.
     #     I tried to see if I could run the code locally, to get around the
     #     fact that the website only allows to insert two variants. But the
     #     code isn't structured and documented well enough for that, and
     #     the fact that they seem to advise against it.
-    source /home/j.boom/mambaforge/bin/activate base
+    source /home/j.boom/miniconda3/bin/activate base
     python3 \
         /mnt/titan/users/j.boom/tool-testing/GeneBreaker/GeneBreaker/src/variants.py \
             --help
+}
+
+main() {
+    # The main function:
+    #     This function runs all processing function in correct order.
+    run_genebreaker
 }
 
 # The getopts function.

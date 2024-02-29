@@ -78,7 +78,7 @@ create_genome_index() {
 
 get_annotation() {
     # The get_annotation function:
-    #     This function downloads the GTF annotation file for humans.
+    #     This function downloads the gtf annotation file for humans.
     wget \
         --directory-prefix="/mnt/titan/users/j.boom/tool-testing/data" \
         ftp://ftp.ensembl.org/pub/release-110/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
@@ -87,7 +87,7 @@ get_annotation() {
 create_annotation_index() {
     # The create_annotation_index function:
     #     This function downloads the gtfToGenePred software and uses it to
-    #     create and index for the GTF file.
+    #     create and index for the gtf file.
     wget \
         --directory-prefix="/mnt/titan/users/j.boom/tool-testing/data" \
         http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/gtfToGenePred
@@ -111,8 +111,7 @@ create_annotation_index() {
 
 main() {
     # The main function:
-    #     This function simply calls the functions above so they are run
-    #     when this script is called.
+    #     This function calls all processing functions in correct order.
     #add_chr_to_fasta
     #download_genome
     create_dictionary

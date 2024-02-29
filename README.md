@@ -1,6 +1,6 @@
 # GenomeScan Internship Repository
 A repository that contains all scripts and other documents used during my
-genomescan internship. This includes testing different tools,
+genomescan internship. This includes scripts for testing different tools,
 the snakemake tutorial and analysis scripts.
 
 ## Author(s)

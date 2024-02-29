@@ -28,24 +28,30 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+run_exomizer() {
+    # The run_exomizer function:
     #     Contains all test code for running exomizer.
     #     As seen below, the tool is java based. It also has a version on
     #     conda, but this doesn't seem to run the same jar file as is
-    #     downloaded via Git.
+    #     downloaded via git.
     #     The example data doesn't work for some reason, missing some input
     #     either because the files are incomplete or the example command is
     #     incomplete.
     java \
         -Xms2g \
         -Xmx4g \
-        -jar /mnt/titan/users/j.boom/tool-testing/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
+        -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
             --prioritiser=hiphive \
             -I AD \
             -F 1 \
             -D OMIM:101600 \
-            -v /mnt/titan/users/j.boom/tool-testing/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
+            -v /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
+}
+
+main() {
+    # The main function:
+    #     This function runs all processing function in correct order.
+    run_exomizer
 }
 
 # The getopts function.

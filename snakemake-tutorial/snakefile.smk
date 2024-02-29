@@ -26,7 +26,7 @@ min_version("7.23")
 
 # A yaml file for example, that stores lists with for example sample names,
 # or file names.
-configfile: "/home/j.boom/genomescan/snakemake-tutorial/envs/config.yaml"
+configfile: "/home/j.boom/develop/genomescan/snakemake-tutorial/envs/config.yaml"
 
 
 # Use "include" to be able to add rules from another Snakefile to

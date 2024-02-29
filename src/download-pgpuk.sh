@@ -163,7 +163,7 @@ do
             echo " -h          Show this help page and exit."
             echo ""
             echo "This script downloads vcf files from individuals from the"
-            echo "Personal Genome Project UK."
+            echo "personal genome project uk."
             echo ""
 
             exit
@@ -191,4 +191,4 @@ main
 
 # Additional information:
 # =======================
-#
+# https://www.personalgenomes.org.uk/data/

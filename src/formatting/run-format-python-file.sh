@@ -28,8 +28,8 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+format_file() {
+    # The format_file function:
     #     This function runs black in singularity to format the input
     #     python files.
     singularity \
@@ -40,11 +40,16 @@ main() {
                 --line-length 80 \
                 --target-version py312 \
                 --verbose \
-                /home/j.boom/develop/galaxy-tools-umi-isolation/src/umi-isolation.py \
                 /home/j.boom/develop/genomescan/snakemake-tutorial/scripts/plot-quals.py \
                 /home/j.boom/develop/genomescan/src/python/imiv.py \
                 /home/j.boom/develop/genomescan/src/python/benchmark.py \
                 /home/j.boom/develop/genomescan/src/python/uk-genome-project.py
+}
+
+main() {
+    # The main function:
+    #     This function runs all processing function in correct order.
+    format_file
 }
 
 # The getopts function.
@@ -71,9 +76,9 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the black tool on an input python file."
+            echo "This script runs the black tool on input python files."
             echo "Black is used to format python code and convert to"
-            echo "their adjusted version of PEP8."
+            echo "their adjusted version of pep8."
             echo ""
 
             exit

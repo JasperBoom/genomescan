@@ -34,13 +34,14 @@ download_variation_ids() {
     #     using a rest api, the first command retrieves pathogenic variation
     #     ids for a specific diseaese (search term), the second retrieves the
     #     record for a variation id.
+    source /home/j.boom/miniconda3/bin/activate base
     wget \
         --verbose \
-        --output-document="/home/j.boom/develop/genomescan/data/api.txt" \
+        --output-document="/mnt/titan/users/j.boom/test-data/api.txt" \
         "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=ependymomas+AND+single_gene+AND+(("clinsig+pathogenic"))&retmax=5000&retmode=json"
     wget \
         --verbose \
-        --output-document="/home/j.boom/develop/genomescan/data/gene.txt" \
+        --output-document="/mnt/titan/users/j.boom/test-data/gene.txt" \
         "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id=13919&retmode=json"
 }
 
@@ -51,16 +52,17 @@ run_python_script() {
     #     https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/
     #     Brain tumours: astrocytomas,oligodendroglioma,glioblastoma,
     #                    craniopharyngioma,ependymoma,medulloblastoma,glioma
-    #     Cancer in general: cancer
+    #     Cancer in general: breast,prostate,lung,bronchus,colon,rectum,
+    #                        pancreas,cancer,tumour
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/benchmark.py \
         --giab "/mnt/titan/users/j.boom/r-analysis/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
         --disease-groups "breast,prostate,lung,bronchus,colon,rectum,pancreas,cancer,tumour" \
         --clinvar "/mnt/titan/users/j.boom/r-analysis/clinvar/clinvar_20240206.vcf" \
-        --header "/home/j.boom/develop/genomescan/data/default-vcf-header.txt" \
-        --output "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/giab-clinvar.vcf" \
-        --pathogenic "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/pathogenic.vcf" \
-        --benign "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/benign.vcf"
+        --header "/mnt/titan/users/j.boom/test-data/default-vcf-header.txt" \
+        --output "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/giab-clinvar.vcf" \
+        --pathogenic "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/pathogenic.vcf" \
+        --benign "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/benign.vcf"
 }
 
 main() {
@@ -95,7 +97,7 @@ do
             echo " -h          Show this help page and exit."
             echo ""
             echo "This script runs the benchmark script that generates a test"
-            echo "set of mutations on which threshold can be determined."
+            echo "set of mutations on which thresholds can be determined."
             echo ""
 
             exit

@@ -28,17 +28,23 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+run_neat() {
+    # The run_neat function:
     #     This function contains all test code for running neat v4.0 code
     #     locally. At the time of writing (2023-11-27) this version got
     #     recalled.
-    source /mnt/titan/users/j.boom/mambaforge/bin/activate neat
+    source /home/j.boom/miniconda3/bin/activate base
     time_stamp="$(date +"%d-%m-%y-%T")"
     neat \
         read-simulator \
         -c "/home/j.boom/develop/genomescan/src/data-simulation/template_neat_config.yml" \
         -o "/mnt/titan/users/j.boom/tool-testing/simulated_data/${time_stamp}"
+}
+
+main() {
+    # The main function:
+    #     This function runs all processing function in correct order.
+    run_neat
 }
 
 # The getopts function.

@@ -1,0 +1,193 @@
+---
+title: "Investigate sample FR07961001"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Investigate sample FR07961001
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readxl")
+library("broom")
+library("naniar")
+library("factoextra")
+library("FactoMineR")
+library("plotROC")
+library("data.table")
+library("Rtsne")
+library("cutpointr")
+library("quarto")
+library("umap")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+# Set a seed for reproducability.
+set.seed(1995)
+
+# Set other formatting settings of Quarto document.
+knitr::opts_chunk$set(echo=TRUE,
+                      message=FALSE,
+                      fig.width=9,
+                      fig.height=9,
+                      out.width="85%",
+                      fig.align="center")
+
+# Set a nice theme.
+theme_set(theme_bw())
+```
+
+# UK Personal Genome project
+## Load dataset for individual FR07961001
+```{r}
+#| warning: false
+
+# Read in the tsv file in the data folder, based on the personal genome project.
+# This is individual FR07961001. It includes pathogenic variants from ClinVar.
+FR07961001 <- read_tsv(
+    "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961001.general.cancer.subset.2.tsv",
+    col_names=TRUE,
+    show_col_types = FALSE)
+```
+
+## Inspect & select data for individual FR07961001
+```{r}
+#| warning: false
+
+# Rename the first column.
+FR07961001.dedup <- FR07961001 |>
+    dplyr::rename("Variation_id" = 1)
+
+# Select just the important numeric annotation sources. Make sure the values
+# are numeric.
+FR07961001.select <- FR07961001.dedup |>
+    mutate_at(c(
+        "CADD_PHRED",
+        "CADD_RAW",
+        "CAPICE_SCORE",
+        "FATHMM_MKL_C",
+        "FATHMM_MKL_NC"),
+        function(x) as.numeric(
+            as.character(x)))
+
+# Set the category to a factor and set the variant identifiers as rownames.
+# Also remove rows missing any values.
+FR07961001.format <- FR07961001.select |>
+    drop_na() |>
+    dplyr::mutate_at(c(
+        "ClinVar_CLNSIG"),
+        as.factor) |>
+    tibble::column_to_rownames(
+        var="Variation_id")
+
+# Filter out rows that have no annotation scores at all.
+#FR07961001.complete <- FR07961001.format |>
+#    filter(
+#        ! if_all(c(
+#            CADD_PHRED,
+#            CADD_RAW,
+#            CAPICE_SCORE,
+#            FATHMM_MKL_C,
+#            FATHMM_MKL_NC
+#        ),
+#                 is.na)
+#        )
+```
+
+# Clarify final thresholds
+```{r}
+#| warning: false
+
+# These thresholds are based on 
+THRESHOLDS <- data.frame(
+    CADD_PHRED=17.3,
+    CADD_RAW=1.672451,
+    CAPICE_SCORE=0.0077,
+    FATHMM_MKL_C=0.11054,
+    FATHMM_MKL_NC=0.22081
+)
+```
+
+# Apply tresholds to dataset
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961001.thresholding.pathogenic <- FR07961001.format |>
+    filter(
+        CADD_PHRED > THRESHOLDS[["CADD_PHRED"]],
+        CADD_RAW > THRESHOLDS[["CADD_RAW"]],
+        CAPICE_SCORE > THRESHOLDS[["CAPICE_SCORE"]],
+        FATHMM_MKL_C > THRESHOLDS[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC > THRESHOLDS[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961001.thresholding.benign <- FR07961001.format |>
+    filter(
+        CADD_PHRED <= THRESHOLDS[["CADD_PHRED"]],
+        CADD_RAW <= THRESHOLDS[["CADD_RAW"]],
+        CAPICE_SCORE <= THRESHOLDS[["CAPICE_SCORE"]],
+        FATHMM_MKL_C <= THRESHOLDS[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC <= THRESHOLDS[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+# One issue to keep in mind, sometimes variants will have contradictions in
+# the thresholds, so CADD might be below the threshold (benign) but CAPICE
+# could be above the threshold (pathogenic).
+# This requires an extra rule.
+FR07961001.thresholding.total <- rbind(
+    FR07961001.thresholding.pathogenic,
+    FR07961001.thresholding.benign
+)
+
+# Get the confusion matrix.
+FR07961001.thresholding.total.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961001.thresholding.total$MODEL),
+    reference=factor(FR07961001.thresholding.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961001.thresholding.total.confusion.matrix
+```
+
+# Use IMPACT as an extra filter on the pathogenic variants
+```{r}
+#| warning: false
+#| echo: false
+
+FR07961001.extra.annotation.filter <- FR07961001.thresholding.pathogenic |>
+    filter(IMPACT != "LOW")
+
+# Get the confusion matrix.
+FR07961001.extra.annotation.filter.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961001.extra.annotation.filter$MODEL),
+    reference=factor(FR07961001.extra.annotation.filter$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961001.extra.annotation.filter.confusion.matrix
+```
+
+# Output session information
+```{r}
+#| warning: false
+
+# Print the session info including packages and version used.
+sessionInfo()
+```

@@ -1,0 +1,194 @@
+---
+title: "Create ClinVar subsets"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Create ClinVar subsets
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readxl")
+library("broom")
+library("naniar")
+library("factoextra")
+library("FactoMineR")
+library("plotROC")
+library("data.table")
+library("Rtsne")
+library("cutpointr")
+library("quarto")
+library("umap")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+# Set a seed for reproducability.
+set.seed(1995)
+
+# Set other formatting settings of Quarto document.
+knitr::opts_chunk$set(echo=TRUE,
+                      message=FALSE,
+                      fig.width=9,
+                      fig.height=9,
+                      out.width="85%",
+                      fig.align="center")
+
+# Set a nice theme.
+theme_set(theme_bw())
+```
+
+# ClinVar and GIAB project
+## Load data from the python script
+```{r}
+#| warning: false
+
+# Read in the tsv files in the data folder.
+# General cancer pathogenic variants.
+general.cancer <- read_tsv(
+    "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/general-cancer/pathogenic.annotated.edit.tab",
+    col_names=TRUE,
+    skip=52,
+    show_col_types = FALSE)
+
+# Brain cancer pathogenic variants.
+brain.cancer <- read_tsv(
+    "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/brain-tumour/pathogenic.annotated.edit.tab",
+    col_names=TRUE,
+    skip=52,
+    show_col_types = FALSE)
+
+# Meningioma pathogenic variants.
+meningioma <- read_tsv(
+    "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/meningioma/pathogenic.annotated.edit.tab",
+    col_names=TRUE,
+    skip=52,
+    show_col_types = FALSE)
+```
+
+## Inspect & select data from ClinVar
+```{r}
+#| warning: false
+
+# Condense rows to one per variation id, vep reports all transcripts it can
+# find by default.
+# General cancer variants.
+general.cancer.dedup <- general.cancer[!duplicated(
+    general.cancer$`Uploaded_variation`),]
+
+# Brain cancer variants.
+brain.cancer.dedup <- brain.cancer[!duplicated(
+    brain.cancer$`Uploaded_variation`),]
+
+# Meningioma variants.
+meningioma.dedup <- meningioma[!duplicated(
+    meningioma$`Uploaded_variation`),]
+```
+
+## Exclude variants in general cancer set that are in brain cancer set
+```{r}
+# This command removes variants in the general cancer set based on the
+# variation ID, which can also be found in the brain cancer set.
+general.cancer.dedup.trimmed <- general.cancer.dedup[!(
+    general.cancer.dedup$Uploaded_variation %in% brain.cancer.dedup$Uploaded_variation),]
+```
+
+## Split general cancer and brain cancer into subsets
+```{r}
+#| warning: false
+
+# Create subsets for general cancer variants.
+general.cancer.dedup.trimmed.subsets <- split(
+    general.cancer.dedup.trimmed,
+    sample(1:4,
+           nrow(general.cancer.dedup.trimmed),
+           replace=T))
+
+# Rename the dataframes to subset numbers.
+names(general.cancer.dedup.trimmed.subsets) <- c(
+    "general.cancer.subset.1",
+    "general.cancer.subset.2",
+    "general.cancer.subset.3",
+    "general.cancer.subset.4"
+)
+
+# Create subsets for brain cancer variants.
+brain.cancer.dedup.subsets <- split(
+    brain.cancer.dedup,
+    sample(1:2,
+           nrow(brain.cancer.dedup),
+           replace=T))
+
+# Rename the dataframes to subset numbers.
+names(brain.cancer.dedup.subsets) <- c(
+    "brain.cancer.subset.1",
+    "brain.cancer.subset.2"
+)
+```
+
+## Write the general cancer subsets to file
+```{r}
+#| warning: false
+
+# Write the general cancer subsets to file.
+sapply(
+    names(
+        general.cancer.dedup.trimmed.subsets), 
+    function (x) write.table(
+        general.cancer.dedup.trimmed.subsets[[x]],
+        file=paste(
+            "/mnt/titan/users/j.boom/r-analysis/combined/",
+            x,
+            ".tsv",
+            sep=""),
+        sep="\t",
+        row.names=FALSE))
+```
+
+## Write the brain cancer subsets to file.
+```{r}
+# Write the brain cancer subsets to file.
+sapply(
+    names(
+        brain.cancer.dedup.subsets), 
+    function (x) write.table(
+        brain.cancer.dedup.subsets[[x]],
+        file=paste(
+            "/mnt/titan/users/j.boom/r-analysis/combined/",
+            x,
+            ".tsv",
+            sep=""),
+        sep="\t",
+        row.names=FALSE))
+```
+
+## Write the meningioma data to file.
+```{r}
+write.table(
+    meningioma.dedup,
+    file="/mnt/titan/users/j.boom/r-analysis/combined/meningioma-pathogenic-set.tsv",
+    sep="\t",
+    row.names=FALSE
+)
+```
+
+# Output session information
+
+```{r}
+#| warning: false
+
+# Print the session info including packages and version used.
+sessionInfo()
+```

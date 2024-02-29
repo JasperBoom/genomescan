@@ -39,7 +39,7 @@ def write_output(
     The write_output function:
         This function gets the output locations for three files. All variants
         including a correct vcf header are written to all_output. The other
-        two output files contain the described subsets.
+        two output files contain the described subsets (pathogenic or benign).
     """
     with (
         open(all_output, "a") as all,
@@ -62,11 +62,11 @@ def write_output(
 def collect_benign_variants(giab, gene_symbols, info_field):
     """
     The collect_benign_variants function:
-        This function uses the giab vcf file to collect variants located the
-        same genes as the pathogenic variants are found. These variants need
-        to have an allele frequency of atleast 0.05. They are stored in a list
-        which is returned. The info starting from column 6 is replaced a by
-        default place holder which mirrors standard dragen output.
+        This function uses the giab vcf file to collect variants located on the
+        same genes as where the pathogenic variants are found. These variants
+        need to have an allele frequency of atleast 0.05. They are stored in a
+        list which is returned. The info starting from column 6 is replaced a
+        by default place holder which mirrors standard dragen output.
     """
     variants = []
     with open(giab, "r") as file:
@@ -96,7 +96,7 @@ def collect_pathogenic_variants(ids, clinvar, info_field):
     The collect_pathogenic_variants function:
         This function uses the variation ids to collect vcf entries from the
         clinvar vcf. These variants are stored in a list and returned. The
-        info starting from column 6 is replaced a by default place holder which
+        info starting from column 6 is replaced by a default place holder which
         mirrors standard dragen output.
     """
     variants = []
@@ -136,7 +136,7 @@ def collect_pathogenic_ids(disease_groups):
         of variants that are designated as pathogenic of the disease groups
         specified by the user. These ids are then send to the
         collect_gene_symbol function. Both the ids and gene symbols are
-        collected in lists, which are made unique and returned.
+        collected in lists, which are deduplicated and returned.
     """
     variation_ids = []
     gene_symbols = []
@@ -178,7 +178,7 @@ def parse_argvs():
         dest="giab_file",
         type=str,
         default=argparse.SUPPRESS,
-        help="The input giab vcf file.",
+        help="The input giab vcf file, with annotation from vep.",
     )
     parser.add_argument(
         "-dg",
@@ -250,7 +250,12 @@ def main():
     The main function:
         This function calls all processing functions in correct order.
     """
-    default_info_field = "24.24\tPASS\tAC=2;AF=1.000;AN=2;DP=250;FS=0.000;MQ=100;MQRankSum=0.5;QD=6;ReadPosRankSum=0.5;SOR=0.6;FractionInformativeReads=0.9\tGT:AD:AF:DP:F1R2:F2R1:GQ:PL:GP\t1/1:1,219:0.994:220:0,110:0,110:99:295,316,0:0.05,0.09,0.86\n"
+    default_info_field = (
+        "24.24\tPASS\tAC=2;AF=1.000;AN=2;DP=250;FS=0.000;"
+        "MQ=100;MQRankSum=0.5;QD=6;ReadPosRankSum=0.5;SOR=0.6;"
+        "FractionInformativeReads=0.9\tGT:AD:AF:DP:F1R2:F2R1:GQ:PL:GP\t1/1:"
+        "1,219:0.994:220:0,110:0,110:99:295,316,0:0.05,0.09,0.86\n"
+    )
     user_arguments = parse_argvs()
     symbols, ids = collect_pathogenic_ids(user_arguments.disease_groups)
     pathogenic_variants = collect_pathogenic_variants(

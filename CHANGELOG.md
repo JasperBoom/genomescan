@@ -48,3 +48,8 @@ Contact information: info@jboom.org.
 + Update the R analysis with fully annotated plots.
 + Remove scripts that were either unfinished and not needed or scripts that
   were replaced by others.
++ R analysis scritps now consist out of 3 files for testing different
+  giab/clinvar test sets, a few scripts looking at the uk personal genome
+  project and clinvar combo and scripts testing the thresholds.
++ Removed the test data folder from the repo because the data was starting to
+  become to big.

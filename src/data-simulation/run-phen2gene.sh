@@ -28,13 +28,13 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
-    #     This function contains all test code for running Phen2Gene
+run_phen2gene() {
+    # The run_phen2gene function:
+    #     This function contains all test code for running phen2gene
     #     code locally. Can easily be installed with conda. Sadly the image
     #     the developers created is not working. The tool isn't actually
     #     reachable via $PATH. It is also unclear where in the container
-    #     the tools python file can be found.
+    #     the python file can be found.
     singularity \
         exec \
             --containall \
@@ -42,9 +42,16 @@ main() {
             python3 phen2gene.py \
                 --help
 
+    source /home/j.boom/miniconda3/bin/activate base
     python3 \
         /mnt/titan/users/j.boom/tool-testing/Phen2Gene/phen2gene.py \
             --help
+}
+
+main() {
+    # The main function:
+    #     This function runs all processing function in correct order.
+    run_phen2gene
 }
 
 # The getopts function.

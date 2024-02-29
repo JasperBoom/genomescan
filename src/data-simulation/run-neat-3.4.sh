@@ -28,14 +28,15 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+run_neat() {
+    # The run_neat function:
     #     Contains all test code for running neat v3.4 code locally.
     #     This tool is python based, and seems to work. Sadly the most recent
     #     version (4.0) got recalled due to issues. The example below is the
     #     most basic way of generating reads and a vcf + bam file of simulated
     #     data. I still need to add a predefined VCF and random variant
     #     generator flag.
+    source /home/j.boom/miniconda3/bin/activate base
     python3 /mnt/titan/users/j.boom/tool-testing/NEAT-3.4/gen_reads.py \
         -r "/mnt/titan/users/j.boom/tool-testing/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa" \
         -R 147 \
@@ -49,6 +50,12 @@ main() {
         --rng 1995 \
         --no-fastq \
         --vcf
+}
+
+main() {
+    # The main function:
+    #     This function runs all processing function in correct order.
+    run_neat
 }
 
 # The getopts function.

@@ -28,12 +28,12 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+run_tools() {
+    # The run_tools function:
     #     This function runs pbgzip and picard in order to sort, compress and
     #     index the input vcf files.
-    source /home/j.boom/mambaforge/bin/activate base
-    for file in /mnt/titan/users/j.boom/clinvar/*.vcf;
+    source /home/j.boom/miniconda3/bin/activate base
+    for file in /mnt/titan/users/j.boom/test-data/vcf/*.vcf;
     do
         singularity \
             exec \
@@ -63,6 +63,12 @@ main() {
                     --preset "vcf" \
                     "${file::-3}sorted.vcf.gz";
     done
+}
+
+main() {
+    # The main function:
+    #     This function calls all processing functions in correct order.
+    run_tools
 }
 
 # The getopts function.

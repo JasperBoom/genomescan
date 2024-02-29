@@ -28,20 +28,26 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+run_script() {
+    # The run_script function:
     #     This function runs the imiv script on all vcf files in the specified
     #     folder. This inserts a meningioma pathogenic variant, sorts the vcf
     #     file, compresses it and creates an index.
     source /home/j.boom/miniconda3/bin/activate base
-    for file_105861 in /mnt/titan/users/j.boom/vcf/105861/*.vcf;
+    for file in /mnt/titan/users/j.boom/test-data/vcf/*.vcf;
     do
-        python3 /home/j.boom/develop/genomescan/src/imiv.py \
-            --input "${file_105861}" \
-            --stats "/mnt/titan/users/j.boom/vcf/105861/stats.tsv" \
-            --meningioma "/mnt/titan/users/j.boom/vcf/meningioma.vcf" \
-            --output "/mnt/titan/users/j.boom/vcf/105861/adjusted/";
+        python3 /home/j.boom/develop/genomescan/src/python/imiv.py \
+            --input "${file}" \
+            --stats "/mnt/titan/users/j.boom/test-data/vcf/stats.tsv" \
+            --meningioma "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/meningioma/pathogenic.vcf" \
+            --output "/mnt/titan/users/j.boom/test-data/vcf/adjusted/";
     done
+}
+
+main() {
+    # The main function:
+    #     This function calls all processing functions in correct order.
+    run_script
 }
 
 # The getopts function.

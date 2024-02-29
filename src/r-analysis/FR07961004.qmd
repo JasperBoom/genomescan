@@ -1,0 +1,580 @@
+---
+title: "Investigate sample FR07961004"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Investigate sample FR07961004
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readxl")
+library("broom")
+library("naniar")
+library("factoextra")
+library("FactoMineR")
+library("plotROC")
+library("data.table")
+library("Rtsne")
+library("cutpointr")
+library("quarto")
+library("umap")
+library("fANCOVA")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+# Set a seed for reproducability.
+set.seed(1995)
+
+# Set other formatting settings of Quarto document.
+knitr::opts_chunk$set(
+    echo=TRUE,
+    message=FALSE,
+    fig.width=9,
+    fig.height=9,
+    out.width="85%",
+    fig.align="center")
+
+# Set a nice theme.
+theme_set(theme_bw())
+```
+
+# UK Personal Genome project
+## Load dataset for individual FR07961004
+```{r}
+#| warning: false
+
+# Read in the tsv file in the data folder, based on the personal genome project.
+# This is individual FR07961004. It includes pathogenic variants from ClinVar.
+FR07961004 <- read_tsv(
+    "/mnt/titan/users/j.boom/r-analysis/combined/FR07961004.brain.cancer.subset.1.tsv",
+    col_names=TRUE,
+    show_col_types = FALSE)
+```
+
+## Inspect & select data for individual FR07961004
+```{r}
+#| warning: false
+
+# Condense rows to one per variation id, vep reports all transcripts it can
+# find by default.
+FR07961004.dedup <- FR07961004[!duplicated(
+    FR07961004$`Uploaded_variation`), ] |>
+    dplyr::rename("Variation_id" = 1)
+
+# Select just the important numeric annotation sources. Replace dash with NA
+# and make sure the values are numeric.
+FR07961004.select <- FR07961004.dedup[, c(
+    "Variation_id",
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC",
+    "ClinVar_CLNSIG")] |>
+    mutate_at(c(
+        "CADD_PHRED",
+        "CADD_RAW",
+        "CAPICE_SCORE",
+        "FATHMM_MKL_C",
+        "FATHMM_MKL_NC"),
+        function(x) as.numeric(
+            as.character(x)))
+
+# Remove rows of columns with missing values, set the category to a factor and
+# set the variant identifiers as rownames.
+FR07961004.nomissing <- FR07961004.select |>
+    drop_na() |>
+    dplyr::mutate_at(c("ClinVar_CLNSIG"),
+                     as.factor) |>
+    tibble::column_to_rownames(var="Variation_id")
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Run PCA package for individual FR07961004.
+
+# http://www.sthda.com/english/wiki/factoextra-r-package-
+# easy-multivariate-data-analyses-and-elegant-visualization
+# Perform a principal component analysis, include centering and scaling of data.
+# Using the PCA command.
+FR07961004.pca.data <- PCA(
+    FR07961004.nomissing[,1:5],
+    graph=FALSE,
+    ncp=4,
+    scale.unit=TRUE)
+
+# Extract the results for variables.
+FR07961004.pca.var <- get_pca_var(
+    FR07961004.pca.data)
+
+# Contributions of variables to PC1.
+FR07961004.pc1.contribs <- fviz_contrib(
+    FR07961004.pca.data,
+    choice="var",
+    axes=1,
+    top=10)
+
+# Contributions of variables to PC2.
+FR07961004.pc2.contribs <- fviz_contrib(
+    FR07961004.pca.data,
+    choice="var",
+    axes=2,
+    top=10)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Run prcomp package for individual FR07961004.
+
+# https://plotly.com/ggplot2/pca-visualization/
+# Perform a principal component analysis, include centering and scaling of data.
+# Using the prcomp command.
+FR07961004.prcomp.data <- prcomp(
+    FR07961004.nomissing[,1:5],
+    center=TRUE,
+    scale.=TRUE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a scatterplot for individual FR07961004.
+
+# Prepare data from prcomp for ggplot scatterplot.
+FR07961004.pca.scatterplot.data <- cbind(
+    FR07961004.prcomp.data$x[,1:2],
+    as.character(FR07961004.nomissing[,6])) |>
+    as_tibble() |>
+    dplyr::rename(PC1="PC1",
+                  PC2="PC2",
+                  CONDITION="V3") |>
+    dplyr::mutate_at(c("PC1"),
+                     as.numeric) |>
+    dplyr::mutate_at(c("PC2"),
+                     as.numeric) |>
+    dplyr::arrange(CONDITION) |>
+    dplyr::filter(PC2 > -17)
+
+# Extract the variance explained by the first two components.
+FR07961004.pca.variance <- summary(
+    FR07961004.prcomp.data)$importance[2,]
+
+# Create the scatterplot.
+FR07961004.pca.scatterplot <- ggplot(
+    data=FR07961004.pca.scatterplot.data,
+    aes(x=PC1,
+        y=PC2,
+        colour=CONDITION)) +
+    geom_point(size=2) +
+    theme(legend.position=c(0.95,0.75),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#83b96d",
+                                 "#00a6cf"),
+                        name="Clinical significance") +
+    ggtitle("Projection of data on principal components one and two") +
+    xlab(paste(paste("PC1 -",
+                     format(round(FR07961004.pca.variance["PC1"] * 100),
+                            2,
+                            nsmall=2),
+                     sep=" "),
+               "%",
+               sep="")) +
+    ylab(paste(paste("PC2 -",
+                     format(round(FR07961004.pca.variance["PC2"] * 100),
+                            2,
+                            nsmall=2),
+                     sep=" "),
+               "%",
+               sep=""))
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a barplot for individual FR07961004.
+
+# Prepare data from prcomp for ggplot barplot.
+FR07961004.pca.barplot.data <- cbind(FR07961004.pc1.contribs$data[,c(1,2)],
+                                     FR07961004.pc2.contribs$data[,2]) |>
+    as_tibble() |>
+    dplyr::rename(PC1="contrib",
+                  PC2="FR07961004.pc2.contribs$data[, 2]",
+                  METHOD="name") |>
+    dplyr::mutate_at(c("PC1"), as.numeric) |>
+    dplyr::mutate_at(c("PC2"), as.numeric) |>
+    pivot_longer(names_to="PCA",
+                 values_to="CONTRIBUTION",
+                 cols=c("PC1", "PC2")) |>
+    dplyr::mutate(across(c("CONTRIBUTION"),
+                         round,
+                         2))
+
+# Create the barplot.
+FR07961004.pca.barplot <- ggplot(data=FR07961004.pca.barplot.data,
+                                 aes(x=METHOD,
+                                     y=CONTRIBUTION,
+                                     fill=PCA,
+                                     colour=PCA)) +
+    ylim(c(0,70)) +
+    geom_bar(stat="identity",
+             position=position_dodge()) +
+    geom_text(aes(label=CONTRIBUTION),
+              fontface="bold",
+              vjust=-1,
+              position=position_dodge(0.9),
+              size=4,
+              colour="black") +
+    theme(legend.position=c(0.6,0.75),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#003670",
+                                 "#ec9e62"),
+                        name="Principal component") +
+    scale_fill_manual(values=c("#003670",
+                               "#ec9e62"),
+                      name="Principal component") +
+    ggtitle("Contribution to the variance of the different annotation sources\
+             for principal components one and two") +
+    xlab("Annotation source") +
+    ylab("Contribution (%)")
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Use the cutpointr package for creating ROC plots.
+
+# Create the ROC objects with all required information.
+## CADD_PHRED.
+FR07961004.cp.CADD_PHRED <- cutpointr(
+    FR07961004.nomissing,
+    CADD_PHRED,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE)
+
+## CADD_RAW.
+FR07961004.cp.CADD_RAW <- cutpointr(
+    FR07961004.nomissing,
+    CADD_RAW,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE)
+
+## CAPICE_SCORE.
+FR07961004.cp.CAPICE_SCORE <- cutpointr(
+    FR07961004.nomissing,
+    CAPICE_SCORE,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE)
+
+## FATHMM_MKL_C.
+FR07961004.cp.FATHMM_MKL_C <- cutpointr(
+    FR07961004.nomissing,
+    FATHMM_MKL_C,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE)
+
+## FATHMM_MKL_NC.
+FR07961004.cp.FATHMM_MKL_NC <- cutpointr(
+    FR07961004.nomissing,
+    FATHMM_MKL_NC,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Prepare the data for plotting ROC lines.
+
+# Prepare the data for plotting the ROC line.
+FR07961004.cp.CADD_PHRED.roc <- as.data.frame(
+    FR07961004.cp.CADD_PHRED[["roc_curve"]]) |>
+    mutate(annotation = "CADD_PHRED")
+FR07961004.cp.CADD_RAW.roc <- as.data.frame(
+    FR07961004.cp.CADD_RAW[["roc_curve"]]) |>
+    mutate(annotation = "CADD_RAW")
+FR07961004.cp.CAPICE_SCORE.roc <- as.data.frame(
+    FR07961004.cp.CAPICE_SCORE[["roc_curve"]]) |>
+    mutate(annotation = "CAPICE_SCORE")
+FR07961004.cp.FATHMM_MKL_C.roc <- as.data.frame(
+    FR07961004.cp.FATHMM_MKL_C[["roc_curve"]]) |>
+    mutate(annotation = "FATHMM_MKL_C")
+FR07961004.cp.FATHMM_MKL_NC.roc <- as.data.frame(
+    FR07961004.cp.FATHMM_MKL_NC[["roc_curve"]]) |>
+    mutate(annotation = "FATHMM_MKL_NC")
+
+## Combine all tables.
+FR07961004.cp.roc.data <- rbind(
+    FR07961004.cp.CADD_PHRED.roc,
+    FR07961004.cp.CADD_RAW.roc,
+    FR07961004.cp.CAPICE_SCORE.roc,
+    FR07961004.cp.FATHMM_MKL_C.roc,
+    FR07961004.cp.FATHMM_MKL_NC.roc)
+```
+
+## Also extract the optimal thresholds for classification
+```{r}
+#| warning: false
+#| echo: false
+
+# Also extract the optimal thresholds for classification.
+
+# Prepare the data for plotting the thresholds in the ROC plots.
+## CADD_PHRED.
+FR07961004.cp.roc.CADD_PHRED.threshold <- as.data.frame(
+    FR07961004.cp.CADD_PHRED[["optimal_cutpoint"]]) |>
+    mutate(annotation = "CADD_PHRED") |>
+    rename(threshold = 1)
+FR07961004.cp.roc.CADD_PHRED.threshold.location <- FR07961004.cp.CADD_PHRED.roc[
+    FR07961004.cp.CADD_PHRED.roc$x.sorted == FR07961004.cp.CADD_PHRED[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+FR07961004.cp.roc.CADD_PHRED.threshold.location.total <- merge(
+    FR07961004.cp.roc.CADD_PHRED.threshold,
+    FR07961004.cp.roc.CADD_PHRED.threshold.location,
+    by="threshold")
+
+## CADD_RAW.
+FR07961004.cp.roc.CADD_RAW.threshold <- as.data.frame(
+    FR07961004.cp.CADD_RAW[["optimal_cutpoint"]]) |>
+    mutate(annotation = "CADD_RAW") |>
+    rename(threshold = 1)
+FR07961004.cp.roc.CADD_RAW.threshold.location <- FR07961004.cp.CADD_RAW.roc[
+    FR07961004.cp.CADD_RAW.roc$x.sorted == FR07961004.cp.CADD_RAW[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+FR07961004.cp.roc.CADD_RAW.threshold.location.total <- merge(
+    FR07961004.cp.roc.CADD_RAW.threshold,
+    FR07961004.cp.roc.CADD_RAW.threshold.location,
+    by="threshold")
+
+## CAPICE_SCORE.
+FR07961004.cp.roc.CAPICE_SCORE.threshold <- as.data.frame(
+    FR07961004.cp.CAPICE_SCORE[["optimal_cutpoint"]]) |>
+    mutate(annotation = "CAPICE_SCORE") |>
+    rename(threshold = 1)
+FR07961004.cp.roc.CAPICE_SCORE.threshold.location <- FR07961004.cp.CAPICE_SCORE.roc[
+    FR07961004.cp.CAPICE_SCORE.roc$x.sorted == FR07961004.cp.CAPICE_SCORE[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+FR07961004.cp.roc.CAPICE_SCORE.threshold.location.total <- merge(
+    FR07961004.cp.roc.CAPICE_SCORE.threshold,
+    FR07961004.cp.roc.CAPICE_SCORE.threshold.location,
+    by="threshold")
+
+## FATHMM_MKL_C.
+FR07961004.cp.roc.FATHMM_MKL_C.threshold <- as.data.frame(
+    FR07961004.cp.FATHMM_MKL_C[["optimal_cutpoint"]]) |>
+    mutate(annotation = "FATHMM_MKL_C") |>
+    rename(threshold = 1)
+FR07961004.cp.roc.FATHMM_MKL_C.threshold.location <- FR07961004.cp.FATHMM_MKL_C.roc[
+    FR07961004.cp.FATHMM_MKL_C.roc$x.sorted == FR07961004.cp.FATHMM_MKL_C[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+FR07961004.cp.roc.FATHMM_MKL_C.threshold.location.total <- merge(
+    FR07961004.cp.roc.FATHMM_MKL_C.threshold,
+    FR07961004.cp.roc.FATHMM_MKL_C.threshold.location,
+    by="threshold")
+
+## FATHMM_MKL_NC.
+FR07961004.cp.roc.FATHMM_MKL_NC.threshold <- as.data.frame(
+    FR07961004.cp.FATHMM_MKL_NC[["optimal_cutpoint"]]) |>
+    mutate(annotation = "FATHMM_MKL_NC") |>
+    rename(threshold = 1)
+FR07961004.cp.roc.FATHMM_MKL_NC.threshold.location <- FR07961004.cp.FATHMM_MKL_NC.roc[
+    FR07961004.cp.FATHMM_MKL_NC.roc$x.sorted == FR07961004.cp.FATHMM_MKL_NC[["optimal_cutpoint"]],][,c(
+        "x.sorted",
+        "fpr",
+        "tpr")] |>
+    rename(threshold = 1)
+FR07961004.cp.roc.FATHMM_MKL_NC.threshold.location.total <- merge(
+    FR07961004.cp.roc.FATHMM_MKL_NC.threshold,
+    FR07961004.cp.roc.FATHMM_MKL_NC.threshold.location,
+    by="threshold")
+
+## Combine all tables.
+FR07961004.cp.roc.thresholds <- rbind(
+    FR07961004.cp.roc.CADD_PHRED.threshold.location.total,
+    FR07961004.cp.roc.CADD_RAW.threshold.location.total,
+    FR07961004.cp.roc.CAPICE_SCORE.threshold.location.total,
+    FR07961004.cp.roc.FATHMM_MKL_C.threshold.location.total,
+    FR07961004.cp.roc.FATHMM_MKL_NC.threshold.location.total)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create the ROC plots.
+
+# Create ROC plots for the annotation sources, split over multiple windows.
+FR07961004.lineplot <- ggplot(data=FR07961004.cp.roc.data,
+                              aes(x=fpr,
+                                  y=tpr,
+                                  colour=annotation)) +
+    geom_line() +
+    geom_point(data=FR07961004.cp.roc.thresholds,
+               aes(x=fpr,
+                   y=tpr,
+                   col=annotation)) +
+    geom_text(data=FR07961004.cp.roc.thresholds,
+              aes(x=fpr,
+                  y=tpr,
+                  label=threshold),
+              vjust=2,
+              hjust=-0.25) +
+    theme(legend.position=c(0.95,0.001),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#ec9e62",
+                                 "#00a6cf",
+                                 "#83b96d",
+                                 "#003670",
+                                 "#C73B1D"),
+                        name="Annotation source") +
+    ggtitle("Receiver Operating Curves based on the five annotation scores") +
+    xlab("False Positive Rate") +
+    ylab("True Positive Rate") +
+    xlim(-0.1, 1) +
+    ylim(0, 1.1)
+
+## Change the title of all plots.
+FR07961004.lineplot.facet.titles <- c(
+    paste("CADD PHRED - AUC:", substr(
+        as.character(FR07961004.cp.CADD_PHRED$AUC), 1, 6)),
+    paste("CADD RAW - AUC:", substr(
+        as.character(FR07961004.cp.CADD_RAW$AUC), 1, 6)),
+    paste("CAPICE SCORE - AUC:", substr(
+        as.character(FR07961004.cp.CAPICE_SCORE$AUC), 1, 6)),
+    paste("FATHMM MKL C - AUC:", substr(
+        as.character(FR07961004.cp.FATHMM_MKL_C$AUC), 1, 6)),
+    paste("FATHMM MKL NC - AUC:", substr(
+        as.character(FR07961004.cp.FATHMM_MKL_NC$AUC), 1, 6)))
+
+## Add names to the vector.
+names(FR07961004.lineplot.facet.titles) <- c(
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC")
+```
+
+# Display all plots
+## Display pca scatterplot
+```{r}
+#| warning: false
+
+FR07961004.pca.scatterplot
+```
+
+## Display pca barplot
+```{r}
+#| warning: false
+
+FR07961004.pca.barplot
+```
+
+## Display windowed ROC plots
+```{r}
+#| warning: false
+
+FR07961004.lineplot +
+    facet_wrap(. ~ annotation,
+               labeller=labeller(
+                   annotation=FR07961004.lineplot.facet.titles))
+```
+
+## Select the optimal thresholds
+```{r}
+#| warning: false
+#| echo: false
+
+FR07961004.cp.roc.CADD_PHRED.summary.threshold <- summary(
+    FR07961004.cp.CADD_PHRED)
+FR07961004.cp.roc.CADD_RAW.summary.threshold <- summary(
+    FR07961004.cp.CADD_RAW)
+FR07961004.cp.roc.CAPICE_SCORE.summary.threshold <- summary(
+    FR07961004.cp.CAPICE_SCORE)
+FR07961004.cp.roc.FATHMM_MKL_C.summary.threshold <- summary(
+    FR07961004.cp.FATHMM_MKL_C)
+FR07961004.cp.roc.FATHMM_MKL_NC.summary.threshold <- summary(
+    FR07961004.cp.FATHMM_MKL_NC)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+FR07961004.optimal.thresholds <- data.frame(
+    Annotation=c("CADD_PHRED",
+                 "CADD_RAW",
+                 "CAPICE_SCORE",
+                 "FATHMM_MKL_C",
+                 "FATHMM_MKL_NC"),
+    Threshold=c(FR07961004.cp.roc.CADD_PHRED.summary.threshold$cutpointr[[1]][["optimal_cutpoint"]],
+                FR07961004.cp.roc.CADD_RAW.summary.threshold$cutpointr[[1]][["optimal_cutpoint"]],
+                FR07961004.cp.roc.CAPICE_SCORE.summary.threshold$cutpointr[[1]][["optimal_cutpoint"]],
+                FR07961004.cp.roc.FATHMM_MKL_C.summary.threshold$cutpointr[[1]][["optimal_cutpoint"]],
+                FR07961004.cp.roc.FATHMM_MKL_NC.summary.threshold$cutpointr[[1]][["optimal_cutpoint"]])
+)
+FR07961004.optimal.thresholds |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+# Output session information
+```{r}
+#| warning: false
+
+# Print the session info including packages and version used.
+sessionInfo()
+```

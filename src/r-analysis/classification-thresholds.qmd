@@ -1,0 +1,425 @@
+---
+title: "Apply classification thresholds"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Apply classification thresholds
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readxl")
+library("broom")
+library("naniar")
+library("factoextra")
+library("FactoMineR")
+library("plotROC")
+library("data.table")
+library("Rtsne")
+library("cutpointr")
+library("quarto")
+library("umap")
+library("fANCOVA")
+library("caret")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+# Set a seed for reproducability.
+set.seed(1995)
+
+# Set other formatting settings of Quarto document.
+knitr::opts_chunk$set(echo=TRUE,
+                      message=FALSE,
+                      fig.width=9,
+                      fig.height=9,
+                      out.width="85%",
+                      fig.align="center")
+
+# Set a nice theme.
+theme_set(theme_bw())
+```
+
+# UK Personal Genome project
+## Load validation datasets
+```{r}
+#| warning: false
+
+# Read in the tsv files.
+FR07961001 <- read_tsv(
+    "/mnt/titan/users/j.boom/r-analysis/combined/FR07961001.general.cancer.subset.2.tsv",
+    col_names=TRUE,
+    show_col_types = FALSE)
+FR07961002 <- read_tsv(
+    "/mnt/titan/users/j.boom/r-analysis/combined/FR07961002.general.cancer.subset.3.tsv",
+    col_names=TRUE,
+    show_col_types = FALSE)
+FR07961005 <- read_tsv(
+    "/mnt/titan/users/j.boom/r-analysis/combined/FR07961005.brain.cancer.subset.2.tsv",
+    col_names=TRUE,
+    show_col_types = FALSE)
+```
+
+## Clarify thresholds general vs brain
+```{r}
+#| warning: false
+
+# Create a vector with the optimal thresholds, just as a reminder.
+# This one is based on the general cancer variants.
+GENERAL.THRESHOLDS <- c(
+    17.3,
+    1.672451,
+    0.0077,
+    0.11054,
+    0.22081
+)
+
+BRAIN.THRESHOLDS <- c(
+    22,
+    2.295056,
+    0.0106,
+    0.175105,
+    0.321080
+)
+```
+
+# FR07961001
+## Try out thresholds on individual FR07961001 [GENERAL]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961001.validation.pathogenic <- FR07961001[
+    FR07961001$CADD_PHRED > 17.3 &
+    FR07961001$CADD_RAW > 1.672451 &
+    FR07961001$CAPICE_SCORE > 0.0077 &
+    FR07961001$FATHMM_MKL_C > 0.11054 &
+    FR07961001$FATHMM_MKL_NC > 0.22081
+,] |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961001.validation.benign <- FR07961001[
+    FR07961001$CADD_PHRED <= 17.3 &
+    FR07961001$CADD_RAW <= 1.672451 &
+    FR07961001$CAPICE_SCORE <= 0.0077 &
+    FR07961001$FATHMM_MKL_C <= 0.11054 &
+    FR07961001$FATHMM_MKL_NC <= 0.22081
+,] |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961001.validation.total <- rbind(
+    FR07961001.validation.pathogenic,
+    FR07961001.validation.benign
+)
+
+# Output a simple confusion matrix.
+table(
+    factor(FR07961001.validation.total$ClinVar_CLNSIG),
+    factor(FR07961001.validation.total$MODEL)
+) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961001.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961001.validation.total$MODEL),
+    reference=factor(FR07961001.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961001.validation.confusion.matrix
+```
+
+## Try out thresholds on individual FR07961001 [BRAIN]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961001.validation.pathogenic <- FR07961001[
+    FR07961001$CADD_PHRED > 22 &
+    FR07961001$CADD_RAW > 2.295056 &
+    FR07961001$CAPICE_SCORE > 0.0106 &
+    FR07961001$FATHMM_MKL_C > 0.175105 &
+    FR07961001$FATHMM_MKL_NC > 0.321080
+,] |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961001.validation.benign <- FR07961001[
+    FR07961001$CADD_PHRED <= 22 &
+    FR07961001$CADD_RAW <= 2.295056 &
+    FR07961001$CAPICE_SCORE <= 0.0106 &
+    FR07961001$FATHMM_MKL_C <= 0.175105 &
+    FR07961001$FATHMM_MKL_NC <= 0.321080
+,] |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961001.validation.total <- rbind(
+    FR07961001.validation.pathogenic,
+    FR07961001.validation.benign
+)
+
+# Output a simple confusion matrix.
+table(
+    factor(FR07961001.validation.total$ClinVar_CLNSIG),
+    factor(FR07961001.validation.total$MODEL)
+) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961001.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961001.validation.total$MODEL),
+    reference=factor(FR07961001.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961001.validation.confusion.matrix
+```
+
+# FR07961002
+## Try out thresholds on individual FR07961002 [GENERAL]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961002.validation.pathogenic <- FR07961002[
+    FR07961002$CADD_PHRED > 17.3 &
+    FR07961002$CADD_RAW > 1.672451 &
+    FR07961002$CAPICE_SCORE > 0.0077 &
+    FR07961002$FATHMM_MKL_C > 0.11054 &
+    FR07961002$FATHMM_MKL_NC > 0.22081
+,] |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961002.validation.benign <- FR07961002[
+    FR07961002$CADD_PHRED <= 17.3 &
+    FR07961002$CADD_RAW <= 1.672451 &
+    FR07961002$CAPICE_SCORE <= 0.0077 &
+    FR07961002$FATHMM_MKL_C <= 0.11054 &
+    FR07961002$FATHMM_MKL_NC <= 0.22081
+,] |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961002.validation.total <- rbind(
+    FR07961002.validation.pathogenic,
+    FR07961002.validation.benign
+)
+
+# Output a simple confusion matrix.
+table(
+    factor(FR07961002.validation.total$ClinVar_CLNSIG),
+    factor(FR07961002.validation.total$MODEL)
+) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961002.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961002.validation.total$MODEL),
+    reference=factor(FR07961002.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961002.validation.confusion.matrix
+```
+
+## Try out thresholds on individual FR07961002 [BRAIN]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961002.validation.pathogenic <- FR07961002[
+    FR07961002$CADD_PHRED > 22 &
+    FR07961002$CADD_RAW > 2.295056 &
+    FR07961002$CAPICE_SCORE > 0.0106 &
+    FR07961002$FATHMM_MKL_C > 0.175105 &
+    FR07961002$FATHMM_MKL_NC > 0.321080
+,] |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961002.validation.benign <- FR07961002[
+    FR07961002$CADD_PHRED <= 22 &
+    FR07961002$CADD_RAW <= 2.295056 &
+    FR07961002$CAPICE_SCORE <= 0.0106 &
+    FR07961002$FATHMM_MKL_C <= 0.175105 &
+    FR07961002$FATHMM_MKL_NC <= 0.321080
+,] |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961002.validation.total <- rbind(
+    FR07961002.validation.pathogenic,
+    FR07961002.validation.benign
+)
+
+# Output a simple confusion matrix.
+table(
+    factor(FR07961002.validation.total$ClinVar_CLNSIG),
+    factor(FR07961002.validation.total$MODEL)
+) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961002.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961002.validation.total$MODEL),
+    reference=factor(FR07961002.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961002.validation.confusion.matrix
+```
+
+# FR07961005
+## Try out thresholds on individual FR07961005 [GENERAL]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961005.validation.pathogenic <- FR07961005[
+    FR07961005$CADD_PHRED > 17.3 &
+    FR07961005$CADD_RAW > 1.672451 &
+    FR07961005$CAPICE_SCORE > 0.0077 &
+    FR07961005$FATHMM_MKL_C > 0.11054 &
+    FR07961005$FATHMM_MKL_NC > 0.22081
+,] |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961005.validation.benign <- FR07961005[
+    FR07961005$CADD_PHRED <= 17.3 &
+    FR07961005$CADD_RAW <= 1.672451 &
+    FR07961005$CAPICE_SCORE <= 0.0077 &
+    FR07961005$FATHMM_MKL_C <= 0.11054 &
+    FR07961005$FATHMM_MKL_NC <= 0.22081
+,] |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961005.validation.total <- rbind(
+    FR07961005.validation.pathogenic,
+    FR07961005.validation.benign
+)
+
+# Output a simple confusion matrix.
+table(
+    factor(FR07961005.validation.total$ClinVar_CLNSIG),
+    factor(FR07961005.validation.total$MODEL)
+) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961005.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961005.validation.total$MODEL),
+    reference=factor(FR07961005.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961005.validation.confusion.matrix
+```
+
+## Try out thresholds on individual FR07961005 [BRAIN]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961005.validation.pathogenic <- FR07961005[
+    FR07961005$CADD_PHRED > 22 &
+    FR07961005$CADD_RAW > 2.295056 &
+    FR07961005$CAPICE_SCORE > 0.0106 &
+    FR07961005$FATHMM_MKL_C > 0.175105 &
+    FR07961005$FATHMM_MKL_NC > 0.321080
+,] |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961005.validation.benign <- FR07961005[
+    FR07961005$CADD_PHRED <= 22 &
+    FR07961005$CADD_RAW <= 2.295056 &
+    FR07961005$CAPICE_SCORE <= 0.0106 &
+    FR07961005$FATHMM_MKL_C <= 0.175105 &
+    FR07961005$FATHMM_MKL_NC <= 0.321080
+,] |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961005.validation.total <- rbind(
+    FR07961005.validation.pathogenic,
+    FR07961005.validation.benign
+)
+
+# Output a simple confusion matrix.
+table(
+    factor(FR07961005.validation.total$ClinVar_CLNSIG),
+    factor(FR07961005.validation.total$MODEL)
+) |>
+    knitr::kable(format="html") |>
+    kableExtra::kable_classic(full_width=FALSE)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961005.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961005.validation.total$MODEL),
+    reference=factor(FR07961005.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961005.validation.confusion.matrix
+```
+
+# Output session information
+```{r}
+#| warning: false
+
+# Print the session info including packages and version used.
+sessionInfo()
+```

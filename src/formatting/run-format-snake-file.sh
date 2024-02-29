@@ -28,8 +28,8 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-main() {
-    # The main function:
+format_file() {
+    # The format_file function:
     #     This function runs snakefmt in singularity to format an input
     #     snake file.
     singularity \
@@ -41,6 +41,13 @@ main() {
                 --verbose \
                 /home/j.boom/develop/genomescan/snakemake-tutorial/snakefile.smk \
                 /home/j.boom/develop/genomescan/snakemake-tutorial/rules/read-mapping.smk
+}
+
+main() {
+    # The main function:
+    #     This function runs snakefmt in singularity to format an input
+    #     snake file.
+    format_file
 }
 
 # The getopts function.
@@ -69,7 +76,7 @@ do
             echo ""
             echo "This script runs the snakefmt tool on an input snakefile."
             echo "Black is used to format python code and snake code is"
-            echo "formatted to adhere to something similar to PEP8."
+            echo "formatted to adhere to something similar to pep8."
             echo ""
 
             exit
