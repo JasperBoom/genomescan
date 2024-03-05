@@ -29,6 +29,8 @@ library("Rtsne")
 library("cutpointr")
 library("quarto")
 library("umap")
+library("fANCOVA")
+library("caret")
 ```
 
 # Run document setup
@@ -39,12 +41,14 @@ library("umap")
 set.seed(1995)
 
 # Set other formatting settings of Quarto document.
-knitr::opts_chunk$set(echo=TRUE,
-                      message=FALSE,
-                      fig.width=9,
-                      fig.height=9,
-                      out.width="85%",
-                      fig.align="center")
+knitr::opts_chunk$set(
+    echo=TRUE,
+    message=FALSE,
+    fig.width=9,
+    fig.height=9,
+    out.width="85%",
+    fig.align="center"
+)
 
 # Set a nice theme.
 theme_set(theme_bw())
@@ -58,10 +62,11 @@ theme_set(theme_bw())
 # Read in the tsv file in the data folder, the original test set based on
 # ClinVar and GIAB.
 giab <- read_tsv(
-    "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/brain-tumour/giab-clinvar.annotated.edit.tab",
+    "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/brain-tumour/giab-clinvar.annotated.edit.tab",
     col_names=TRUE,
     skip=52,
-    show_col_types = FALSE)
+    show_col_types = FALSE
+)
 ```
 
 ## Inspect & select data from ClinVar/GIAB data
@@ -76,20 +81,22 @@ giab.dedup <- giab[!duplicated(
 
 # Select just the important numeric annotation sources. Replace dash with NA
 # and make sure the values are numeric.
-giab.select <- giab.dedup[, c("Variation_id",
-                              "CADD_PHRED",
-                              "CADD_RAW",
-                              "CAPICE_SCORE",
-                              "FATHMM_MKL_C",
-                              "FATHMM_MKL_NC",
-                              "ClinVar_CLNSIG")] |>
+giab.select <- giab.dedup[, c(
+    "Variation_id",
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC",
+    "ClinVar_CLNSIG")] |>
     replace_with_na_all(condition = ~.x == "-") |>
-    mutate_at(c("CADD_PHRED",
-                "CADD_RAW",
-                "CAPICE_SCORE",
-                "FATHMM_MKL_C",
-                "FATHMM_MKL_NC"),
-              function(x) as.numeric(as.character(x)))
+    mutate_at(c(
+        "CADD_PHRED",
+        "CADD_RAW",
+        "CAPICE_SCORE",
+        "FATHMM_MKL_C",
+        "FATHMM_MKL_NC"),
+        function(x) as.numeric(as.character(x)))
 
 # Remove rows of columns with missing values, set the category to a factor and
 # set the variant identifiers as rownames.
@@ -110,25 +117,33 @@ giab.nomissing <- giab.select |>
 # easy-multivariate-data-analyses-and-elegant-visualization
 # Perform a principal component analysis, include centering and scaling of data.
 # Using the PCA command.
-giab.pca.data <- PCA(giab.nomissing[,1:5],
-                     graph=FALSE,
-                     ncp=4,
-                     scale.unit=TRUE)
+giab.pca.data <- PCA(
+    giab.nomissing[,1:5],
+    graph=FALSE,
+    ncp=4,
+    scale.unit=TRUE
+)
 
 # Extract the results for variables.
-giab.pca.var <- get_pca_var(giab.pca.data)
+giab.pca.var <- get_pca_var(
+    giab.pca.data
+)
 
 # Contributions of variables to PC1.
-giab.pc1.contribs <- fviz_contrib(giab.pca.data,
-                                  choice="var",
-                                  axes=1,
-                                  top=10)
+giab.pc1.contribs <- fviz_contrib(
+    giab.pca.data,
+    choice="var",
+    axes=1,
+    top=10
+)
 
 # Contributions of variables to PC2.
-giab.pc2.contribs <- fviz_contrib(giab.pca.data,
-                                  choice="var",
-                                  axes=2,
-                                  top=10)
+giab.pc2.contribs <- fviz_contrib(
+    giab.pca.data,
+    choice="var",
+    axes=2,
+    top=10
+)
 ```
 
 ```{r}
@@ -143,7 +158,8 @@ giab.pc2.contribs <- fviz_contrib(giab.pca.data,
 giab.prcomp.data <- prcomp(
     giab.nomissing[,1:5],
     center=TRUE,
-    scale.=TRUE)
+    scale.=TRUE
+)
 ```
 
 ```{r}
@@ -285,13 +301,15 @@ giab.scores.scatterplot <- ggplot(
 # PCA which is done under the hood.
 giab.tsne <- Rtsne(
     as.matrix(giab.nomissing[,1:5]),
-    check_duplicates=FALSE)
+    check_duplicates=FALSE
+)
 
 # Extract the coordinates created by tsne and add a column for colouring.
 giab.tsne.data <- data.frame(
     x=giab.tsne$Y[,1],
     y=giab.tsne$Y[,2],
-    colour=giab.nomissing$ClinVar_CLNSIG)
+    colour=giab.nomissing$ClinVar_CLNSIG
+)
 ```
 
 ```{r}
@@ -369,7 +387,8 @@ giab.cp.CADD_PHRED <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 
 ## CADD_RAW.
 giab.cp.CADD_RAW <- cutpointr(
@@ -380,37 +399,44 @@ giab.cp.CADD_RAW <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 
 ## CAPICE_SCORE.
-giab.cp.CAPICE_SCORE <- cutpointr(giab.nomissing,
-                                  CAPICE_SCORE,
-                                  ClinVar_CLNSIG,
-                                  method=maximize_metric,
-                                  metric=sum_sens_spec,
-                                  pos_class="Pathogenic",
-                                  neg_class="Benign",
-                                  silent=TRUE)
+giab.cp.CAPICE_SCORE <- cutpointr(
+    giab.nomissing,
+    CAPICE_SCORE,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE
+)
 
 ## FATHMM_MKL_C.
-giab.cp.FATHMM_MKL_C <- cutpointr(giab.nomissing,
-                                  FATHMM_MKL_C,
-                                  ClinVar_CLNSIG,
-                                  method=maximize_metric,
-                                  metric=sum_sens_spec,
-                                  pos_class="Pathogenic",
-                                  neg_class="Benign",
-                                  silent=TRUE)
+giab.cp.FATHMM_MKL_C <- cutpointr(
+    giab.nomissing,
+    FATHMM_MKL_C,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE
+)
 
 ## FATHMM_MKL_NC.
-giab.cp.FATHMM_MKL_NC <- cutpointr(giab.nomissing,
-                                   FATHMM_MKL_NC,
-                                   ClinVar_CLNSIG,
-                                   method=maximize_metric,
-                                   metric=sum_sens_spec,
-                                   pos_class="Pathogenic",
-                                   neg_class="Benign",
-                                   silent=TRUE)
+giab.cp.FATHMM_MKL_NC <- cutpointr(
+    giab.nomissing,
+    FATHMM_MKL_NC,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE
+)
 ```
 
 ```{r}
@@ -437,11 +463,13 @@ giab.cp.FATHMM_MKL_NC.roc <- as.data.frame(
     mutate(annotation = "FATHMM_MKL_NC")
 
 ## Combine all tables.
-giab.cp.roc.data <- rbind(giab.cp.CADD_PHRED.roc,
-                          giab.cp.CADD_RAW.roc,
-                          giab.cp.CAPICE_SCORE.roc,
-                          giab.cp.FATHMM_MKL_C.roc,
-                          giab.cp.FATHMM_MKL_NC.roc)
+giab.cp.roc.data <- rbind(
+    giab.cp.CADD_PHRED.roc,
+    giab.cp.CADD_RAW.roc,
+    giab.cp.CAPICE_SCORE.roc,
+    giab.cp.FATHMM_MKL_C.roc,
+    giab.cp.FATHMM_MKL_NC.roc
+)
 ```
 
 ```{r}
@@ -537,7 +565,8 @@ giab.cp.roc.thresholds <- rbind(
     giab.cp.roc.CADD_RAW.threshold.location.total,
     giab.cp.roc.CAPICE_SCORE.threshold.location.total,
     giab.cp.roc.FATHMM_MKL_C.threshold.location.total,
-    giab.cp.roc.FATHMM_MKL_NC.threshold.location.total)
+    giab.cp.roc.FATHMM_MKL_NC.threshold.location.total
+)
 ```
 
 ```{r}
@@ -588,7 +617,8 @@ giab.lineplot.facet.titles <- c(
     paste("FATHMM MKL C - AUC:", substr(
         as.character(giab.cp.FATHMM_MKL_C$AUC), 1, 6)),
     paste("FATHMM MKL NC - AUC:", substr(
-        as.character(giab.cp.FATHMM_MKL_NC$AUC), 1, 6)))
+        as.character(giab.cp.FATHMM_MKL_NC$AUC), 1, 6))
+)
 
 ## Add names to the vector.
 names(giab.lineplot.facet.titles) <- c(
@@ -596,7 +626,8 @@ names(giab.lineplot.facet.titles) <- c(
     "CADD_RAW",
     "CAPICE_SCORE",
     "FATHMM_MKL_C",
-    "FATHMM_MKL_NC")
+    "FATHMM_MKL_NC"
+)
 ``` 
 
 # Display all plots

@@ -34,20 +34,18 @@ run_replace(){
     #     replaces the clinvar clinical significance column into just benign
     #     classification and adds the pathogenic variants extracted from
     #     clinvar as additional variants.
-    #     FR07961000: general-cancer
-    #     FR07961001: general-cancer
-    #     FR07961002: general-cancer
-    #     FR07961003: general-cancer
-    #     FR07961004: brain-tumour
-    #     FR07961005: brain-tumour
-    #     FR07961006: meningioma
+    #     FR07961000: general-cancer subsets 1 & 2
+    #     FR07961001: general-cancer subsets 3 & 4
+    #     FR07961004: brain-tumour subset 1
+    #     FR07961005: brain-tumour subset 2
+    #     FR07961008: meningioma
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/uk-genome-project.py \
-        --tab "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961001/FR07961001.pass.recode.annotated.edit.tab" \
+        --tab "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961008/FR07961008.pass.recode.annotated.edit.tab" \
         --skip 52 \
         --clinvar-skip 0 \
-        --clinvar "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/general.cancer.subset.2.tsv" \
-        --output "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961001.general.cancer.subset.2.tsv"
+        --clinvar "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/meningioma.pathogenic.set.tsv" \
+        --output "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961008.meningioma.pathogenic.set.tsv"
 }
 
 main() {

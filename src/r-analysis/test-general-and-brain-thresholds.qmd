@@ -1,0 +1,367 @@
+---
+title: "Test thresholds from general and brain variants"
+date: "`r Sys.Date()`"
+author: "J. Boom"
+format:
+    html:
+        toc: true
+        self-contained: true
+        toc-title: Table of contents - Test thresholds from general and brain variants
+        toc-location: left
+execute:
+    echo: true
+---
+
+# Load packages
+```{r}
+#| warning: false
+
+library("tidyverse")
+library("knitr")
+library("readxl")
+library("broom")
+library("naniar")
+library("factoextra")
+library("FactoMineR")
+library("plotROC")
+library("data.table")
+library("Rtsne")
+library("cutpointr")
+library("quarto")
+library("umap")
+library("fANCOVA")
+library("caret")
+```
+
+# Run document setup
+```{r}
+#| warning: false
+
+# Set a seed for reproducability.
+set.seed(1995)
+
+# Set other formatting settings of Quarto document.
+knitr::opts_chunk$set(
+    echo=TRUE,
+    message=FALSE,
+    fig.width=9,
+    fig.height=9,
+    out.width="85%",
+    fig.align="center"
+)
+
+# Set a nice theme.
+theme_set(theme_bw())
+```
+
+# UK Personal Genome project
+## Load validation datasets
+```{r}
+#| warning: false
+
+# Read in the tsv files.
+FR07961001 <- read_tsv(
+    "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961001.general.cancer.subset.3.plus.4.tsv",
+    col_names=TRUE,
+    show_col_types = FALSE
+)
+FR07961005 <- read_tsv(
+    "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961005.brain.cancer.subset.2.tsv",
+    col_names=TRUE,
+    show_col_types = FALSE
+)
+```
+
+## Clarify thresholds general vs brain
+```{r}
+#| warning: false
+
+# Create two dataframes with the thresholds.
+# These thresholds are based on general pathogenic variants.
+THRESHOLDS.GENERAL <- data.frame(
+    CADD_PHRED=17.18,
+    CADD_RAW=1.654055,
+    CAPICE_SCORE=0.0059,
+    FATHMM_MKL_C=0.12306,
+    FATHMM_MKL_NC=0.21368
+)
+
+# These thresholds are based on brain cancer pathogenic variants.
+THRESHOLDS.BRAIN <- data.frame(
+    CADD_PHRED=22,
+    CADD_RAW=2.295056,
+    CAPICE_SCORE=0.010600,
+    FATHMM_MKL_C=0.175105,
+    FATHMM_MKL_NC=0.321080
+)
+```
+
+## Inspect & select data for individual FR07961001
+```{r}
+#| warning: false
+
+# Condense rows to one per variation id, vep reports all transcripts it can
+# find by default.
+FR07961001.dedup <- FR07961001[!duplicated(
+    FR07961001$`Uploaded_variation`), ] |>
+    dplyr::rename("Variation_id" = 1)
+
+# Select just the important numeric annotation sources. Replace dash with NA
+# and make sure the values are numeric.
+FR07961001.select <- FR07961001.dedup[, c(
+    "Variation_id",
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC",
+    "ClinVar_CLNSIG")] |>
+    mutate_at(c(
+        "CADD_PHRED",
+        "CADD_RAW",
+        "CAPICE_SCORE",
+        "FATHMM_MKL_C",
+        "FATHMM_MKL_NC"),
+        function(x) as.numeric(as.character(x)))
+
+# Remove rows of columns with missing values, set the category to a factor and
+# set the variant identifiers as rownames.
+FR07961001.nomissing <- FR07961001.select |>
+    dplyr::mutate_at(c("ClinVar_CLNSIG"),
+                     as.factor) |>
+    tibble::column_to_rownames(var="Variation_id")
+```
+
+## Inspect & select data for individual FR07961005
+```{r}
+#| warning: false
+
+# Condense rows to one per variation id, vep reports all transcripts it can
+# find by default.
+FR07961005.dedup <- FR07961005[!duplicated(
+    FR07961005$`Uploaded_variation`), ] |>
+    dplyr::rename("Variation_id" = 1)
+
+# Select just the important numeric annotation sources. Replace dash with NA
+# and make sure the values are numeric.
+FR07961005.select <- FR07961005.dedup[, c(
+    "Variation_id",
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC",
+    "ClinVar_CLNSIG")] |>
+    mutate_at(c(
+        "CADD_PHRED",
+        "CADD_RAW",
+        "CAPICE_SCORE",
+        "FATHMM_MKL_C",
+        "FATHMM_MKL_NC"),
+        function(x) as.numeric(as.character(x)))
+
+# Remove rows of columns with missing values, set the category to a factor and
+# set the variant identifiers as rownames.
+FR07961005.nomissing <- FR07961005.select |>
+    dplyr::mutate_at(c("ClinVar_CLNSIG"),
+                     as.factor) |>
+    tibble::column_to_rownames(var="Variation_id")
+```
+
+# FR07961001
+## Try out thresholds on individual FR07961001 [GENERAL]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961001.validation.pathogenic <- FR07961001.nomissing |>
+    filter(
+        CADD_PHRED > THRESHOLDS.GENERAL[["CADD_PHRED"]],
+        CADD_RAW > THRESHOLDS.GENERAL[["CADD_RAW"]],
+        CAPICE_SCORE > THRESHOLDS.GENERAL[["CAPICE_SCORE"]],
+        FATHMM_MKL_C > THRESHOLDS.GENERAL[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC > THRESHOLDS.GENERAL[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961001.validation.benign <- FR07961001.nomissing |>
+    filter(
+        CADD_PHRED <= THRESHOLDS.GENERAL[["CADD_PHRED"]],
+        CADD_RAW <= THRESHOLDS.GENERAL[["CADD_RAW"]],
+        CAPICE_SCORE <= THRESHOLDS.GENERAL[["CAPICE_SCORE"]],
+        FATHMM_MKL_C <= THRESHOLDS.GENERAL[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC <= THRESHOLDS.GENERAL[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961001.validation.total <- rbind(
+    FR07961001.validation.pathogenic,
+    FR07961001.validation.benign
+)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961001.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961001.validation.total$MODEL),
+    reference=factor(FR07961001.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961001.validation.confusion.matrix
+```
+
+## Try out thresholds on individual FR07961001 [BRAIN]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961001.validation.pathogenic <- FR07961001.nomissing |>
+    filter(
+        CADD_PHRED > THRESHOLDS.BRAIN[["CADD_PHRED"]],
+        CADD_RAW > THRESHOLDS.BRAIN[["CADD_RAW"]],
+        CAPICE_SCORE > THRESHOLDS.BRAIN[["CAPICE_SCORE"]],
+        FATHMM_MKL_C > THRESHOLDS.BRAIN[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC > THRESHOLDS.BRAIN[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961001.validation.benign <- FR07961001.nomissing |>
+    filter(
+        CADD_PHRED <= THRESHOLDS.BRAIN[["CADD_PHRED"]],
+        CADD_RAW <= THRESHOLDS.BRAIN[["CADD_RAW"]],
+        CAPICE_SCORE <= THRESHOLDS.BRAIN[["CAPICE_SCORE"]],
+        FATHMM_MKL_C <= THRESHOLDS.BRAIN[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC <= THRESHOLDS.BRAIN[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961001.validation.total <- rbind(
+    FR07961001.validation.pathogenic,
+    FR07961001.validation.benign
+)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961001.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961001.validation.total$MODEL),
+    reference=factor(FR07961001.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961001.validation.confusion.matrix
+```
+
+# FR07961005
+## Try out thresholds on individual FR07961005 [GENERAL]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961005.validation.pathogenic <- FR07961005.nomissing |>
+    filter(
+        CADD_PHRED > THRESHOLDS.GENERAL[["CADD_PHRED"]],
+        CADD_RAW > THRESHOLDS.GENERAL[["CADD_RAW"]],
+        CAPICE_SCORE > THRESHOLDS.GENERAL[["CAPICE_SCORE"]],
+        FATHMM_MKL_C > THRESHOLDS.GENERAL[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC > THRESHOLDS.GENERAL[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961005.validation.benign <- FR07961005.nomissing |>
+    filter(
+        CADD_PHRED <= THRESHOLDS.GENERAL[["CADD_PHRED"]],
+        CADD_RAW <= THRESHOLDS.GENERAL[["CADD_RAW"]],
+        CAPICE_SCORE <= THRESHOLDS.GENERAL[["CAPICE_SCORE"]],
+        FATHMM_MKL_C <= THRESHOLDS.GENERAL[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC <= THRESHOLDS.GENERAL[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961005.validation.total <- rbind(
+    FR07961005.validation.pathogenic,
+    FR07961005.validation.benign
+)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961005.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961005.validation.total$MODEL),
+    reference=factor(FR07961005.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961005.validation.confusion.matrix
+```
+
+## Try out thresholds on individual FR07961005 [BRAIN]
+```{r}
+#| warning: false
+#| echo: false
+
+# Select the variants that would classify as pathogenic.
+FR07961005.validation.pathogenic <- FR07961005.nomissing |>
+    filter(
+        CADD_PHRED > THRESHOLDS.BRAIN[["CADD_PHRED"]],
+        CADD_RAW > THRESHOLDS.BRAIN[["CADD_RAW"]],
+        CAPICE_SCORE > THRESHOLDS.BRAIN[["CAPICE_SCORE"]],
+        FATHMM_MKL_C > THRESHOLDS.BRAIN[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC > THRESHOLDS.BRAIN[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Pathogenic")
+
+# Select the variants that would classify as benign.
+FR07961005.validation.benign <- FR07961005.nomissing |>
+    filter(
+        CADD_PHRED <= THRESHOLDS.BRAIN[["CADD_PHRED"]],
+        CADD_RAW <= THRESHOLDS.BRAIN[["CADD_RAW"]],
+        CAPICE_SCORE <= THRESHOLDS.BRAIN[["CAPICE_SCORE"]],
+        FATHMM_MKL_C <= THRESHOLDS.BRAIN[["FATHMM_MKL_C"]],
+        FATHMM_MKL_NC <= THRESHOLDS.BRAIN[["FATHMM_MKL_NC"]]
+    ) |>
+    mutate(MODEL = "Benign")
+
+# Combine the two subsets, now including a column with the classification.
+FR07961005.validation.total <- rbind(
+    FR07961005.validation.pathogenic,
+    FR07961005.validation.benign
+)
+```
+
+```{r}
+#| warning: false
+#| echo: false
+
+# Create a more extensive confusion matrix report.
+FR07961005.validation.confusion.matrix <- confusionMatrix(
+    data=factor(FR07961005.validation.total$MODEL),
+    reference=factor(FR07961005.validation.total$ClinVar_CLNSIG),
+    positive="Pathogenic"
+)
+FR07961005.validation.confusion.matrix
+```
+
+# Output session information
+```{r}
+#| warning: false
+
+# Print the session info including packages and version used.
+sessionInfo()
+```

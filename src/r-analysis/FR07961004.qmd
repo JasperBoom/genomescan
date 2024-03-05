@@ -30,6 +30,7 @@ library("cutpointr")
 library("quarto")
 library("umap")
 library("fANCOVA")
+library("caret")
 ```
 
 # Run document setup
@@ -46,7 +47,8 @@ knitr::opts_chunk$set(
     fig.width=9,
     fig.height=9,
     out.width="85%",
-    fig.align="center")
+    fig.align="center"
+)
 
 # Set a nice theme.
 theme_set(theme_bw())
@@ -60,9 +62,10 @@ theme_set(theme_bw())
 # Read in the tsv file in the data folder, based on the personal genome project.
 # This is individual FR07961004. It includes pathogenic variants from ClinVar.
 FR07961004 <- read_tsv(
-    "/mnt/titan/users/j.boom/r-analysis/combined/FR07961004.brain.cancer.subset.1.tsv",
+    "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961004.brain.cancer.subset.1.tsv",
     col_names=TRUE,
-    show_col_types = FALSE)
+    show_col_types = FALSE
+)
 ```
 
 ## Inspect & select data for individual FR07961004
@@ -91,8 +94,7 @@ FR07961004.select <- FR07961004.dedup[, c(
         "CAPICE_SCORE",
         "FATHMM_MKL_C",
         "FATHMM_MKL_NC"),
-        function(x) as.numeric(
-            as.character(x)))
+        function(x) as.numeric(as.character(x)))
 
 # Remove rows of columns with missing values, set the category to a factor and
 # set the variant identifiers as rownames.
@@ -117,25 +119,29 @@ FR07961004.pca.data <- PCA(
     FR07961004.nomissing[,1:5],
     graph=FALSE,
     ncp=4,
-    scale.unit=TRUE)
+    scale.unit=TRUE
+)
 
 # Extract the results for variables.
 FR07961004.pca.var <- get_pca_var(
-    FR07961004.pca.data)
+    FR07961004.pca.data
+)
 
 # Contributions of variables to PC1.
 FR07961004.pc1.contribs <- fviz_contrib(
     FR07961004.pca.data,
     choice="var",
     axes=1,
-    top=10)
+    top=10
+)
 
 # Contributions of variables to PC2.
 FR07961004.pc2.contribs <- fviz_contrib(
     FR07961004.pca.data,
     choice="var",
     axes=2,
-    top=10)
+    top=10
+)
 ```
 
 ```{r}
@@ -150,7 +156,8 @@ FR07961004.pc2.contribs <- fviz_contrib(
 FR07961004.prcomp.data <- prcomp(
     FR07961004.nomissing[,1:5],
     center=TRUE,
-    scale.=TRUE)
+    scale.=TRUE
+)
 ```
 
 ```{r}
@@ -172,7 +179,7 @@ FR07961004.pca.scatterplot.data <- cbind(
     dplyr::mutate_at(c("PC2"),
                      as.numeric) |>
     dplyr::arrange(CONDITION) |>
-    dplyr::filter(PC2 > -17)
+    dplyr::filter(PC2 > -15)
 
 # Extract the variance explained by the first two components.
 FR07961004.pca.variance <- summary(
@@ -274,7 +281,8 @@ FR07961004.cp.CADD_PHRED <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 
 ## CADD_RAW.
 FR07961004.cp.CADD_RAW <- cutpointr(
@@ -285,7 +293,8 @@ FR07961004.cp.CADD_RAW <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 
 ## CAPICE_SCORE.
 FR07961004.cp.CAPICE_SCORE <- cutpointr(
@@ -296,7 +305,8 @@ FR07961004.cp.CAPICE_SCORE <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 
 ## FATHMM_MKL_C.
 FR07961004.cp.FATHMM_MKL_C <- cutpointr(
@@ -307,7 +317,8 @@ FR07961004.cp.FATHMM_MKL_C <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 
 ## FATHMM_MKL_NC.
 FR07961004.cp.FATHMM_MKL_NC <- cutpointr(
@@ -318,7 +329,8 @@ FR07961004.cp.FATHMM_MKL_NC <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 ```
 
 ```{r}
@@ -350,7 +362,8 @@ FR07961004.cp.roc.data <- rbind(
     FR07961004.cp.CADD_RAW.roc,
     FR07961004.cp.CAPICE_SCORE.roc,
     FR07961004.cp.FATHMM_MKL_C.roc,
-    FR07961004.cp.FATHMM_MKL_NC.roc)
+    FR07961004.cp.FATHMM_MKL_NC.roc
+)
 ```
 
 ## Also extract the optimal thresholds for classification
@@ -447,7 +460,8 @@ FR07961004.cp.roc.thresholds <- rbind(
     FR07961004.cp.roc.CADD_RAW.threshold.location.total,
     FR07961004.cp.roc.CAPICE_SCORE.threshold.location.total,
     FR07961004.cp.roc.FATHMM_MKL_C.threshold.location.total,
-    FR07961004.cp.roc.FATHMM_MKL_NC.threshold.location.total)
+    FR07961004.cp.roc.FATHMM_MKL_NC.threshold.location.total
+)
 ```
 
 ```{r}
@@ -505,7 +519,8 @@ names(FR07961004.lineplot.facet.titles) <- c(
     "CADD_RAW",
     "CAPICE_SCORE",
     "FATHMM_MKL_C",
-    "FATHMM_MKL_NC")
+    "FATHMM_MKL_NC"
+)
 ```
 
 # Display all plots

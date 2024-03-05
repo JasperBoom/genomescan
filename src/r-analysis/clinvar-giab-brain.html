@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="J. Boom">
-<meta name="dcterms.date" content="2024-02-27">
+<meta name="dcterms.date" content="2024-03-05">
 
 <title>Investigate ClinVar &amp; GIAB test set with brain tumour mutations</title>
 <style>
@@ -3068,7 +3068,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 27, 2024</p>
+      <p class="date">March 5, 2024</p>
     </div>
   </div>
   
@@ -3093,7 +3093,9 @@ vertical-align: -.125em;
 <span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;Rtsne&quot;</span>)</span>
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;cutpointr&quot;</span>)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;quarto&quot;</span>)</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;umap&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;umap&quot;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;fANCOVA&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;caret&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="run-document-setup" class="level1">
@@ -3103,15 +3105,17 @@ vertical-align: -.125em;
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1995</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Set other formatting settings of Quarto document.</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo=</span><span class="cn">TRUE</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">message=</span><span class="cn">FALSE</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.width=</span><span class="dv">9</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.height=</span><span class="dv">9</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">out.width=</span><span class="st">&quot;85%&quot;</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.align=</span><span class="st">&quot;center&quot;</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a nice theme.</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo=</span><span class="cn">TRUE</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">message=</span><span class="cn">FALSE</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.width=</span><span class="dv">9</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.height=</span><span class="dv">9</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">out.width=</span><span class="st">&quot;85%&quot;</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.align=</span><span class="st">&quot;center&quot;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a nice theme.</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="clinvar-and-giab-project" class="level1">
@@ -3122,10 +3126,11 @@ vertical-align: -.125em;
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the tsv file in the data folder, the original test set based on</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># ClinVar and GIAB.</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>giab <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/brain-tumour/giab-clinvar.annotated.edit.tab&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/brain-tumour/giab-clinvar.annotated.edit.tab&quot;</span>,</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names=</span><span class="cn">TRUE</span>,</span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">skip=</span><span class="dv">52</span>,</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="inspect-select-data-from-clinvargiab-data" class="level2">
@@ -3139,28 +3144,30 @@ vertical-align: -.125em;
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Select just the important numeric annotation sources. Replace dash with NA</span></span>
 <span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="co"># and make sure the values are numeric.</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>giab.select <span class="ot">&lt;-</span> giab.dedup[, <span class="fu">c</span>(<span class="st">&quot;Variation_id&quot;</span>,</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;CADD_PHRED&quot;</span>,</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;CADD_RAW&quot;</span>,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;CAPICE_SCORE&quot;</span>,</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;FATHMM_MKL_C&quot;</span>,</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;FATHMM_MKL_NC&quot;</span>,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>                              <span class="st">&quot;ClinVar_CLNSIG&quot;</span>)] <span class="sc">|&gt;</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="fu">replace_with_na_all</span>(<span class="at">condition =</span> <span class="sc">~</span>.x <span class="sc">==</span> <span class="st">&quot;-&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate_at</span>(<span class="fu">c</span>(<span class="st">&quot;CADD_PHRED&quot;</span>,</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;CADD_RAW&quot;</span>,</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;CAPICE_SCORE&quot;</span>,</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;FATHMM_MKL_C&quot;</span>,</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>                <span class="st">&quot;FATHMM_MKL_NC&quot;</span>),</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>              <span class="cf">function</span>(x) <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(x)))</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows of columns with missing values, set the category to a factor and</span></span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co"># set the variant identifiers as rownames.</span></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>giab.nomissing <span class="ot">&lt;-</span> giab.select <span class="sc">|&gt;</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">c</span>(<span class="st">&quot;ClinVar_CLNSIG&quot;</span>),</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>                     as.factor) <span class="sc">|&gt;</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">&quot;Variation_id&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>giab.select <span class="ot">&lt;-</span> giab.dedup[, <span class="fu">c</span>(</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;Variation_id&quot;</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;CADD_PHRED&quot;</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;CADD_RAW&quot;</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;CAPICE_SCORE&quot;</span>,</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;FATHMM_MKL_C&quot;</span>,</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;FATHMM_MKL_NC&quot;</span>,</span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;ClinVar_CLNSIG&quot;</span>)] <span class="sc">|&gt;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">replace_with_na_all</span>(<span class="at">condition =</span> <span class="sc">~</span>.x <span class="sc">==</span> <span class="st">&quot;-&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate_at</span>(<span class="fu">c</span>(</span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;CADD_PHRED&quot;</span>,</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;CADD_RAW&quot;</span>,</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;CAPICE_SCORE&quot;</span>,</span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;FATHMM_MKL_C&quot;</span>,</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;FATHMM_MKL_NC&quot;</span>),</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>        <span class="cf">function</span>(x) <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(x)))</span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows of columns with missing values, set the category to a factor and</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co"># set the variant identifiers as rownames.</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>giab.nomissing <span class="ot">&lt;-</span> giab.select <span class="sc">|&gt;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">c</span>(<span class="st">&quot;ClinVar_CLNSIG&quot;</span>),</span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                     as.factor) <span class="sc">|&gt;</span></span>
+<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">&quot;Variation_id&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 </section>
@@ -3274,42 +3281,50 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] umap_0.2.10.0     quarto_1.3        cutpointr_1.1.2   Rtsne_0.16       
- [5] data.table_1.15.0 plotROC_2.3.2     FactoMineR_2.9    factoextra_1.0.7 
- [9] naniar_1.0.0      broom_1.0.5       readxl_1.4.3      knitr_1.45       
-[13] lubridate_1.9.3   forcats_1.0.0     stringr_1.5.1     dplyr_1.1.4      
-[17] purrr_1.0.2       readr_2.1.5       tidyr_1.3.1       tibble_3.2.1     
-[21] ggplot2_3.4.4     tidyverse_2.0.0  
+ [1] caret_6.0-94      lattice_0.20-45   fANCOVA_0.6-1     umap_0.2.10.0    
+ [5] quarto_1.3        cutpointr_1.1.2   Rtsne_0.16        data.table_1.15.0
+ [9] plotROC_2.3.2     FactoMineR_2.9    factoextra_1.0.7  naniar_1.0.0     
+[13] broom_1.0.5       readxl_1.4.3      knitr_1.45        lubridate_1.9.3  
+[17] forcats_1.0.0     stringr_1.5.1     dplyr_1.1.4       purrr_1.0.2      
+[21] readr_2.1.5       tidyr_1.3.1       tibble_3.2.1      ggplot2_3.4.4    
+[25] tidyverse_2.0.0  
 
 loaded via a namespace (and not attached):
- [1] bit64_4.0.5          tools_4.2.2          backports_1.4.1     
- [4] utf8_1.2.4           R6_2.5.1             DT_0.31             
- [7] colorspace_2.1-0     withr_3.0.0          tidyselect_1.2.0    
-[10] processx_3.8.3       emmeans_1.10.0       bit_4.0.5           
-[13] compiler_4.2.2       cli_3.6.2            flashClust_1.01-2   
-[16] sandwich_3.0-2       labeling_0.4.3       scales_1.3.0        
-[19] mvtnorm_1.2-4        askpass_1.2.0        multcompView_0.1-9  
-[22] digest_0.6.34        rmarkdown_2.25       pkgconfig_2.0.3     
-[25] htmltools_0.5.7      fastmap_1.1.1        htmlwidgets_1.6.4   
-[28] rlang_1.1.3          rstudioapi_0.15.0    farver_2.1.1        
-[31] generics_0.1.3       zoo_1.8-11           jsonlite_1.8.8      
-[34] vroom_1.6.5          car_3.1-1            magrittr_2.0.3      
-[37] leaps_3.1            Matrix_1.6-5         Rcpp_1.0.12         
-[40] munsell_0.5.0        fansi_1.0.6          abind_1.4-5         
-[43] reticulate_1.35.0    lifecycle_1.0.4      visdat_0.6.0        
-[46] scatterplot3d_0.3-44 stringi_1.8.3        multcomp_1.4-22     
-[49] yaml_2.3.8           carData_3.0-5        MASS_7.3-58.2       
-[52] grid_4.2.2           parallel_4.2.2       ggrepel_0.9.5       
-[55] crayon_1.5.2         lattice_0.20-45      splines_4.2.2       
-[58] hms_1.1.3            ps_1.7.6             pillar_1.9.0        
-[61] ggpubr_0.6.0         ggsignif_0.6.4       estimability_1.4.1  
-[64] codetools_0.2-19     glue_1.7.0           evaluate_0.23       
-[67] vctrs_0.6.5          png_0.1-8            tzdb_0.4.0          
-[70] foreach_1.5.2        cellranger_1.1.0     gtable_0.3.4        
-[73] openssl_2.1.1        xfun_0.41            xtable_1.8-4        
-[76] RSpectra_0.16-1      rstatix_0.7.2        later_1.3.2         
-[79] survival_3.5-3       iterators_1.0.14     cluster_2.1.4       
-[82] timechange_0.3.0     TH.data_1.1-1       </code></pre>
+  [1] TH.data_1.1-1        colorspace_2.1-0     ggsignif_0.6.4      
+  [4] class_7.3-21         visdat_0.6.0         estimability_1.4.1  
+  [7] rstudioapi_0.15.0    farver_2.1.1         ggpubr_0.6.0        
+ [10] listenv_0.9.0        bit64_4.0.5          ggrepel_0.9.5       
+ [13] DT_0.31              RSpectra_0.16-1      prodlim_2019.11.13  
+ [16] fansi_1.0.6          mvtnorm_1.2-4        codetools_0.2-19    
+ [19] splines_4.2.2        leaps_3.1            jsonlite_1.8.8      
+ [22] pROC_1.18.0          cluster_2.1.4        png_0.1-8           
+ [25] compiler_4.2.2       emmeans_1.10.0       backports_1.4.1     
+ [28] Matrix_1.6-5         fastmap_1.1.1        cli_3.6.2           
+ [31] later_1.3.2          htmltools_0.5.7      tools_4.2.2         
+ [34] gtable_0.3.4         glue_1.7.0           reshape2_1.4.4      
+ [37] Rcpp_1.0.12          carData_3.0-5        cellranger_1.1.0    
+ [40] vctrs_0.6.5          nlme_3.1-162         iterators_1.0.14    
+ [43] timeDate_4022.108    xfun_0.41            gower_1.0.1         
+ [46] globals_0.16.2       ps_1.7.6             timechange_0.3.0    
+ [49] lifecycle_1.0.4      rstatix_0.7.2        future_1.31.0       
+ [52] MASS_7.3-58.2        zoo_1.8-11           scales_1.3.0        
+ [55] ipred_0.9-13         vroom_1.6.5          hms_1.1.3           
+ [58] parallel_4.2.2       sandwich_3.0-2       yaml_2.3.8          
+ [61] reticulate_1.35.0    rpart_4.1.19         stringi_1.8.3       
+ [64] foreach_1.5.2        hardhat_1.2.0        lava_1.7.2.1        
+ [67] rlang_1.1.3          pkgconfig_2.0.3      evaluate_0.23       
+ [70] labeling_0.4.3       recipes_1.0.4        htmlwidgets_1.6.4   
+ [73] bit_4.0.5            processx_3.8.3       tidyselect_1.2.0    
+ [76] parallelly_1.34.0    plyr_1.8.9           magrittr_2.0.3      
+ [79] R6_2.5.1             generics_0.1.3       multcompView_0.1-9  
+ [82] multcomp_1.4-22      pillar_1.9.0         withr_3.0.0         
+ [85] abind_1.4-5          survival_3.5-3       scatterplot3d_0.3-44
+ [88] nnet_7.3-18          future.apply_1.10.0  car_3.1-1           
+ [91] crayon_1.5.2         utf8_1.2.4           tzdb_0.4.0          
+ [94] rmarkdown_2.25       grid_4.2.2           ModelMetrics_1.2.2.2
+ [97] digest_0.6.34        flashClust_1.01-2    xtable_1.8-4        
+[100] stats4_4.2.2         openssl_2.1.1        munsell_0.5.0       
+[103] askpass_1.2.0       </code></pre>
 </div>
 </div>
 </section>

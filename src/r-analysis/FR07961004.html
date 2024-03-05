@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="J. Boom">
-<meta name="dcterms.date" content="2024-02-27">
+<meta name="dcterms.date" content="2024-03-05">
 
 <title>Investigate sample FR07961004</title>
 <style>
@@ -3292,7 +3292,7 @@ border: 0;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 27, 2024</p>
+      <p class="date">March 5, 2024</p>
     </div>
   </div>
   
@@ -3318,7 +3318,8 @@ border: 0;
 <span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;cutpointr&quot;</span>)</span>
 <span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;quarto&quot;</span>)</span>
 <span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;umap&quot;</span>)</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;fANCOVA&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;fANCOVA&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">&quot;caret&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="run-document-setup" class="level1">
@@ -3334,10 +3335,11 @@ border: 0;
 <span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.width=</span><span class="dv">9</span>,</span>
 <span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.height=</span><span class="dv">9</span>,</span>
 <span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">out.width=</span><span class="st">&quot;85%&quot;</span>,</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.align=</span><span class="st">&quot;center&quot;</span>)</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a nice theme.</span></span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.align=</span><span class="st">&quot;center&quot;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a nice theme.</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="uk-personal-genome-project" class="level1">
@@ -3348,9 +3350,10 @@ border: 0;
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the tsv file in the data folder, based on the personal genome project.</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This is individual FR07961004. It includes pathogenic variants from ClinVar.</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>FR07961004 <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/mnt/titan/users/j.boom/r-analysis/combined/FR07961004.brain.cancer.subset.1.tsv&quot;</span>,</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961004.brain.cancer.subset.1.tsv&quot;</span>,</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names=</span><span class="cn">TRUE</span>,</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="inspect-select-data-for-individual-fr07961004" class="level2">
@@ -3378,16 +3381,15 @@ border: 0;
 <span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;CAPICE_SCORE&quot;</span>,</span>
 <span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;FATHMM_MKL_C&quot;</span>,</span>
 <span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;FATHMM_MKL_NC&quot;</span>),</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">function</span>(x) <span class="fu">as.numeric</span>(</span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>            <span class="fu">as.character</span>(x)))</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows of columns with missing values, set the category to a factor and</span></span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a><span class="co"># set the variant identifiers as rownames.</span></span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>FR07961004.nomissing <span class="ot">&lt;-</span> FR07961004.select <span class="sc">|&gt;</span></span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">c</span>(<span class="st">&quot;ClinVar_CLNSIG&quot;</span>),</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>                     as.factor) <span class="sc">|&gt;</span></span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">&quot;Variation_id&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="cf">function</span>(x) <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(x)))</span>
+<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove rows of columns with missing values, set the category to a factor and</span></span>
+<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a><span class="co"># set the variant identifiers as rownames.</span></span>
+<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>FR07961004.nomissing <span class="ot">&lt;-</span> FR07961004.select <span class="sc">|&gt;</span></span>
+<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">c</span>(<span class="st">&quot;ClinVar_CLNSIG&quot;</span>),</span>
+<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>                     as.factor) <span class="sc">|&gt;</span></span>
+<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(<span class="at">var=</span><span class="st">&quot;Variation_id&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="also-extract-the-optimal-thresholds-for-classification" class="level2">
@@ -3504,44 +3506,52 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
- [1] fANCOVA_0.6-1     umap_0.2.10.0     quarto_1.3        cutpointr_1.1.2  
- [5] Rtsne_0.16        data.table_1.15.0 plotROC_2.3.2     FactoMineR_2.9   
- [9] factoextra_1.0.7  naniar_1.0.0      broom_1.0.5       readxl_1.4.3     
-[13] knitr_1.45        lubridate_1.9.3   forcats_1.0.0     stringr_1.5.1    
-[17] dplyr_1.1.4       purrr_1.0.2       readr_2.1.5       tidyr_1.3.1      
-[21] tibble_3.2.1      ggplot2_3.4.4     tidyverse_2.0.0  
+ [1] caret_6.0-94      lattice_0.20-45   fANCOVA_0.6-1     umap_0.2.10.0    
+ [5] quarto_1.3        cutpointr_1.1.2   Rtsne_0.16        data.table_1.15.0
+ [9] plotROC_2.3.2     FactoMineR_2.9    factoextra_1.0.7  naniar_1.0.0     
+[13] broom_1.0.5       readxl_1.4.3      knitr_1.45        lubridate_1.9.3  
+[17] forcats_1.0.0     stringr_1.5.1     dplyr_1.1.4       purrr_1.0.2      
+[21] readr_2.1.5       tidyr_1.3.1       tibble_3.2.1      ggplot2_3.4.4    
+[25] tidyverse_2.0.0  
 
 loaded via a namespace (and not attached):
- [1] TH.data_1.1-1        colorspace_2.1-0     ggsignif_0.6.4      
- [4] visdat_0.6.0         estimability_1.4.1   rstudioapi_0.15.0   
- [7] ggpubr_0.6.0         farver_2.1.1         ggrepel_0.9.5       
-[10] DT_0.31              bit64_4.0.5          RSpectra_0.16-1     
-[13] fansi_1.0.6          mvtnorm_1.2-4        xml2_1.3.6          
-[16] codetools_0.2-19     splines_4.2.2        leaps_3.1           
-[19] jsonlite_1.8.8       cluster_2.1.4        png_0.1-8           
-[22] compiler_4.2.2       emmeans_1.10.0       backports_1.4.1     
-[25] Matrix_1.6-5         fastmap_1.1.1        cli_3.6.2           
-[28] later_1.3.2          htmltools_0.5.7      tools_4.2.2         
-[31] gtable_0.3.4         glue_1.7.0           Rcpp_1.0.12         
-[34] carData_3.0-5        cellranger_1.1.0     vctrs_0.6.5         
-[37] svglite_2.1.3        iterators_1.0.14     xfun_0.41           
-[40] ps_1.7.6             timechange_0.3.0     lifecycle_1.0.4     
-[43] rstatix_0.7.2        MASS_7.3-58.2        zoo_1.8-11          
-[46] scales_1.3.0         vroom_1.6.5          hms_1.1.3           
-[49] parallel_4.2.2       sandwich_3.0-2       yaml_2.3.8          
-[52] reticulate_1.35.0    stringi_1.8.3        highr_0.10          
-[55] foreach_1.5.2        rlang_1.1.3          pkgconfig_2.0.3     
-[58] systemfonts_1.0.5    evaluate_0.23        lattice_0.20-45     
-[61] htmlwidgets_1.6.4    labeling_0.4.3       bit_4.0.5           
-[64] processx_3.8.3       tidyselect_1.2.0     magrittr_2.0.3      
-[67] R6_2.5.1             generics_0.1.3       multcompView_0.1-9  
-[70] multcomp_1.4-22      pillar_1.9.0         withr_3.0.0         
-[73] survival_3.5-3       scatterplot3d_0.3-44 abind_1.4-5         
-[76] crayon_1.5.2         car_3.1-1            utf8_1.2.4          
-[79] tzdb_0.4.0           rmarkdown_2.25       grid_4.2.2          
-[82] digest_0.6.34        flashClust_1.01-2    xtable_1.8-4        
-[85] openssl_2.1.1        munsell_0.5.0        viridisLite_0.4.2   
-[88] kableExtra_1.4.0     askpass_1.2.0       </code></pre>
+  [1] TH.data_1.1-1        colorspace_2.1-0     ggsignif_0.6.4      
+  [4] class_7.3-21         visdat_0.6.0         estimability_1.4.1  
+  [7] rstudioapi_0.15.0    farver_2.1.1         ggpubr_0.6.0        
+ [10] listenv_0.9.0        bit64_4.0.5          ggrepel_0.9.5       
+ [13] DT_0.31              RSpectra_0.16-1      prodlim_2019.11.13  
+ [16] fansi_1.0.6          mvtnorm_1.2-4        xml2_1.3.6          
+ [19] codetools_0.2-19     splines_4.2.2        leaps_3.1           
+ [22] jsonlite_1.8.8       pROC_1.18.0          cluster_2.1.4       
+ [25] png_0.1-8            compiler_4.2.2       emmeans_1.10.0      
+ [28] backports_1.4.1      Matrix_1.6-5         fastmap_1.1.1       
+ [31] cli_3.6.2            later_1.3.2          htmltools_0.5.7     
+ [34] tools_4.2.2          gtable_0.3.4         glue_1.7.0          
+ [37] reshape2_1.4.4       Rcpp_1.0.12          carData_3.0-5       
+ [40] cellranger_1.1.0     vctrs_0.6.5          svglite_2.1.3       
+ [43] nlme_3.1-162         iterators_1.0.14     timeDate_4022.108   
+ [46] xfun_0.41            gower_1.0.1          globals_0.16.2      
+ [49] ps_1.7.6             timechange_0.3.0     lifecycle_1.0.4     
+ [52] rstatix_0.7.2        future_1.31.0        MASS_7.3-58.2       
+ [55] zoo_1.8-11           scales_1.3.0         ipred_0.9-13        
+ [58] vroom_1.6.5          hms_1.1.3            parallel_4.2.2      
+ [61] sandwich_3.0-2       yaml_2.3.8           reticulate_1.35.0   
+ [64] rpart_4.1.19         stringi_1.8.3        highr_0.10          
+ [67] foreach_1.5.2        hardhat_1.2.0        lava_1.7.2.1        
+ [70] systemfonts_1.0.5    rlang_1.1.3          pkgconfig_2.0.3     
+ [73] evaluate_0.23        labeling_0.4.3       recipes_1.0.4       
+ [76] htmlwidgets_1.6.4    bit_4.0.5            processx_3.8.3      
+ [79] tidyselect_1.2.0     parallelly_1.34.0    plyr_1.8.9          
+ [82] magrittr_2.0.3       R6_2.5.1             generics_0.1.3      
+ [85] multcompView_0.1-9   multcomp_1.4-22      pillar_1.9.0        
+ [88] withr_3.0.0          abind_1.4-5          survival_3.5-3      
+ [91] scatterplot3d_0.3-44 nnet_7.3-18          future.apply_1.10.0 
+ [94] car_3.1-1            crayon_1.5.2         utf8_1.2.4          
+ [97] tzdb_0.4.0           rmarkdown_2.25       grid_4.2.2          
+[100] ModelMetrics_1.2.2.2 digest_0.6.34        flashClust_1.01-2   
+[103] xtable_1.8-4         stats4_4.2.2         openssl_2.1.1       
+[106] munsell_0.5.0        viridisLite_0.4.2    kableExtra_1.4.0    
+[109] askpass_1.2.0       </code></pre>
 </div>
 </div>
 </section>

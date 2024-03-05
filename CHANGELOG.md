@@ -53,3 +53,5 @@ Contact information: info@jboom.org.
   project and clinvar combo and scripts testing the thresholds.
 + Removed the test data folder from the repo because the data was starting to
   become to big.
++ Organise the r-scripts to include only useful code, also look into adding
+  extra vep annotation as possible filter.

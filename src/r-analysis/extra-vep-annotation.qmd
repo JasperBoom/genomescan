@@ -1,12 +1,12 @@
 ---
-title: "Investigate sample FR07961001"
+title: "Test the added value of extra annotation from vep"
 date: "`r Sys.Date()`"
 author: "J. Boom"
 format:
     html:
         toc: true
         self-contained: true
-        toc-title: Table of contents - Investigate sample FR07961001
+        toc-title: Table of contents - Test the added value of extra annotation from vep
         toc-location: left
 execute:
     echo: true
@@ -29,6 +29,8 @@ library("Rtsne")
 library("cutpointr")
 library("quarto")
 library("umap")
+library("fANCOVA")
+library("caret")
 ```
 
 # Run document setup
@@ -39,12 +41,14 @@ library("umap")
 set.seed(1995)
 
 # Set other formatting settings of Quarto document.
-knitr::opts_chunk$set(echo=TRUE,
-                      message=FALSE,
-                      fig.width=9,
-                      fig.height=9,
-                      out.width="85%",
-                      fig.align="center")
+knitr::opts_chunk$set(
+    echo=TRUE,
+    message=FALSE,
+    fig.width=9,
+    fig.height=9,
+    out.width="85%",
+    fig.align="center"
+)
 
 # Set a nice theme.
 theme_set(theme_bw())
@@ -58,9 +62,10 @@ theme_set(theme_bw())
 # Read in the tsv file in the data folder, based on the personal genome project.
 # This is individual FR07961001. It includes pathogenic variants from ClinVar.
 FR07961001 <- read_tsv(
-    "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961001.general.cancer.subset.2.tsv",
+    "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961001.general.cancer.subset.3.plus.4.tsv",
     col_names=TRUE,
-    show_col_types = FALSE)
+    show_col_types = FALSE
+)
 ```
 
 ## Inspect & select data for individual FR07961001
@@ -80,31 +85,16 @@ FR07961001.select <- FR07961001.dedup |>
         "CAPICE_SCORE",
         "FATHMM_MKL_C",
         "FATHMM_MKL_NC"),
-        function(x) as.numeric(
-            as.character(x)))
+        function(x) as.numeric(as.character(x)))
 
 # Set the category to a factor and set the variant identifiers as rownames.
 # Also remove rows missing any values.
 FR07961001.format <- FR07961001.select |>
-    drop_na() |>
     dplyr::mutate_at(c(
         "ClinVar_CLNSIG"),
         as.factor) |>
     tibble::column_to_rownames(
         var="Variation_id")
-
-# Filter out rows that have no annotation scores at all.
-#FR07961001.complete <- FR07961001.format |>
-#    filter(
-#        ! if_all(c(
-#            CADD_PHRED,
-#            CADD_RAW,
-#            CAPICE_SCORE,
-#            FATHMM_MKL_C,
-#            FATHMM_MKL_NC
-#        ),
-#                 is.na)
-#        )
 ```
 
 # Clarify final thresholds
@@ -113,11 +103,11 @@ FR07961001.format <- FR07961001.select |>
 
 # These thresholds are based on 
 THRESHOLDS <- data.frame(
-    CADD_PHRED=17.3,
-    CADD_RAW=1.672451,
-    CAPICE_SCORE=0.0077,
-    FATHMM_MKL_C=0.11054,
-    FATHMM_MKL_NC=0.22081
+    CADD_PHRED=17.18,
+    CADD_RAW=1.654055,
+    CAPICE_SCORE=0.0059,
+    FATHMM_MKL_C=0.12306,
+    FATHMM_MKL_NC=0.21368
 )
 ```
 

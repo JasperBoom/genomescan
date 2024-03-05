@@ -7,9 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="J. Boom">
-<meta name="dcterms.date" content="2024-02-27">
+<meta name="dcterms.date" content="2024-03-05">
 
-<title>Try out single annotation classification</title>
+<title>Test the added value of extra annotation from vep</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -3022,33 +3022,19 @@ vertical-align: -.125em;
 <div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
 <div id="quarto-sidebar-toc-left" class="sidebar toc-left">
   <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">Table of contents - Try out single annotation classification</h2>
+    <h2 id="toc-title">Table of contents - Test the added value of extra annotation from vep</h2>
    
   <ul>
   <li><a href="#load-packages" id="toc-load-packages" class="nav-link active" data-scroll-target="#load-packages">Load packages</a></li>
   <li><a href="#run-document-setup" id="toc-run-document-setup" class="nav-link" data-scroll-target="#run-document-setup">Run document setup</a></li>
   <li><a href="#uk-personal-genome-project" id="toc-uk-personal-genome-project" class="nav-link" data-scroll-target="#uk-personal-genome-project">UK Personal Genome project</a>
   <ul class="collapse">
-  <li><a href="#load-validation-datasets" id="toc-load-validation-datasets" class="nav-link" data-scroll-target="#load-validation-datasets">Load validation datasets</a></li>
+  <li><a href="#load-dataset-for-individual-fr07961001" id="toc-load-dataset-for-individual-fr07961001" class="nav-link" data-scroll-target="#load-dataset-for-individual-fr07961001">Load dataset for individual FR07961001</a></li>
+  <li><a href="#inspect-select-data-for-individual-fr07961001" id="toc-inspect-select-data-for-individual-fr07961001" class="nav-link" data-scroll-target="#inspect-select-data-for-individual-fr07961001">Inspect &amp; select data for individual FR07961001</a></li>
   </ul></li>
-  <li><a href="#test-the-general-cancer-thresholds" id="toc-test-the-general-cancer-thresholds" class="nav-link" data-scroll-target="#test-the-general-cancer-thresholds">Test the general cancer thresholds</a>
-  <ul class="collapse">
-  <li><a href="#clarify-thresholds-general-cancer" id="toc-clarify-thresholds-general-cancer" class="nav-link" data-scroll-target="#clarify-thresholds-general-cancer">Clarify thresholds general cancer</a></li>
-  <li><a href="#try-out-cadd-phred" id="toc-try-out-cadd-phred" class="nav-link" data-scroll-target="#try-out-cadd-phred">Try out CADD PHRED</a></li>
-  <li><a href="#try-out-cadd-raw" id="toc-try-out-cadd-raw" class="nav-link" data-scroll-target="#try-out-cadd-raw">Try out CADD RAW</a></li>
-  <li><a href="#try-out-capice-score" id="toc-try-out-capice-score" class="nav-link" data-scroll-target="#try-out-capice-score">Try out CAPICE SCORE</a></li>
-  <li><a href="#try-out-fathmm-mkl-c" id="toc-try-out-fathmm-mkl-c" class="nav-link" data-scroll-target="#try-out-fathmm-mkl-c">Try out FATHMM MKL C</a></li>
-  <li><a href="#try-out-fathmm-mkl-nc" id="toc-try-out-fathmm-mkl-nc" class="nav-link" data-scroll-target="#try-out-fathmm-mkl-nc">Try out FATHMM MKL NC</a></li>
-  </ul></li>
-  <li><a href="#test-the-brain-cancer-thresholds" id="toc-test-the-brain-cancer-thresholds" class="nav-link" data-scroll-target="#test-the-brain-cancer-thresholds">Test the brain cancer thresholds</a>
-  <ul class="collapse">
-  <li><a href="#clarify-thresholds-brain" id="toc-clarify-thresholds-brain" class="nav-link" data-scroll-target="#clarify-thresholds-brain">Clarify thresholds brain</a></li>
-  <li><a href="#try-out-cadd-phred-1" id="toc-try-out-cadd-phred-1" class="nav-link" data-scroll-target="#try-out-cadd-phred-1">Try out CADD PHRED</a></li>
-  <li><a href="#try-out-cadd-raw-1" id="toc-try-out-cadd-raw-1" class="nav-link" data-scroll-target="#try-out-cadd-raw-1">Try out CADD RAW</a></li>
-  <li><a href="#try-out-capice-score-1" id="toc-try-out-capice-score-1" class="nav-link" data-scroll-target="#try-out-capice-score-1">Try out CAPICE SCORE</a></li>
-  <li><a href="#try-out-fathmm-mkl-c-1" id="toc-try-out-fathmm-mkl-c-1" class="nav-link" data-scroll-target="#try-out-fathmm-mkl-c-1">Try out FATHMM MKL C</a></li>
-  <li><a href="#try-out-fathmm-mkl-nc-1" id="toc-try-out-fathmm-mkl-nc-1" class="nav-link" data-scroll-target="#try-out-fathmm-mkl-nc-1">Try out FATHMM MKL NC</a></li>
-  </ul></li>
+  <li><a href="#clarify-final-thresholds" id="toc-clarify-final-thresholds" class="nav-link" data-scroll-target="#clarify-final-thresholds">Clarify final thresholds</a></li>
+  <li><a href="#apply-tresholds-to-dataset" id="toc-apply-tresholds-to-dataset" class="nav-link" data-scroll-target="#apply-tresholds-to-dataset">Apply tresholds to dataset</a></li>
+  <li><a href="#use-impact-as-an-extra-filter-on-the-pathogenic-variants" id="toc-use-impact-as-an-extra-filter-on-the-pathogenic-variants" class="nav-link" data-scroll-target="#use-impact-as-an-extra-filter-on-the-pathogenic-variants">Use IMPACT as an extra filter on the pathogenic variants</a></li>
   <li><a href="#output-session-information" id="toc-output-session-information" class="nav-link" data-scroll-target="#output-session-information">Output session information</a></li>
   </ul>
 </nav>
@@ -3059,7 +3045,7 @@ vertical-align: -.125em;
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Try out single annotation classification</h1>
+<h1 class="title">Test the added value of extra annotation from vep</h1>
 </div>
 
 
@@ -3076,7 +3062,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">February 27, 2024</p>
+      <p class="date">March 5, 2024</p>
     </div>
   </div>
   
@@ -3113,409 +3099,148 @@ vertical-align: -.125em;
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1995</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Set other formatting settings of Quarto document.</span></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">echo=</span><span class="cn">TRUE</span>,</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">message=</span><span class="cn">FALSE</span>,</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.width=</span><span class="dv">9</span>,</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.height=</span><span class="dv">9</span>,</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">out.width=</span><span class="st">&quot;85%&quot;</span>,</span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">fig.align=</span><span class="st">&quot;center&quot;</span>)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a nice theme.</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">echo=</span><span class="cn">TRUE</span>,</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">message=</span><span class="cn">FALSE</span>,</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.width=</span><span class="dv">9</span>,</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.height=</span><span class="dv">9</span>,</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">out.width=</span><span class="st">&quot;85%&quot;</span>,</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">fig.align=</span><span class="st">&quot;center&quot;</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Set a nice theme.</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_bw</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="uk-personal-genome-project" class="level1">
 <h1>UK Personal Genome project</h1>
-<section id="load-validation-datasets" class="level2">
-<h2 class="anchored" data-anchor-id="load-validation-datasets">Load validation datasets</h2>
+<section id="load-dataset-for-individual-fr07961001" class="level2">
+<h2 class="anchored" data-anchor-id="load-dataset-for-individual-fr07961001">Load dataset for individual FR07961001</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the tsv files.</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>FR07961001 <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/mnt/titan/users/j.boom/r-analysis/combined/FR07961001.general.cancer.subset.2.tsv&quot;</span>,</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names=</span><span class="cn">TRUE</span>,</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Read in the tsv file in the data folder, based on the personal genome project.</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This is individual FR07961001. It includes pathogenic variants from ClinVar.</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>FR07961001 <span class="ot">&lt;-</span> <span class="fu">read_tsv</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="st">&quot;/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961001.general.cancer.subset.3.plus.4.tsv&quot;</span>,</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">col_names=</span><span class="cn">TRUE</span>,</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">show_col_types =</span> <span class="cn">FALSE</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-</section>
-<section id="test-the-general-cancer-thresholds" class="level1">
-<h1>Test the general cancer thresholds</h1>
-<section id="clarify-thresholds-general-cancer" class="level2">
-<h2 class="anchored" data-anchor-id="clarify-thresholds-general-cancer">Clarify thresholds general cancer</h2>
+<section id="inspect-select-data-for-individual-fr07961001" class="level2">
+<h2 class="anchored" data-anchor-id="inspect-select-data-for-individual-fr07961001">Inspect &amp; select data for individual FR07961001</h2>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a vector with the optimal thresholds, just as a reminder.</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This one is based on the general cancer variants.</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>GENERAL.THRESHOLDS <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    <span class="fl">17.3</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    <span class="fl">1.672451</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.0077</span>,</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.11054</span>,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.22081</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Rename the first column.</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>FR07961001.dedup <span class="ot">&lt;-</span> FR07961001 <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="st">&quot;Variation_id&quot;</span> <span class="ot">=</span> <span class="dv">1</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Select just the important numeric annotation sources. Make sure the values</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a><span class="co"># are numeric.</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>FR07961001.select <span class="ot">&lt;-</span> FR07961001.dedup <span class="sc">|&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate_at</span>(<span class="fu">c</span>(</span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;CADD_PHRED&quot;</span>,</span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;CADD_RAW&quot;</span>,</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;CAPICE_SCORE&quot;</span>,</span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;FATHMM_MKL_C&quot;</span>,</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;FATHMM_MKL_NC&quot;</span>),</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">function</span>(x) <span class="fu">as.numeric</span>(<span class="fu">as.character</span>(x)))</span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the category to a factor and set the variant identifiers as rownames.</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Also remove rows missing any values.</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>FR07961001.format <span class="ot">&lt;-</span> FR07961001.select <span class="sc">|&gt;</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate_at</span>(<span class="fu">c</span>(</span>
+<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>        <span class="st">&quot;ClinVar_CLNSIG&quot;</span>),</span>
+<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>        as.factor) <span class="sc">|&gt;</span></span>
+<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">column_to_rownames</span>(</span>
+<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>        <span class="at">var=</span><span class="st">&quot;Variation_id&quot;</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="try-out-cadd-phred" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-cadd-phred">Try out CADD PHRED</h2>
+</section>
+<section id="clarify-final-thresholds" class="level1">
+<h1>Clarify final thresholds</h1>
 <div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-            Reference
-Prediction    Benign Pathogenic
-  Benign     4066131         27
-  Pathogenic   22999       1755
-                                          
-               Accuracy : 0.9944          
-                 95% CI : (0.9943, 0.9944)
-    No Information Rate : 0.9996          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.1316          
-                                          
- Mcnemar&#39;s Test P-Value : &lt;2e-16          
-                                          
-            Sensitivity : 0.9848485       
-            Specificity : 0.9943756       
-         Pos Pred Value : 0.0708976       
-         Neg Pred Value : 0.9999934       
-             Prevalence : 0.0004356       
-         Detection Rate : 0.0004290       
-   Detection Prevalence : 0.0060510       
-      Balanced Accuracy : 0.9896120       
-                                          
-       &#39;Positive&#39; Class : Pathogenic      
-                                          </code></pre>
-</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># These thresholds are based on </span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>THRESHOLDS <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">CADD_PHRED=</span><span class="fl">17.18</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">CADD_RAW=</span><span class="fl">1.654055</span>,</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">CAPICE_SCORE=</span><span class="fl">0.0059</span>,</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">FATHMM_MKL_C=</span><span class="fl">0.12306</span>,</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">FATHMM_MKL_NC=</span><span class="fl">0.21368</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="try-out-cadd-raw" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-cadd-raw">Try out CADD RAW</h2>
+<section id="apply-tresholds-to-dataset" class="level1">
+<h1>Apply tresholds to dataset</h1>
 <div class="cell" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code>Confusion Matrix and Statistics
 
             Reference
 Prediction    Benign Pathogenic
-  Benign     4066086         27
-  Pathogenic   23044       1755
+  Benign     3037004          4
+  Pathogenic    4104       1160
                                           
-               Accuracy : 0.9944          
-                 95% CI : (0.9943, 0.9944)
+               Accuracy : 0.9986          
+                 95% CI : (0.9986, 0.9987)
     No Information Rate : 0.9996          
     P-Value [Acc &gt; NIR] : 1               
                                           
-                  Kappa : 0.1313          
+                  Kappa : 0.3605          
                                           
  Mcnemar&#39;s Test P-Value : &lt;2e-16          
                                           
-            Sensitivity : 0.9848485       
-            Specificity : 0.9943646       
-         Pos Pred Value : 0.0707690       
-         Neg Pred Value : 0.9999934       
-             Prevalence : 0.0004356       
-         Detection Rate : 0.0004290       
-   Detection Prevalence : 0.0060620       
-      Balanced Accuracy : 0.9896065       
+            Sensitivity : 0.9965636       
+            Specificity : 0.9986505       
+         Pos Pred Value : 0.2203647       
+         Neg Pred Value : 0.9999987       
+             Prevalence : 0.0003826       
+         Detection Rate : 0.0003813       
+   Detection Prevalence : 0.0017303       
+      Balanced Accuracy : 0.9976070       
                                           
        &#39;Positive&#39; Class : Pathogenic      
                                           </code></pre>
 </div>
 </div>
 </section>
-<section id="try-out-capice-score" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-capice-score">Try out CAPICE SCORE</h2>
+<section id="use-impact-as-an-extra-filter-on-the-pathogenic-variants" class="level1">
+<h1>Use IMPACT as an extra filter on the pathogenic variants</h1>
 <div class="cell" data-layout-align="center">
 <div class="cell-output cell-output-stdout">
 <pre><code>Confusion Matrix and Statistics
 
             Reference
-Prediction    Benign Pathogenic
-  Benign     3798988         25
-  Pathogenic   21414       1503
+Prediction   Benign Pathogenic
+  Benign          0          0
+  Pathogenic   4056       1141
                                           
-               Accuracy : 0.9944          
-                 95% CI : (0.9943, 0.9945)
-    No Information Rate : 0.9996          
+               Accuracy : 0.2195          
+                 95% CI : (0.2084, 0.2311)
+    No Information Rate : 0.7805          
     P-Value [Acc &gt; NIR] : 1               
                                           
-                  Kappa : 0.1223          
+                  Kappa : 0               
                                           
  Mcnemar&#39;s Test P-Value : &lt;2e-16          
                                           
-            Sensitivity : 0.9836387       
-            Specificity : 0.9943948       
-         Pos Pred Value : 0.0655845       
-         Neg Pred Value : 0.9999934       
-             Prevalence : 0.0003998       
-         Detection Rate : 0.0003933       
-   Detection Prevalence : 0.0059962       
-      Balanced Accuracy : 0.9890168       
+            Sensitivity : 1.0000          
+            Specificity : 0.0000          
+         Pos Pred Value : 0.2195          
+         Neg Pred Value :    NaN          
+             Prevalence : 0.2195          
+         Detection Rate : 0.2195          
+   Detection Prevalence : 1.0000          
+      Balanced Accuracy : 0.5000          
                                           
        &#39;Positive&#39; Class : Pathogenic      
                                           </code></pre>
 </div>
 </div>
-</section>
-<section id="try-out-fathmm-mkl-c" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-fathmm-mkl-c">Try out FATHMM MKL C</h2>
-<div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-            Reference
-Prediction    Benign Pathogenic
-  Benign     3263732         62
-  Pathogenic  120682       1216
-                                          
-               Accuracy : 0.9643          
-                 95% CI : (0.9641, 0.9645)
-    No Information Rate : 0.9996          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.019           
-                                          
- Mcnemar&#39;s Test P-Value : &lt;2e-16          
-                                          
-            Sensitivity : 0.9514867       
-            Specificity : 0.9643418       
-         Pos Pred Value : 0.0099756       
-         Neg Pred Value : 0.9999810       
-             Prevalence : 0.0003775       
-         Detection Rate : 0.0003592       
-   Detection Prevalence : 0.0360039       
-      Balanced Accuracy : 0.9579143       
-                                          
-       &#39;Positive&#39; Class : Pathogenic      
-                                          </code></pre>
-</div>
-</div>
-</section>
-<section id="try-out-fathmm-mkl-nc" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-fathmm-mkl-nc">Try out FATHMM MKL NC</h2>
-<div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-            Reference
-Prediction    Benign Pathogenic
-  Benign     3095365         46
-  Pathogenic  289049       1232
-                                          
-               Accuracy : 0.9146          
-                 95% CI : (0.9143, 0.9149)
-    No Information Rate : 0.9996          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.0077          
-                                          
- Mcnemar&#39;s Test P-Value : &lt;2e-16          
-                                          
-            Sensitivity : 0.9640063       
-            Specificity : 0.9145941       
-         Pos Pred Value : 0.0042442       
-         Neg Pred Value : 0.9999851       
-             Prevalence : 0.0003775       
-         Detection Rate : 0.0003639       
-   Detection Prevalence : 0.0857376       
-      Balanced Accuracy : 0.9393002       
-                                          
-       &#39;Positive&#39; Class : Pathogenic      
-                                          </code></pre>
-</div>
-</div>
-</section>
-</section>
-<section id="test-the-brain-cancer-thresholds" class="level1">
-<h1>Test the brain cancer thresholds</h1>
-<section id="clarify-thresholds-brain" class="level2">
-<h2 class="anchored" data-anchor-id="clarify-thresholds-brain">Clarify thresholds brain</h2>
-<div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a vector with the optimal thresholds, just as a reminder.</span></span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This one is based on the brain cancer variants.</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>BRAIN.THRESHOLDS <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>    <span class="dv">22</span>,</span>
-<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>    <span class="fl">2.295056</span>,</span>
-<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.0106</span>,</span>
-<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.175105</span>,</span>
-<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    <span class="fl">0.321080</span></span>
-<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-</section>
-<section id="try-out-cadd-phred-1" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-cadd-phred-1">Try out CADD PHRED</h2>
-<div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-            Reference
-Prediction    Benign Pathogenic
-  Benign     4087022         70
-  Pathogenic    2108       1712
-                                          
-               Accuracy : 0.9995          
-                 95% CI : (0.9994, 0.9995)
-    No Information Rate : 0.9996          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.611           
-                                          
- Mcnemar&#39;s Test P-Value : &lt;2e-16          
-                                          
-            Sensitivity : 0.9607183       
-            Specificity : 0.9994845       
-         Pos Pred Value : 0.4481675       
-         Neg Pred Value : 0.9999829       
-             Prevalence : 0.0004356       
-         Detection Rate : 0.0004185       
-   Detection Prevalence : 0.0009338       
-      Balanced Accuracy : 0.9801014       
-                                          
-       &#39;Positive&#39; Class : Pathogenic      
-                                          </code></pre>
-</div>
-</div>
-</section>
-<section id="try-out-cadd-raw-1" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-cadd-raw-1">Try out CADD RAW</h2>
-<div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-            Reference
-Prediction    Benign Pathogenic
-  Benign     4086908         70
-  Pathogenic    2222       1712
-                                          
-               Accuracy : 0.9994          
-                 95% CI : (0.9994, 0.9995)
-    No Information Rate : 0.9996          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.5988          
-                                          
- Mcnemar&#39;s Test P-Value : &lt;2e-16          
-                                          
-            Sensitivity : 0.9607183       
-            Specificity : 0.9994566       
-         Pos Pred Value : 0.4351805       
-         Neg Pred Value : 0.9999829       
-             Prevalence : 0.0004356       
-         Detection Rate : 0.0004185       
-   Detection Prevalence : 0.0009616       
-      Balanced Accuracy : 0.9800875       
-                                          
-       &#39;Positive&#39; Class : Pathogenic      
-                                          </code></pre>
-</div>
-</div>
-</section>
-<section id="try-out-capice-score-1" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-capice-score-1">Try out CAPICE SCORE</h2>
-<div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-            Reference
-Prediction    Benign Pathogenic
-  Benign     3807629         33
-  Pathogenic   12773       1495
-                                          
-               Accuracy : 0.9966          
-                 95% CI : (0.9966, 0.9967)
-    No Information Rate : 0.9996          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.1887          
-                                          
- Mcnemar&#39;s Test P-Value : &lt;2e-16          
-                                          
-            Sensitivity : 0.9784031       
-            Specificity : 0.9966566       
-         Pos Pred Value : 0.1047799       
-         Neg Pred Value : 0.9999913       
-             Prevalence : 0.0003998       
-         Detection Rate : 0.0003912       
-   Detection Prevalence : 0.0037332       
-      Balanced Accuracy : 0.9875299       
-                                          
-       &#39;Positive&#39; Class : Pathogenic      
-                                          </code></pre>
-</div>
-</div>
-</section>
-<section id="try-out-fathmm-mkl-c-1" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-fathmm-mkl-c-1">Try out FATHMM MKL C</h2>
-<div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-            Reference
-Prediction    Benign Pathogenic
-  Benign     3304078         87
-  Pathogenic   80336       1191
-                                          
-               Accuracy : 0.9762          
-                 95% CI : (0.9761, 0.9764)
-    No Information Rate : 0.9996          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.028           
-                                          
- Mcnemar&#39;s Test P-Value : &lt;2e-16          
-                                          
-            Sensitivity : 0.9319249       
-            Specificity : 0.9762630       
-         Pos Pred Value : 0.0146087       
-         Neg Pred Value : 0.9999737       
-             Prevalence : 0.0003775       
-         Detection Rate : 0.0003518       
-   Detection Prevalence : 0.0240799       
-      Balanced Accuracy : 0.9540939       
-                                          
-       &#39;Positive&#39; Class : Pathogenic      
-                                          </code></pre>
-</div>
-</div>
-</section>
-<section id="try-out-fathmm-mkl-nc-1" class="level2">
-<h2 class="anchored" data-anchor-id="try-out-fathmm-mkl-nc-1">Try out FATHMM MKL NC</h2>
-<div class="cell" data-layout-align="center">
-<div class="cell-output cell-output-stdout">
-<pre><code>Confusion Matrix and Statistics
-
-            Reference
-Prediction    Benign Pathogenic
-  Benign     3204498        103
-  Pathogenic  179916       1175
-                                          
-               Accuracy : 0.9468          
-                 95% CI : (0.9466, 0.9471)
-    No Information Rate : 0.9996          
-    P-Value [Acc &gt; NIR] : 1               
-                                          
-                  Kappa : 0.0121          
-                                          
- Mcnemar&#39;s Test P-Value : &lt;2e-16          
-                                          
-            Sensitivity : 0.9194053       
-            Specificity : 0.9468398       
-         Pos Pred Value : 0.0064885       
-         Neg Pred Value : 0.9999679       
-             Prevalence : 0.0003775       
-         Detection Rate : 0.0003470       
-   Detection Prevalence : 0.0534871       
-      Balanced Accuracy : 0.9331226       
-                                          
-       &#39;Positive&#39; Class : Pathogenic      
-                                          </code></pre>
-</div>
-</div>
-</section>
 </section>
 <section id="output-session-information" class="level1">
 <h1>Output session information</h1>
 <div class="cell" data-layout-align="center">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the session info including packages and version used.</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the session info including packages and version used.</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>R version 4.2.2 Patched (2022-11-10 r83330)
 Platform: x86_64-pc-linux-gnu (64-bit)

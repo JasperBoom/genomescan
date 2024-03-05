@@ -29,6 +29,8 @@ library("Rtsne")
 library("cutpointr")
 library("quarto")
 library("umap")
+library("fANCOVA")
+library("caret")
 ```
 
 # Run document setup
@@ -39,12 +41,14 @@ library("umap")
 set.seed(1995)
 
 # Set other formatting settings of Quarto document.
-knitr::opts_chunk$set(echo=TRUE,
-                      message=FALSE,
-                      fig.width=9,
-                      fig.height=9,
-                      out.width="85%",
-                      fig.align="center")
+knitr::opts_chunk$set(
+    echo=TRUE,
+    message=FALSE,
+    fig.width=9,
+    fig.height=9,
+    out.width="85%",
+    fig.align="center"
+)
 
 # Set a nice theme.
 theme_set(theme_bw())
@@ -58,9 +62,10 @@ theme_set(theme_bw())
 # Read in the tsv file in the data folder, based on the personal genome project.
 # This is individual FR07961000. It includes pathogenic variants from ClinVar.
 FR07961000 <- read_tsv(
-    "/mnt/titan/users/j.boom/r-analysis/combined/FR07961000.general.cancer.subset.1.tsv",
+    "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961000.general.cancer.subset.1.plus.2.tsv",
     col_names=TRUE,
-    show_col_types = FALSE)
+    show_col_types = FALSE
+)
 ```
 
 ## Inspect & select data for individual FR07961000
@@ -75,19 +80,21 @@ FR07961000.dedup <- FR07961000[!duplicated(
 
 # Select just the important numeric annotation sources. Replace dash with NA
 # and make sure the values are numeric.
-FR07961000.select <- FR07961000.dedup[, c("Variation_id",
-                                          "CADD_PHRED",
-                                          "CADD_RAW",
-                                          "CAPICE_SCORE",
-                                          "FATHMM_MKL_C",
-                                          "FATHMM_MKL_NC",
-                                          "ClinVar_CLNSIG")] |>
-    mutate_at(c("CADD_PHRED",
-                "CADD_RAW",
-                "CAPICE_SCORE",
-                "FATHMM_MKL_C",
-                "FATHMM_MKL_NC"),
-              function(x) as.numeric(as.character(x)))
+FR07961000.select <- FR07961000.dedup[, c(
+    "Variation_id",
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC",
+    "ClinVar_CLNSIG")] |>
+    mutate_at(c(
+        "CADD_PHRED",
+        "CADD_RAW",
+        "CAPICE_SCORE",
+        "FATHMM_MKL_C",
+        "FATHMM_MKL_NC"),
+        function(x) as.numeric(as.character(x)))
 
 # Remove rows of columns with missing values, set the category to a factor and
 # set the variant identifiers as rownames.
@@ -108,25 +115,33 @@ FR07961000.nomissing <- FR07961000.select |>
 # easy-multivariate-data-analyses-and-elegant-visualization
 # Perform a principal component analysis, include centering and scaling of data.
 # Using the PCA command.
-FR07961000.pca.data <- PCA(FR07961000.nomissing[,1:5],
-                           graph=FALSE,
-                           ncp=4,
-                           scale.unit=TRUE)
+FR07961000.pca.data <- PCA(
+    FR07961000.nomissing[,1:5],
+    graph=FALSE,
+    ncp=4,
+    scale.unit=TRUE
+)
 
 # Extract the results for variables.
-FR07961000.pca.var <- get_pca_var(FR07961000.pca.data)
+FR07961000.pca.var <- get_pca_var(
+    FR07961000.pca.data
+)
 
 # Contributions of variables to PC1.
-FR07961000.pc1.contribs <- fviz_contrib(FR07961000.pca.data,
-                                        choice="var",
-                                        axes=1,
-                                        top=10)
+FR07961000.pc1.contribs <- fviz_contrib(
+    FR07961000.pca.data,
+    choice="var",
+    axes=1,
+    top=10
+)
 
 # Contributions of variables to PC2.
-FR07961000.pc2.contribs <- fviz_contrib(FR07961000.pca.data,
-                                        choice="var",
-                                        axes=2,
-                                        top=10)
+FR07961000.pc2.contribs <- fviz_contrib(
+    FR07961000.pca.data,
+    choice="var",
+    axes=2,
+    top=10
+)
 ```
 
 ```{r}
@@ -141,7 +156,8 @@ FR07961000.pc2.contribs <- fviz_contrib(FR07961000.pca.data,
 FR07961000.prcomp.data <- prcomp(
     FR07961000.nomissing[,1:5],
     center=TRUE,
-    scale.=TRUE)
+    scale.=TRUE
+)
 ```
 
 ```{r}
@@ -163,7 +179,7 @@ FR07961000.pca.scatterplot.data <- cbind(
     dplyr::mutate_at(c("PC2"),
                      as.numeric) |>
     dplyr::arrange(CONDITION) |>
-    dplyr::filter(PC2 > -17)
+    dplyr::filter(PC2 > -15)
 
 # Extract the variance explained by the first two components.
 FR07961000.pca.variance <- summary(
@@ -265,7 +281,8 @@ FR07961000.cp.CADD_PHRED <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 
 ## CADD_RAW.
 FR07961000.cp.CADD_RAW <- cutpointr(
@@ -276,37 +293,44 @@ FR07961000.cp.CADD_RAW <- cutpointr(
     metric=sum_sens_spec,
     pos_class="Pathogenic",
     neg_class="Benign",
-    silent=TRUE)
+    silent=TRUE
+)
 
 ## CAPICE_SCORE.
-FR07961000.cp.CAPICE_SCORE <- cutpointr(FR07961000.nomissing,
-                                        CAPICE_SCORE,
-                                        ClinVar_CLNSIG,
-                                        method=maximize_metric,
-                                        metric=sum_sens_spec,
-                                        pos_class="Pathogenic",
-                                        neg_class="Benign",
-                                        silent=TRUE)
+FR07961000.cp.CAPICE_SCORE <- cutpointr(
+    FR07961000.nomissing,
+    CAPICE_SCORE,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE
+)
 
 ## FATHMM_MKL_C.
-FR07961000.cp.FATHMM_MKL_C <- cutpointr(FR07961000.nomissing,
-                                        FATHMM_MKL_C,
-                                        ClinVar_CLNSIG,
-                                        method=maximize_metric,
-                                        metric=sum_sens_spec,
-                                        pos_class="Pathogenic",
-                                        neg_class="Benign",
-                                        silent=TRUE)
+FR07961000.cp.FATHMM_MKL_C <- cutpointr(
+    FR07961000.nomissing,
+    FATHMM_MKL_C,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE
+)
 
 ## FATHMM_MKL_NC.
-FR07961000.cp.FATHMM_MKL_NC <- cutpointr(FR07961000.nomissing,
-                                         FATHMM_MKL_NC,
-                                         ClinVar_CLNSIG,
-                                         method=maximize_metric,
-                                         metric=sum_sens_spec,
-                                         pos_class="Pathogenic",
-                                         neg_class="Benign",
-                                         silent=TRUE)
+FR07961000.cp.FATHMM_MKL_NC <- cutpointr(
+    FR07961000.nomissing,
+    FATHMM_MKL_NC,
+    ClinVar_CLNSIG,
+    method=maximize_metric,
+    metric=sum_sens_spec,
+    pos_class="Pathogenic",
+    neg_class="Benign",
+    silent=TRUE
+)
 ```
 
 ```{r}
@@ -333,11 +357,13 @@ FR07961000.cp.FATHMM_MKL_NC.roc <- as.data.frame(
     mutate(annotation = "FATHMM_MKL_NC")
 
 ## Combine all tables.
-FR07961000.cp.roc.data <- rbind(FR07961000.cp.CADD_PHRED.roc,
-                                FR07961000.cp.CADD_RAW.roc,
-                                FR07961000.cp.CAPICE_SCORE.roc,
-                                FR07961000.cp.FATHMM_MKL_C.roc,
-                                FR07961000.cp.FATHMM_MKL_NC.roc)
+FR07961000.cp.roc.data <- rbind(
+    FR07961000.cp.CADD_PHRED.roc,
+    FR07961000.cp.CADD_RAW.roc,
+    FR07961000.cp.CAPICE_SCORE.roc,
+    FR07961000.cp.FATHMM_MKL_C.roc,
+    FR07961000.cp.FATHMM_MKL_NC.roc
+)
 ```
 
 ## Also extract the optimal thresholds for classification
@@ -434,7 +460,8 @@ FR07961000.cp.roc.thresholds <- rbind(
     FR07961000.cp.roc.CADD_RAW.threshold.location.total,
     FR07961000.cp.roc.CAPICE_SCORE.threshold.location.total,
     FR07961000.cp.roc.FATHMM_MKL_C.threshold.location.total,
-    FR07961000.cp.roc.FATHMM_MKL_NC.threshold.location.total)
+    FR07961000.cp.roc.FATHMM_MKL_NC.threshold.location.total
+)
 ```
 
 ```{r}
@@ -492,7 +519,8 @@ names(FR07961000.lineplot.facet.titles) <- c(
     "CADD_RAW",
     "CAPICE_SCORE",
     "FATHMM_MKL_C",
-    "FATHMM_MKL_NC")
+    "FATHMM_MKL_NC"
+)
 ```
 
 # Display all plots

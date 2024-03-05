@@ -29,6 +29,8 @@ library("Rtsne")
 library("cutpointr")
 library("quarto")
 library("umap")
+library("fANCOVA")
+library("caret")
 ```
 
 # Run document setup
@@ -39,12 +41,14 @@ library("umap")
 set.seed(1995)
 
 # Set other formatting settings of Quarto document.
-knitr::opts_chunk$set(echo=TRUE,
-                      message=FALSE,
-                      fig.width=9,
-                      fig.height=9,
-                      out.width="85%",
-                      fig.align="center")
+knitr::opts_chunk$set(
+    echo=TRUE,
+    message=FALSE,
+    fig.width=9,
+    fig.height=9,
+    out.width="85%",
+    fig.align="center"
+)
 
 # Set a nice theme.
 theme_set(theme_bw())
@@ -61,21 +65,24 @@ general.cancer <- read_tsv(
     "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/general-cancer/pathogenic.annotated.edit.tab",
     col_names=TRUE,
     skip=52,
-    show_col_types = FALSE)
+    show_col_types = FALSE
+)
 
 # Brain cancer pathogenic variants.
 brain.cancer <- read_tsv(
     "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/brain-tumour/pathogenic.annotated.edit.tab",
     col_names=TRUE,
     skip=52,
-    show_col_types = FALSE)
+    show_col_types = FALSE
+)
 
 # Meningioma pathogenic variants.
 meningioma <- read_tsv(
     "/home/j.boom/develop/genomescan/data/clinvar-giab-test-data/meningioma/pathogenic.annotated.edit.tab",
     col_names=TRUE,
     skip=52,
-    show_col_types = FALSE)
+    show_col_types = FALSE
+)
 ```
 
 ## Inspect & select data from ClinVar
@@ -86,15 +93,18 @@ meningioma <- read_tsv(
 # find by default.
 # General cancer variants.
 general.cancer.dedup <- general.cancer[!duplicated(
-    general.cancer$`Uploaded_variation`),]
+    general.cancer$`Uploaded_variation`
+),]
 
 # Brain cancer variants.
 brain.cancer.dedup <- brain.cancer[!duplicated(
-    brain.cancer$`Uploaded_variation`),]
+    brain.cancer$`Uploaded_variation`
+),]
 
 # Meningioma variants.
 meningioma.dedup <- meningioma[!duplicated(
-    meningioma$`Uploaded_variation`),]
+    meningioma$`Uploaded_variation`
+),]
 ```
 
 ## Exclude variants in general cancer set that are in brain cancer set
@@ -102,7 +112,8 @@ meningioma.dedup <- meningioma[!duplicated(
 # This command removes variants in the general cancer set based on the
 # variation ID, which can also be found in the brain cancer set.
 general.cancer.dedup.trimmed <- general.cancer.dedup[!(
-    general.cancer.dedup$Uploaded_variation %in% brain.cancer.dedup$Uploaded_variation),]
+    general.cancer.dedup$Uploaded_variation %in% brain.cancer.dedup$Uploaded_variation
+),]
 ```
 
 ## Split general cancer and brain cancer into subsets
@@ -114,7 +125,8 @@ general.cancer.dedup.trimmed.subsets <- split(
     general.cancer.dedup.trimmed,
     sample(1:4,
            nrow(general.cancer.dedup.trimmed),
-           replace=T))
+           replace=T)
+)
 
 # Rename the dataframes to subset numbers.
 names(general.cancer.dedup.trimmed.subsets) <- c(
@@ -129,7 +141,8 @@ brain.cancer.dedup.subsets <- split(
     brain.cancer.dedup,
     sample(1:2,
            nrow(brain.cancer.dedup),
-           replace=T))
+           replace=T)
+)
 
 # Rename the dataframes to subset numbers.
 names(brain.cancer.dedup.subsets) <- c(
@@ -154,7 +167,8 @@ sapply(
             ".tsv",
             sep=""),
         sep="\t",
-        row.names=FALSE))
+        row.names=FALSE)
+)
 ```
 
 ## Write the brain cancer subsets to file.
@@ -171,7 +185,8 @@ sapply(
             ".tsv",
             sep=""),
         sep="\t",
-        row.names=FALSE))
+        row.names=FALSE)
+)
 ```
 
 ## Write the meningioma data to file.
