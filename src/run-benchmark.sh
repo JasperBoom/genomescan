@@ -54,6 +54,7 @@ run_python_script() {
     #                    craniopharyngioma,ependymoma,medulloblastoma,glioma
     #     Cancer in general: breast,prostate,lung,bronchus,colon,rectum,
     #                        pancreas,cancer,tumour
+    #     TODO #FIX THE FIRST VARIANT IS ON THE SAME LINE AS THE HEADERS IN VCF
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/benchmark.py \
         --giab "/mnt/titan/users/j.boom/r-analysis/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \

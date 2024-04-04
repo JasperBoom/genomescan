@@ -55,3 +55,5 @@ Contact information: info@jboom.org.
   become to big.
 + Organise the r-scripts to include only useful code, also look into adding
   extra vep annotation as possible filter.
++ Add a python script that runs exomiser with different settings in order
+  to determine the optimal threshold.

@@ -28,7 +28,7 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-run_replace(){
+run_replace() {
     # The run_replace function:
     #     This function calls the uk-genome-project python script which
     #     replaces the clinvar clinical significance column into just benign

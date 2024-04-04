@@ -103,7 +103,7 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = "This function combines an individuals vcf file with\
+    description = "This python script combines an individuals vcf file with\
                    pathogenic variants extracted from clinvar. This combined\
                    vcf is deduplicated and only the interesting annotation\
                    columns are kept."

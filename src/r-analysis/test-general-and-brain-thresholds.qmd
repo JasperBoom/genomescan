@@ -358,6 +358,16 @@ FR07961005.validation.confusion.matrix <- confusionMatrix(
 FR07961005.validation.confusion.matrix
 ```
 
+# Write pathogenic variants to tabular file
+```{r}
+write.table(FR07961001.validation.pathogenic,
+            file="/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961001.general.cancer.subset.3.plus.4.filtered.tsv",
+            sep="\t")
+write.table(FR07961005.validation.pathogenic,
+            file="/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961005.brain.cancer.subset.2.filtered.tsv",
+            sep="\t")
+```
+
 # Output session information
 ```{r}
 #| warning: false

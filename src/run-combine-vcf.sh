@@ -20,62 +20,58 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="exomizer"
-#SBATCH --mem=10G
+#SBATCH --job-name="combine-vcf"
+#SBATCH --mem=30G
 #SBATCH --cpus-per-task=10
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-run_exomizer() {
-    # The run_exomizer function:
-    #     Contains all test code for running exomizer.
-    #     As seen below, the tool is java based. It also has a version on
-    #     conda, but this doesn't seem to run the same jar file as is
-    #     downloaded via git.
-    #     The example data doesn't work for some reason, missing some input
-    #     either because the files are incomplete or the example command is
-    #     incomplete.
-    java \
-        -Xms2g \
-        -Xmx4g \
-        -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-            --prioritiser=hiphive \
-            -I AD \
-            -F 1 \
-            -D OMIM:101600 \
-            -v /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/examples/Pfeiffer.vcf
+run_combine() {
+    # The run_replace function:
+    #     This function calls the combine-vcf python script which
+    #     combines two vcf files based on the IDs found in a tabular file.
+    source /home/j.boom/miniconda3/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/python/combine-vcf.py \
+        --benign "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961001/FR07961001.pass.recode.vcf" \
+        --pathogenic "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/general-cancer/pathogenic.vcf" \
+        --tabular "/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961001.general.cancer.subset.3.plus.4.filtered.tsv" \
+        --output "/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961001.general.cancer.subset.3.plus.4.filtered.vcf" \
+        --header "/mnt/titan/users/j.boom/test-data/default-vcf-header.txt"
 }
 
 main() {
     # The main function:
-    #     This function runs all processing function in correct order.
-    run_exomizer
+    #     This function calls all processing functions in correct order.
+    run_combine
 }
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPT_STRING="vh"
+OPT_STRING="i:vh"
 while getopts ${OPT_STRING} option;
 do
     case ${option} in
+        i)
+            python_file=${OPTARG}
+            ;;
         v)
             echo ""
-            echo "run-exomizer.sh [1.0]"
+            echo "run-uk-genome-project.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-exomizer.sh [-v] [-h]"
+            echo "Usage: run-uk-genome-project.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs test commands for exomizer."
+            echo "This script runs the uk-genome-project python script."
             echo ""
 
             exit

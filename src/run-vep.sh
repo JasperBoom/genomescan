@@ -224,12 +224,12 @@ install_cache(){
                     --PLUGINSDIR "/mnt/titan/users/j.boom/r-analysis/vep/plugins/"
 }
 
-run_vep() {
-    # The run_vep function:
+run_vep_loop() {
+    # The run_vep_loop function:
     #     This function runs the vep annotation tool on all vcf files in the
     #     specified folder.
     #     https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
-    for file in /mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961009/*.vcf;
+    for file in /mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/*sorted.vcf.gz;
     do
         singularity \
             exec \
@@ -238,14 +238,14 @@ run_vep() {
                 docker://ensemblorg/ensembl-vep:release_111.0 \
                     vep \
                         --input_file "${file}" \
-                        --output_file "${file::-3}annotated.tab" \
+                        --output_file "${file::-3}annotated.vcf" \
                         --stats_file "${file::-3}summary.html" \
                         --species "human" \
                         --format "vcf" \
                         --assembly "GRCh37" \
                         --dir_cache "/mnt/titan/users/j.boom/r-analysis/vep" \
                         --dir_plugins "/mnt/titan/users/j.boom/r-analysis/vep/plugins" \
-                        --tab \
+                        --vcf \
                         --cache \
                         --fork 5 \
                         --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/AlphaMissense_hg19.tsv.gz" \
@@ -258,14 +258,44 @@ run_vep() {
     done
 }
 
+run_vep(){
+    # The run_vep function:
+    #     This function runs the vep command on the specified input file.
+    singularity \
+        exec \
+            --containall \
+            --bind /mnt,/home \
+            docker://ensemblorg/ensembl-vep:release_111.0 \
+                vep \
+                    --input_file /mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961005.pathogenic.brain.sorted.vcf \
+                    --output_file "/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961005.pathogenic.brain.sorted.annotated.vcf" \
+                    --stats_file "/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961005.pathogenic.brain.sorted.stats.html" \
+                    --species "human" \
+                    --format "vcf" \
+                    --assembly "GRCh37" \
+                    --dir_cache "/mnt/titan/users/j.boom/r-analysis/vep" \
+                    --dir_plugins "/mnt/titan/users/j.boom/r-analysis/vep/plugins" \
+                    --vcf \
+                    --cache \
+                    --fork 5 \
+                    --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/AlphaMissense_hg19.tsv.gz" \
+                    --plugin "CADD,snv=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/InDels.tsv.gz" \
+                    --plugin "CAPICE,snv=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
+                    --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/fathmm-MKL_Current.tab.gz" \
+                    --custom file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/clinvar.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG \
+                    --plugin "BayesDel,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz" \
+                    --plugin "REVEL,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/new_tabbed_revel.tsv.gz";
+}
+
 main() {
     # The main function:
     #     This function runs all processing function in correct order.
     #install_cache
-    run_vep
+    #run_vep_loop
     #index_alphamissense
     #install_plugins
     #index_fathmm_mkl
+    run_vep
     #create_benchmark_set
     #setup_bayesdel_plugin
     #setup_revel_plugin

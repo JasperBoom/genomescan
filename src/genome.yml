@@ -1,0 +1,80 @@
+# -----------------------------------------------------------------------------
+# GenomeScan internship repository.
+# Copyright (C) 2023 Jasper Boom
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU Affero General Public License for more details.
+
+# You should have received a copy of the GNU Affero General Public License
+# along with this program. If not, see <https://www.gnu.org/licenses/>.
+
+# Contact information: info@jboom.org.
+# -----------------------------------------------------------------------------
+analysis:
+    genomeAssembly: hg19
+    vcf: test.vcf
+    hpoIds: ["test"]
+    inheritanceModes: {}
+    analysisMode: PASS_ONLY
+    frequencySources: [
+        THOUSAND_GENOMES,
+        TOPMED,
+        UK10K,
+        ESP_AFRICAN_AMERICAN,
+        ESP_EUROPEAN_AMERICAN,
+        ESP_ALL,
+        EXAC_AFRICAN_INC_AFRICAN_AMERICAN,
+        EXAC_AMERICAN,
+        EXAC_SOUTH_ASIAN,
+        EXAC_EAST_ASIAN,
+        EXAC_FINNISH,
+        EXAC_NON_FINNISH_EUROPEAN,
+        EXAC_OTHER,
+        GNOMAD_E_AFR,
+        GNOMAD_E_AMR,
+        GNOMAD_E_ASJ,
+        GNOMAD_E_EAS,
+        GNOMAD_E_FIN,
+        GNOMAD_E_NFE,
+        GNOMAD_E_OTH,
+        GNOMAD_E_SAS,
+        GNOMAD_G_AFR,
+        GNOMAD_G_AMR,
+        GNOMAD_G_ASJ,
+        GNOMAD_G_EAS,
+        GNOMAD_G_FIN,
+        GNOMAD_G_NFE,
+        GNOMAD_G_OTH,
+        GNOMAD_G_SAS
+    ]
+    pathogenicitySources: [REMM, REVEL, MVP]
+    steps: [
+        hiPhivePrioritiser: {},
+        # Running the prioritiser followed by a priorityScoreFilter will remove
+        # genes which are least likely to contribute to the phenotype defined
+        # in hpoIds, this will dramatically reduce the time and memory required
+        # to analyse a genome.
+        # 0.501 is a good compromise to select good phenotype matches and the
+        # best protein-protein interactions hits from hiPhive.
+        frequencyFilter: {maxFrequency: 1.0},
+        pathogenicityFilter: {keepNonPathogenic: false},
+        priorityScoreFilter: {
+            priorityType: HIPHIVE_PRIORITY,
+            minPriorityScore: 0.75
+        },
+        omimPrioritiser: {},
+        hiPhivePrioritiser: {runParams: "human,mouse,fish,ppi"}
+    ]
+outputOptions:
+    outputContributingVariantsOnly: false
+    numGenes: 0
+    outputDirectory: /mnt/titan/users/j.boom/tool-testing/Exomiser/results
+    outputFileName: test
+    outputFormats: [HTML, TSV_VARIANT, VCF]

@@ -33,12 +33,12 @@ run_tools() {
     #     This function runs pbgzip and picard in order to sort, compress and
     #     index the input vcf files.
     source /home/j.boom/miniconda3/bin/activate base
-    for file in /mnt/titan/users/j.boom/test-data/vcf/*.vcf;
+    for file in /mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/*.vcf;
     do
         singularity \
             exec \
                 --containall \
-                --bind /mnt \
+                --bind /mnt,/home \
                 docker://quay.io/biocontainers/picard:3.1.1--hdfd78af_0 \
                 picard SortVcf \
                     --INPUT "${file}" \

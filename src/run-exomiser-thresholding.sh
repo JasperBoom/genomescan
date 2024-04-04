@@ -2,7 +2,7 @@
 
 # -----------------------------------------------------------------------------
 # GenomeScan internship repository.
-# Copyright (C) 2023 Jasper Boom
+# Copyright (C) 2024 Jasper Boom
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -20,23 +20,38 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-start_job() {
-    # The start_job function:
-    #     This function creates an interactive slurm job on an execution node.
-    srun \
-        --nodes=1 \
-        --ntasks=10 \
-        --job-name=interactive-job \
-        --partition=all \
-        --mem=30GB \
-        --export=ALL \
-        --pty bash -i
+#SBATCH --job-name="exomiser-thresholding"
+#SBATCH --mem=40G
+#SBATCH --cpus-per-task=10
+#SBATCH --export=ALL
+#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
+#SBATCH --partition=all
+
+run_exomiser_thresholding() {
+    # The run_exomiser_thresholding function:
+    #     This function calls the exomiser-thresholding.py python script.
+    #     This script tries to determine the optimal threshold at which to
+    #     separate benign from pathogenic variants.
+    source /home/j.boom/miniconda3/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/python/exomiser-thresholding.py \
+        --yaml "/home/j.boom/develop/genomescan/src/genome.yml" \
+        --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.vcf" \
+        --output "/mnt/titan/users/j.boom/exomiser_thresholding" \
+        --name "" \
+        --log "/mnt/titan/users/j.boom/logs" \
+        --hpo "HP:0002858,HP:0500089,HP:0100009,HP:0100010,HP:0033714" \
+        --temp "/mnt/titan/users/j.boom/tmp" \
+        --config "/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties" \
+        --docker "amazoncorretto:21.0.2-alpine3.19" \
+        --jar "/mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar" \
+        --cores 3
 }
 
 main() {
     # The main function:
-    #     This function calls all processing functions in correct order.
-    start_job
+    #     This function runs all processing function in correct order.
+    run_exomiser_thresholding
 }
 
 # The getopts function.
@@ -47,21 +62,21 @@ do
     case ${option} in
         v)
             echo ""
-            echo "run-interactive-job.sh [1.0]"
+            echo "run-exomiser-thresholding.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-interactive-job.sh [-v] [-h]"
+            echo "Usage: run-exomiser-thresholding.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the slurm srun command in order to create"
-            echo "an interactive job."
+            echo "This script runs a python script that does thresholding on"
+            echo "exomiser options."
             echo ""
 
             exit

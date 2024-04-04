@@ -43,7 +43,10 @@ format_file() {
                 /home/j.boom/develop/genomescan/snakemake-tutorial/scripts/plot-quals.py \
                 /home/j.boom/develop/genomescan/src/python/imiv.py \
                 /home/j.boom/develop/genomescan/src/python/benchmark.py \
-                /home/j.boom/develop/genomescan/src/python/uk-genome-project.py
+                /home/j.boom/develop/genomescan/src/python/uk-genome-project.py \
+                /home/j.boom/develop/genomescan/src/python/combine-vcf.py \
+                /home/j.boom/develop/genomescan/src/python/training-test-subsets.py \
+                /home/j.boom/develop/genomescan/src/python/exomiser-thresholding.py
 }
 
 main() {
