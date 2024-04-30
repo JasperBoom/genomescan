@@ -2,7 +2,7 @@
 
 # -----------------------------------------------------------------------------
 # GenomeScan internship repository.
-# Copyright (C) 2024 Jasper Boom
+# Copyright (C) 2023 Jasper Boom
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -21,8 +21,8 @@
 # -----------------------------------------------------------------------------
 
 #SBATCH --job-name="exomiser-thresholding"
-#SBATCH --mem=40G
-#SBATCH --cpus-per-task=10
+#SBATCH --mem=50G
+#SBATCH --cpus-per-task=8
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
@@ -31,11 +31,11 @@
 run_exomiser_thresholding() {
     # The run_exomiser_thresholding function:
     #     This function calls the exomiser-thresholding.py python script.
-    #     This script tries to determine the optimal threshold at which to
-    #     separate benign from pathogenic variants.
+    #     This script prepares Exomiser results to determine the optimal
+    #     threshold at which to separate benign from pathogenic variants.
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/exomiser-thresholding.py \
-        --yaml "/home/j.boom/develop/genomescan/src/genome.yml" \
+        --yaml "/home/j.boom/develop/genomescan/src/genome.v14.yml" \
         --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.vcf" \
         --output "/mnt/titan/users/j.boom/exomiser_thresholding" \
         --name "" \
@@ -44,8 +44,8 @@ run_exomiser_thresholding() {
         --temp "/mnt/titan/users/j.boom/tmp" \
         --config "/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties" \
         --docker "amazoncorretto:21.0.2-alpine3.19" \
-        --jar "/mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar" \
-        --cores 3
+        --jar "/mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar" \
+        --cores 8
 }
 
 main() {
@@ -75,8 +75,8 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs a python script that does thresholding on"
-            echo "exomiser options."
+            echo "This script runs a python script that runs Exomiser and"
+            echo "prepares results in order to determine thresholds later."
             echo ""
 
             exit

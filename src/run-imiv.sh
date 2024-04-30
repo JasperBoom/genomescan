@@ -22,7 +22,7 @@
 
 #SBATCH --job-name="imiv"
 #SBATCH --mem=10G
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
@@ -32,7 +32,8 @@ run_script() {
     # The run_script function:
     #     This function runs the imiv script on all vcf files in the specified
     #     folder. This inserts a meningioma pathogenic variant, sorts the vcf
-    #     file, compresses it and creates an index.
+    #     file, compresses it and creates an index. The additional parts like
+    #     compression and indexing do not yet work.
     source /home/j.boom/miniconda3/bin/activate base
     for file in /mnt/titan/users/j.boom/test-data/vcf/*.vcf;
     do

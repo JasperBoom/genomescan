@@ -110,7 +110,7 @@ FR07961000.nomissing <- FR07961000.select |>
 
 # Create one subsets with a size of 10000 variants.
 FR07961000.set.1 <- FR07961000.nomissing |>
-    sample_n(10000) |>
+    sample_n(100000) |>
     dplyr::select(-ClinVar_CLNSIG)
 
 # Create a vector with the possible conditions for variants.
@@ -123,8 +123,8 @@ FR07961000.set.1$CONDITION[sample(
     nrow(FR07961000.set.1),
     FALSE)] <- rep(
         CONDITION,
-        c(5000,
-          5000))
+        c(50000,
+          50000))
 ```
 
 ## Create a ROC plot based on the random dataset

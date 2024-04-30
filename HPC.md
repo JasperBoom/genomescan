@@ -8,12 +8,12 @@ This folder contains bed files for both hg38 and hg19 used by
 genomescan when performing variant calling or other analysis steps. The bed
 file describes the agilent capture kits.
 
-The 50bp flank files extend the regions by 50 basepairs.  
+The 50bp flank files extend the regions by 50 basepairs on both sides.  
 S31285117 is used for agilent sureselect human all exon v7 on hg19.
 
 ## clinvar
 This folder contains the downloads from the ClinVar database.  
-These were the full vcf file, both grch37 and grch38 and the xml version.  
+These are the full vcf files, both grch37 and grch38 and the xml version.  
 https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/  
 https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/  
 https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/
@@ -21,7 +21,7 @@ https://ftp.ncbi.nlm.nih.gov/pub/clinvar/xml/
 Furthermore, a number of txt files that are created by some comparison
 commands in the script run-meningioma-variant.sh.
 
-I stopped using these files from 2024-02-13 onward.
+I stopped using these files on 2024-02-13.
 
 **clinvar_website_search** contains text files downloaded using the clinvar
 search bar, using the human phenotype ontology term for meningioma, the term
@@ -40,6 +40,9 @@ sample (**giab**), the input files for the vep plugins and reference (**vep**)
 and the clinvar download (**clinvar**). Additionally, datestamped folders
 that contain uk personal genome vcf files combined with pathogenic variants.
 
+For example, the **2024-02-29-exomiser-thresholding** folder contains the  
+vcf files used for testing exomiser and setting thresholds.
+
 ## snakemake-tutorial
 This folder has the data files for the snakemake tutorial: 
 https://snakemake.readthedocs.io/en/stable/tutorial/basics.html
@@ -47,6 +50,12 @@ https://snakemake.readthedocs.io/en/stable/tutorial/basics.html
 ## tmp
 Just a folder to direct temporary files to, for example when running java
 based tools.
+
+## test-data
+This folder contains subfolders with VEP tabular files based on vcf files  
+collected from ClinVar. the folder name indicates what kind of cancer was used  
+as search term in ClinVar. These files are used by the R scripts.  
+It also contains a header vcf file, which is used to create new vcf files.
 
 ## tool-testing
 This folder contains a collection of subfolders mostly targeted at different

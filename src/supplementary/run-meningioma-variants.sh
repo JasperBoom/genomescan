@@ -22,7 +22,7 @@
 
 #SBATCH --job-name="meningioma-variants"
 #SBATCH --mem=10G
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
@@ -107,7 +107,7 @@ investigate_clinvar_variants() {
     echo "" \
         >> ${clinvar_stats}
 
-    # --------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # Searching for meningiomas resulted in 3288 variants.
     # https://www.ncbi.nlm.nih.gov/clinvar/?term=meningiomas
     echo "----------------------------------------------------------------" \
@@ -172,7 +172,7 @@ investigate_clinvar_variants() {
             --ignore-case \
         >> ${clinvar_stats}
 
-    # --------------------------------------------------------------------------
+    # -------------------------------------------------------------------------
     # https://www.ncbi.nlm.nih.gov/clinvar/?term=%22HP+0002858%22%5BTrait+identifier%5D
     # As suggested by Gerben, lets try using the HPO term.
     # HP:0002858 ("HP 0002858"[Trait identifier])
@@ -296,7 +296,9 @@ do
             echo ""
             echo "This script runs a search in clinvar downloads in order"
             echo "to find all variants reported to have some connection"
-            echo "to meningioma."
+            echo "to meningioma. It creates some files and does some counting"
+            echo "in order to compare the results between different search"
+            echo "terms and results that were previously produced."
             echo ""
 
             exit

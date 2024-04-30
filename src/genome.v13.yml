@@ -17,6 +17,7 @@
 
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
+
 analysis:
     genomeAssembly: hg19
     vcf: test.vcf

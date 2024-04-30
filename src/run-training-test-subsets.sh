@@ -20,9 +20,9 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="imiv"
+#SBATCH --job-name="training-test-subsets"
 #SBATCH --mem=10G
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
@@ -58,14 +58,14 @@ do
             ;;
         v)
             echo ""
-            echo "run-imiv.sh [1.0]"
+            echo "run-training-test-subsets.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-imiv.sh [-v] [-h]"
+            echo "Usage: run-training-test-subsets.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."

@@ -22,7 +22,7 @@
 
 #SBATCH --job-name="benchmark"
 #SBATCH --mem=30G
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
@@ -54,6 +54,7 @@ run_python_script() {
     #                    craniopharyngioma,ependymoma,medulloblastoma,glioma
     #     Cancer in general: breast,prostate,lung,bronchus,colon,rectum,
     #                        pancreas,cancer,tumour
+    #
     #     TODO #FIX THE FIRST VARIANT IS ON THE SAME LINE AS THE HEADERS IN VCF
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/benchmark.py \

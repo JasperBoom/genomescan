@@ -30,31 +30,33 @@ import os
 import pandas as pd
 import re
 import subprocess
+import traceback
 import yaml
+import time
 
 
-def write_tsv(directory, dataframe, output_location):
+def write_tsv(vcf, dataframe, output_location):
     """
     The write_tsv function:
         This function uses the full path of the input vcf file and the default
         output location to create a unique filename. This filename is used to
         write the vcf converted dataframe to.
     """
-    directory_list = directory.split("/")
+    vcf_list = vcf.split("/")
     filename = (
         output_location
         + "/"
-        + directory_list[6]
+        + vcf_list[6]
         + "_"
-        + directory_list[7]
+        + vcf_list[7]
         + "_"
-        + directory_list[8]
+        + vcf_list[8].split(".")[0]
         + ".tsv"
     )
     dataframe.to_csv(filename, sep="\t", header=True, index=False)
 
 
-def process_exomiser_vcf(filebody, column_names, mode, pass_only=None):
+def process_exomiser_vcf(vcf, column_names, mode, pass_only=None):
     """
     The process_exomiser_vcf function:
         This function creates an empty dataframe with columns corresponding to
@@ -67,7 +69,7 @@ def process_exomiser_vcf(filebody, column_names, mode, pass_only=None):
         benign. This dataframe is returned.
     """
     dataframe_exomiser = pd.DataFrame(columns=column_names)
-    with gzip.open(filebody + ".vcf.gz", "r") as file:
+    with gzip.open(vcf, "r") as file:
         for line in file:
             correct_format_line = str(line, "latin-1")
             if correct_format_line.startswith("#"):
@@ -80,10 +82,14 @@ def process_exomiser_vcf(filebody, column_names, mode, pass_only=None):
                 exomiser_info = (
                     [item for item in info if item.startswith("Exomiser=")][0]
                     .strip("Exomiser=")
+                    .split(",")[0]
                     .strip("{")
                     .strip("}")
                     .split("|")
                 )
+                if len(exomiser_info) < 18:
+                    for add in range(18 - len(exomiser_info)):
+                        exomiser_info.append(" ")
                 exomiser_info_dictionary = {
                     column_names[item]: exomiser_info[item]
                     for item in range(len(column_names))
@@ -110,15 +116,15 @@ def process_exomiser_vcf(filebody, column_names, mode, pass_only=None):
     return dataframe_exomiser
 
 
-def access_output_directories(exomiser_output_basename, output_location):
+def start_analysis(file_set, output_location):
     """
-    The access_output_directories function:
+    The start_analysis function:
         This function creates a list with column names based on the information
         fields that exomiser adds to a vcf file. It then processes a pair of
         files, the same sample, one with just variants that passed all filters,
         the other will all variants. The process_exomiser_vcf function is used
         to create a pandas dataframe, first with just pathogenic variants,
-        and later with both benign and pathogenic variants. This dataframes
+        and later with both benign and pathogenic variants. These dataframes
         are also written to a tsv file.
     """
     exomiser_column_names = [
@@ -141,35 +147,74 @@ def access_output_directories(exomiser_output_basename, output_location):
         "EXOMISER_ACMG_DISEASE_ID",
         "EXOMISER_ACMG_DISEASE_NAME",
     ]
-    for basename in exomiser_output_basename:
-        if "PASS_ONLY" in basename:
+    for vcf in file_set:
+        if "PASS_ONLY" in vcf:
             dataframe_pass_only = process_exomiser_vcf(
-                basename, exomiser_column_names, "PASS_ONLY"
+                vcf, exomiser_column_names, "PASS_ONLY"
             )
-            write_tsv(basename, dataframe_pass_only, output_location)
+            write_tsv(vcf, dataframe_pass_only, output_location)
             dataframe_full = process_exomiser_vcf(
-                basename.replace("PASS_ONLY", "FULL"),
+                vcf.replace("PASS_ONLY", "FULL"),
                 exomiser_column_names,
                 "FULL",
                 dataframe_pass_only,
             )
             write_tsv(
-                basename.replace("PASS_ONLY", "FULL"),
+                vcf.replace("PASS_ONLY", "FULL"),
                 dataframe_full,
                 output_location,
             )
 
 
-def check_logs(log_files):
+def monitor_logs(log_files, vcf_files, output_location):
+    """
+    The monitor_logs function:
+        This function acts as a watcher of the log files produced by Exomiser.
+        It checks the log files from a set for a specific minimal priority
+        score. If a specific string is encountered in both log files, the
+        start_analysis function is called.
+    """
+    try:
+        while True:
+            if all(
+                "Exomising finished - Bye!" in open(log_file).read()
+                for log_file in log_files
+            ):
+                start_analysis(vcf_files, output_location)
+                break
+            time.sleep(30)
+    except Exception as e:
+        traceback.print_exc()
+
+
+def worker(queue, output_location):
+    """
+    The worker function:
+        This function acts as a worker assigned to one core. The while loop
+        allows the worker to collect a set of files from the queue and process
+        these files using the monitor_logs function. Once a set of files has
+        been processed a new set can be collected from the queue. The worker
+        is closed once it encounters None instead of a set of files.
+    """
     while True:
-        
-
-
-def start_analysis(file_set, output_location):
-    
+        files = queue.get()
+        if files is None:
+            break
+        else:
+            log_files = [file for file in files if file.endswith(".log")]
+            vcf_files = [file for file in files if file.endswith(".vcf.gz")]
+            if all(os.path.exists(log_file) for log_file in log_files):
+                monitor_logs(log_files, vcf_files, output_location)
+            queue.task_done()
 
 
 def link_output_files(vcf_file_basenames, log_files):
+    """
+    The link_output_files function:
+        This function collects the vcf files and log files that belong to a
+        specific minimal priority score and puts these in a list. All the lists
+        are stored in a top level list which is returned.
+    """
     file_sets = []
     for name in vcf_file_basenames:
         if "PASS_ONLY" in name:
@@ -189,15 +234,26 @@ def startup_multiprocessing(
 ):
     """
     The startup_multiprocessing function:
+        This function uses link_output_files to create a nested list of files
+        for each tested score setting (which are stored in a list), it starts
+        a multiprocessing queue. A number of processes is started equal to the
+        number of cores the user provided. The input files are added to the
+        queue after which the join() command is used to nicely close the
+        processes when they are done.
     """
     file_sets = link_output_files(vcf_file_basenames, log_files)
+    queue = multiprocessing.JoinableQueue()
     processes = []
-    for file_set in file_sets:
+    for core in range(cores):
         process = multiprocessing.Process(
-            target=start_analysis, args=(file, output_location)
+            target=worker, args=(queue, output_location)
         )
         process.start()
         processes.append(process)
+    for files in file_sets:
+        queue.put(files)
+    for core in range(cores):
+        queue.put(None)
     for process in processes:
         process.join()
 
@@ -221,7 +277,7 @@ def sbatch(command, basename, log_dir, score, mode):
             "--job-name=" + slurm_name,
             "--error=" + log_directory + "/" + slurm_name + ".error",
             "--output=" + log_directory + "/" + slurm_name + ".log",
-            "--cpus-per-task=10",
+            "--cpus-per-task=3",
             "--mem=80G",
             "--export=ALL",
             "--partition=all",
@@ -229,6 +285,9 @@ def sbatch(command, basename, log_dir, score, mode):
         ]
     )
     output, errors = process.communicate()
+    if not os.path.exists(log_directory + "/" + slurm_name + ".log"):
+        with open(log_directory + "/" + slurm_name + ".log", "w"):
+            pass
     return log_directory + "/" + slurm_name + ".log"
 
 
@@ -282,8 +341,7 @@ def generate_minimal_priority_range():
         minimal priority scores in the exomiser settings, the list is returned.
     """
     minimal_priority_score = []
-    # for i in numpy.arange(0.01, 1.0, 0.01):
-    for i in numpy.arange(0.01, 1.0, 0.5):
+    for i in numpy.arange(0.01, 1.0, 0.01):
         minimal_priority_score.append(float("%.2f" % i))
     minimal_priority_score[0] = 0.01
     minimal_priority_score.append(1.0)
@@ -316,7 +374,8 @@ def run_exomiser(
                 + "/"
                 + str(score)
             )
-            os.makedirs(yaml["outputOptions"]["outputDirectory"])
+            if not os.path.exists(yaml["outputOptions"]["outputDirectory"]):
+                os.makedirs(yaml["outputOptions"]["outputDirectory"])
             yaml_file = yaml_to_file(
                 yaml, yaml["outputOptions"]["outputDirectory"], basename
             )
@@ -337,8 +396,8 @@ def set_output_options(exomiser_options, vcf_file, output_name, hpo_terms):
     """
     The set_output_options function:
         This function creates a basename for the output files if no name is
-        provided. Then the entries for the vcf sample, hpo ids, output location
-        and output filename are filled. The altered options are returned.
+        provided. Then the entries for the vcf sample, hpo ids
+        and output filename are filled. The updated options are returned.
     """
     if output_name != "":
         basename = output_name
@@ -395,7 +454,8 @@ def parse_argvs():
     description = "This script tries to determine optimal thresholds for\
                    separating variants in either benign or pathogenic using\
                    exomiser."
-    epilog = "This python script has two dependencies: numpy & pyyaml."
+    epilog = "This python script has three dependencies: numpy, pandas &\
+              pyyaml."
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
@@ -497,8 +557,8 @@ def parse_argvs():
         "--cores",
         action="store",
         dest="cores",
-        type=str,
-        default=argparse.SUPPRESS,
+        type=int,
+        default=1,
         help="The number of cpu cores to assign to multiprocessing.",
     )
     parser.add_argument(
@@ -514,50 +574,25 @@ def main():
         This function calls all processing functions in correct order.
     """
     user_arguments = parse_argvs()
-    # exomiser_options = read_yaml(user_arguments.yaml_file)
-    # vcf_file_name = alter_vcf(user_arguments.vcf_file)
-    # updated_exomiser_options = set_output_options(
-    #    exomiser_options,
-    #    vcf_file_name,
-    #    user_arguments.output_name,
-    #    user_arguments.hpo_terms,
-    # )
-    # exomiser_output_directories = run_exomiser(
-    #    updated_exomiser_options[0],
-    #    vcf_file_name,
-    #    user_arguments.log_file,
-    #    user_arguments.temp_folder,
-    #    user_arguments.config_location,
-    #    user_arguments.docker_container,
-    #    user_arguments.exomiser_jar,
-    #    updated_exomiser_options[1],
-    #    user_arguments.output_location,
-    # )
-
-    exomiser_output_directories = [
-        [
-            "/mnt/titan/users/j.boom/exomiser_thresholding/PASS_ONLY/0.51/2024-04-02_14:01:22",
-            "/mnt/titan/users/j.boom/exomiser_thresholding/FULL/0.51/2024-04-02_14:01:22",
-        ],
-        [
-            "/mnt/titan/users/j.boom/logs/PASS_ONLY/exomiser_2024-04-02_14:01:22_0.51.log",
-            "/mnt/titan/users/j.boom/logs/FULL/exomiser_2024-04-02_14:01:22_0.51.log",
-        ],
-    ]
-    exomiser_output_directories = [
-        [
-            "/mnt/titan/users/j.boom/exomiser_thresholding/PASS_ONLY/0.51/2024-04-02_14:01:22",
-            "/mnt/titan/users/j.boom/exomiser_thresholding/FULL/0.51/2024-04-02_14:01:22",
-            "/mnt/titan/users/j.boom/exomiser_thresholding/PASS_ONLY/0.01/2024-04-02_14:01:22",
-            "/mnt/titan/users/j.boom/exomiser_thresholding/FULL/0.01/2024-04-02_14:01:22",
-        ],
-        [
-            "/mnt/titan/users/j.boom/logs/PASS_ONLY/exomiser_2024-04-02_14:01:22_0.01.log",
-            "/mnt/titan/users/j.boom/logs/FULL/exomiser_2024-04-02_14:01:22_0.01.log",
-            "/mnt/titan/users/j.boom/logs/PASS_ONLY/exomiser_2024-04-02_14:01:22_0.51.log",
-            "/mnt/titan/users/j.boom/logs/FULL/exomiser_2024-04-02_14:01:22_0.51.log",
-        ],
-    ]
+    exomiser_options = read_yaml(user_arguments.yaml_file)
+    vcf_file_name = alter_vcf(user_arguments.vcf_file)
+    updated_exomiser_options = set_output_options(
+        exomiser_options,
+        vcf_file_name,
+        user_arguments.output_name,
+        user_arguments.hpo_terms,
+    )
+    exomiser_output_directories = run_exomiser(
+        updated_exomiser_options[0],
+        vcf_file_name,
+        user_arguments.log_file,
+        user_arguments.temp_folder,
+        user_arguments.config_location,
+        user_arguments.docker_container,
+        user_arguments.exomiser_jar,
+        updated_exomiser_options[1],
+        user_arguments.output_location,
+    )
     startup_multiprocessing(
         exomiser_output_directories[0],
         user_arguments.output_location,

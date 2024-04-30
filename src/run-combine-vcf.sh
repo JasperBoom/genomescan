@@ -22,7 +22,7 @@
 
 #SBATCH --job-name="combine-vcf"
 #SBATCH --mem=30G
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
@@ -58,20 +58,23 @@ do
             ;;
         v)
             echo ""
-            echo "run-uk-genome-project.sh [1.0]"
+            echo "run-combine-vcf.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-uk-genome-project.sh [-v] [-h]"
+            echo "Usage: run-combine-vcf.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the uk-genome-project python script."
+            echo "This script runs the combine-vcf python script. Which"
+            echo "combines a vcf file of benign variants with that of"
+            echo "pathogenic variants. Using a default header found in a"
+            echo "separate file."
             echo ""
 
             exit

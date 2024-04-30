@@ -21,16 +21,39 @@
 # -----------------------------------------------------------------------------
 
 #SBATCH --job-name="exomiser"
-#SBATCH --mem=40G
-#SBATCH --cpus-per-task=10
+#SBATCH --mem=80G
+#SBATCH --cpus-per-task=3
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
+run_version_14() {
+    # The run_version_14 function:
+    #     This function runs the newest version of Exomiser which includes a
+    #     lot of updates and a new version of the input databases (which are
+    #     now much smaller).
+    singularity \
+        exec \
+            --containall \
+            --bind /mnt,/home \
+            docker://amazoncorretto:21.0.2-alpine3.19 \
+            java \
+                -Xms60g \
+                -Xmx80g \
+                -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
+                -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
+                    --analysis "/home/j.boom/develop/genomescan/src/genome.v14.yml" \
+                    --assembly "GRCh37" \
+                    --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.test.vcf" \
+                    --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties \
+                    2>&1 | tee /mnt/titan/users/j.boom/tool-testing/Exomiser/results/command.v14.log
+}
+
 run_exomiser_docker() {
     # The run_exomiser_docker function:
     #     This function uses a java container to run the exomiser program in.
+    #     This uses the version 13 of Exomiser.
     singularity \
         exec \
             --containall \
@@ -41,11 +64,11 @@ run_exomiser_docker() {
                 -Xmx20g \
                 -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
                 -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-                    --analysis "/mnt/titan/users/j.boom/tool-testing/Exomiser/genome.yml" \
+                    --analysis "/mnt/titan/users/j.boom/tool-testing/Exomiser/genome.v13.yml" \
                     --assembly "GRCh37" \
-                    --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.vcf" \
-                    --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties \
-                    2>&1 | tee /mnt/titan/users/j.boom/tool-testing/Exomiser/results/command.log
+                    --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.test.vcf" \
+                    --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties.v13 \
+                    2>&1 | tee /mnt/titan/users/j.boom/tool-testing/Exomiser/results/command.v13.log
 }
 
 run_test() {
@@ -53,7 +76,7 @@ run_test() {
     #     This function runs a test set from the exomiser repository.
     java \
         -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-            --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties \
+            --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties.v13 \
             --sample /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/examples/pfeiffer-phenopacket.yml \
             --vcf /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/examples/Pfeiffer.vcf.gz \
             --assembly hg19
@@ -77,15 +100,16 @@ run_exomiser() {
             --assembly "GRCh37" \
             --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.vcf" \
             --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties \
-            2>&1 | tee /mnt/titan/users/j.boom/tool-testing/Exomiser/results/command.log
+            2>&1 | tee /mnt/titan/users/j.boom/tool-testing/Exomiser/results/command.v13.log
 }
 
 main() {
     # The main function:
     #     This function runs all processing function in correct order.
-    run_exomiser_docker
+    #run_exomiser_docker
     #run_exomiser
     #run_test
+    run_version_14
 }
 
 # The getopts function.
@@ -109,7 +133,8 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs test commands for exomiser."
+            echo "This script runs test commands for exomiser. It is used as"
+            echo "an example for how to run Exomiser in general."
             echo ""
 
             exit

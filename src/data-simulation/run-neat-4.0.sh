@@ -22,7 +22,7 @@
 
 #SBATCH --job-name="neat-4.0"
 #SBATCH --mem=10G
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
@@ -32,7 +32,7 @@ run_neat() {
     # The run_neat function:
     #     This function contains all test code for running neat v4.0 code
     #     locally. At the time of writing (2023-11-27) this version got
-    #     recalled.
+    #     recalled. It was reinstated on 2024-03-23, too late for this project.
     source /home/j.boom/miniconda3/bin/activate base
     time_stamp="$(date +"%d-%m-%y-%T")"
     neat \

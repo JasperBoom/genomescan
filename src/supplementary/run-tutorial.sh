@@ -22,7 +22,7 @@
 
 #SBATCH --job-name="snakemake-tutorial"
 #SBATCH --mem=10G
-#SBATCH --cpus-per-task=10
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
@@ -123,21 +123,20 @@ main
 
 # Additional information:
 # =======================
-# Apart from the very common thread resource, Snakemake provides
-# a resources directive that can be used to specify arbitrary
-# resources, e.g., memory usage or auxiliary computing devices
-# like GPUs. Similar to threads, these can be considered by the
-# scheduler when an available amount of that resource is given
-# with the command line argument --resources (see Resources).
+# Apart from the very common thread resource, Snakemake provides a resources
+# directive that can be used to specify arbitrary resources, e.g., memory
+# usage or auxiliary computing devices like GPUs. Similar to threads, these
+# can be considered by the scheduler when an available amount of that resource
+# is given with the command line argument --resources (see Resources).
  #
 # --forcerun [TARGET ...], -R [TARGET ...]
-#     Force the re-execution or creation of the given rules
-#     or files. Use this option if you changed a rule and
-#     want to have all its output in your workflow updated.
+#     Force the re-execution or creation of the given rules or files. Use this
+#     option if you changed a rule and want to have all its output in your
+#     workflow updated.
 #     (default: None)
 #
-# With the flag --forceall you can enforce a complete
-# re-execution of the workflow.
+# With the flag --forceall you can enforce a complete re-execution of the
+# workflow.
 #
 # -R STR 
 #     Read group header line such as '@RG\tID:foo\tSM:bar' [null]
