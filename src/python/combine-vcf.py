@@ -63,7 +63,7 @@ def get_variants(pathogenic_variants, pathogenic_ids):
 def extract_ids(tab_file):
     """
     The extract_ids function:
-        This function extracts the variants ids associated with pathogenic
+        This function extracts the variant ids associated with pathogenic
         variants and returns those in a list.
     """
     pathogenic_ids = []

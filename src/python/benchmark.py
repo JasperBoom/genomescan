@@ -65,8 +65,8 @@ def collect_benign_variants(giab, gene_symbols, info_field):
         This function uses the giab vcf file to collect variants located on the
         same genes as where the pathogenic variants are found. These variants
         need to have an allele frequency of atleast 0.05. They are stored in a
-        list which is returned. The info starting from column 6 is replaced a
-        by default place holder which mirrors standard dragen output.
+        list which is returned. The info starting from column 6 is replaced by a
+        default place holder which mirrors standard dragen output.
     """
     variants = []
     with open(giab, "r") as file:
@@ -225,8 +225,8 @@ def parse_argvs():
         dest="pathogenic_location",
         type=str,
         default=argparse.SUPPRESS,
-        help="The name and location for the output vcf file containing\
-              just the pathogenic variants.",
+        help="The name and location for the output vcf file containing just\
+              the pathogenic variants.",
     )
     parser.add_argument(
         "-b",
@@ -235,8 +235,8 @@ def parse_argvs():
         dest="benign_location",
         type=str,
         default=argparse.SUPPRESS,
-        help="The name and location for the output vcf file containing\
-              just the benign variants from giab.",
+        help="The name and location for the output vcf file containing just\
+              the benign variants from giab.",
     )
     parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s [1.0]]"

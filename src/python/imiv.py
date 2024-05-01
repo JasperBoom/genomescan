@@ -34,7 +34,7 @@ def add_variant(vcf_file, gender, meningioma, output_location):
     The add_variant function:
         This function creates a new file name for the input vcf file including
         sample name, gender and gene associated with meningioma. The input
-        vcf file is copied to  a new location, renamed and the variant of
+        vcf file is copied to a new location, renamed and the variant of
         interest is appended to the file.
     """
     file_name = (

@@ -204,6 +204,7 @@ def worker(queue, output_location):
             log_files = [file for file in files if file.endswith(".log")]
             vcf_files = [file for file in files if file.endswith(".vcf.gz")]
             if all(os.path.exists(log_file) for log_file in log_files):
+                print(vcf_files)
                 monitor_logs(log_files, vcf_files, output_location)
             queue.task_done()
 

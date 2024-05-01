@@ -1,4 +1,4 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # GenomeScan internship repository.
@@ -20,69 +20,59 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="format-python-file"
-#SBATCH --mem=10G
+#SBATCH --job-name="check-exomiser-logs"
+#SBATCH --mem=4G
 #SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-format_file() {
-    # The format_file function:
-    #     This function runs black in singularity to format the input
-    #     python files.
-    singularity \
-        exec \
-            --containall \
-           --bind /home,/mnt docker://pyfound/black:latest_release \
-            black \
-                --line-length 80 \
-                --target-version py312 \
-                --verbose \
-                /home/j.boom/develop/genomescan/snakemake-tutorial/scripts/plot-quals.py \
-                /home/j.boom/develop/genomescan/src/python/imiv.py \
-                /home/j.boom/develop/genomescan/src/python/benchmark.py \
-                /home/j.boom/develop/genomescan/src/python/uk-genome-project.py \
-                /home/j.boom/develop/genomescan/src/python/combine-vcf.py \
-                /home/j.boom/develop/genomescan/src/python/training-test-subsets.py \
-                /home/j.boom/develop/genomescan/src/python/exomiser-thresholding.py \
-                /home/j.boom/develop/genomescan/src/python/oop-tutorial.py
+check_files() {
+    # The check_files function:
+    #     This function loops over all files in a directory and check for the
+    #     string java.io.IOException:, if present, it prints the file name.
+    #directory="/mnt/titan/users/j.boom/logs/PASS_ONLY"
+    directory="/mnt/titan/users/j.boom/logs/FULL"
+    for file in  "${directory}"/*;
+    do
+        if grep -q "java\.io\.IOException:" "$file";
+        then
+            echo "$(basename "${file}")"
+        fi
+    done
 }
 
 main() {
     # The main function:
     #     This function runs all processing function in correct order.
-    format_file
+    check_files
 }
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPT_STRING="i:vh"
+OPT_STRING="vh"
 while getopts ${OPT_STRING} option;
 do
     case ${option} in
-        i)
-            python_file=${OPTARG}
-            ;;
         v)
             echo ""
-            echo "run-format-python-file.sh [1.0]"
+            echo "run-check-exomiser-logs.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-format-python-file.sh [-v] [-h]"
+            echo "Usage: run-check-exomiser-logs.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the black tool on input python files."
-            echo "Black is used to format python code and convert to"
-            echo "their adjusted version of pep8."
+            echo "This script loops over all files in a directory checking for"
+            echo "a java error. If the error was reported, the filename is"
+            echo "shown in the terminal."
             echo ""
 
             exit
@@ -110,4 +100,4 @@ main
 
 # Additional information:
 # =======================
-# https://black.readthedocs.io/en/stable/usage_and_configuration/black_docker_image.html
+#

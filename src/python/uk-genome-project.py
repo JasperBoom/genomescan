@@ -103,9 +103,9 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = "This python script combines an individuals vcf file with\
+    description = "This python script combines an individuals tsv file with\
                    pathogenic variants extracted from clinvar. This combined\
-                   vcf is deduplicated and only the interesting annotation\
+                   tsv is deduplicated and only the interesting annotation\
                    columns are kept."
     epilog = "This python script has one dependencie: pandas"
     parser = argparse.ArgumentParser(

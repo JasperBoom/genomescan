@@ -57,3 +57,5 @@ Contact information: info@jboom.org.
   extra vep annotation as possible filter.
 + Add a python script that runs exomiser with different settings in order
   to determine the optimal threshold.
++ Add a README for the python scripts.
++ Added a object oriented programming tutorial for python, followed the steps.
