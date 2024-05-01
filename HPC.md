@@ -4,12 +4,14 @@ The descriptions concern what files are in the folders or what operations were
 performed to generate the files.
 
 ## bed
-This folder contains bed files for both hg38 and hg19 used by
-genomescan when performing variant calling or other analysis steps. The bed
-file describes the agilent capture kits.
+This folder contains bed files for both hg38 and hg19 used by genomescan when
+performing variant calling or other analysis steps. The bed file describes the
+agilent capture kits.
 
 The 50bp flank files extend the regions by 50 basepairs on both sides.  
 S31285117 is used for agilent sureselect human all exon v7 on hg19.
+
+I stopped using these files on 2024-02-13.
 
 ## clinvar
 This folder contains the downloads from the ClinVar database.  
@@ -37,11 +39,13 @@ Are deleted regularly when doing tests.
 This folder contains all files used for the R analysis. So, the test data from
 the personal genome project uk (**pgpuk**), an annotated giab
 sample (**giab**), the input files for the vep plugins and reference (**vep**)
-and the clinvar download (**clinvar**). Additionally, datestamped folders
-that contain uk personal genome vcf files combined with pathogenic variants.
+and the clinvar download (**clinvar**).  
+Additionally, datestamped folders that contain uk personal genome vcf files
+combined with pathogenic variants and **pathogenic-variants** that contains
+vcf files used for the files in the datestamped folders.
 
-For example, the **2024-02-29-exomiser-thresholding** folder contains the  
-vcf files used for testing exomiser and setting thresholds.
+For example, the **2024-02-30-combined** folder contains the vcf files used
+for testing exomiser and setting thresholds.
 
 ## snakemake-tutorial
 This folder has the data files for the snakemake tutorial: 
@@ -52,14 +56,14 @@ Just a folder to direct temporary files to, for example when running java
 based tools.
 
 ## test-data
-This folder contains subfolders with VEP tabular files based on vcf files  
-collected from ClinVar. the folder name indicates what kind of cancer was used  
+This folder contains subfolders with VEP tabular files based on vcf files
+collected from ClinVar. the folder name indicates what kind of cancer was used
 as search term in ClinVar. These files are used by the R scripts.  
 It also contains a header vcf file, which is used to create new vcf files.
 
 ## tool-testing
 This folder contains a collection of subfolders mostly targeted at different
-simulation tools. The **data** folder contains reference files from ensembl.
+simulation tools. The **data** folder contains reference files from ensembl.  
 The **simulated_data** contains output files from tests with neat. The rest are
 either install locations of tools or contain files required for running the
 tool.

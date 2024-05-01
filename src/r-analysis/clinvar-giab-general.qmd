@@ -675,7 +675,7 @@ pie.data <- data.frame(
 
 pie.types <- data.frame(
     grade=c("Grade I", "Grade II", "Grade III"),
-    type=c()
+    type=c(c("Meningiothelial"), c("Chordoid"), c("Papillary"))
 )
 
 pie.plot <- ggplot(

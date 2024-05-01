@@ -24,8 +24,8 @@
 #SBATCH --mem=50G
 #SBATCH --cpus-per-task=8
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
+#SBATCH --output="/mnt/flashblade01/scratch/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/flashblade01/scratch/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
 run_exomiser_thresholding() {
@@ -36,12 +36,12 @@ run_exomiser_thresholding() {
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/exomiser-thresholding.py \
         --yaml "/home/j.boom/develop/genomescan/src/genome.v14.yml" \
-        --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.vcf" \
-        --output "/mnt/titan/users/j.boom/exomiser_thresholding" \
+        --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.vcf" \
+        --output "/mnt/flashblade01/scratch/j.boom/results" \
         --name "" \
-        --log "/mnt/titan/users/j.boom/logs" \
+        --log "/mnt/flashblade01/scratch/j.boom/logs" \
         --hpo "HP:0002858,HP:0500089,HP:0100009,HP:0100010,HP:0033714" \
-        --temp "/mnt/titan/users/j.boom/tmp" \
+        --temp "/mnt/flashblade01/scratch/j.boom/tmp" \
         --config "/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties" \
         --docker "amazoncorretto:21.0.2-alpine3.19" \
         --jar "/mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar" \

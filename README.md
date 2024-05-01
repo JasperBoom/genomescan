@@ -4,7 +4,7 @@ genomescan internship. This includes scripts for testing different tools,
 the snakemake tutorial and analysis scripts.
 
 The **HPC.md** file describes the folder structure on the GenomeScan HPC.  
-**archive** contains old scripts used to attempt conversion of an mysql  
+**archive** contains old scripts used to attempt conversion of an mysql
 database to a sqlite database.  
 **snakemake-tutorial** obviously has files from the tutorial.  
 **src** contains all scripts.
