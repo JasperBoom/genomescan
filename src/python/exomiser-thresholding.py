@@ -204,6 +204,7 @@ def worker(queue, output_location):
             log_files = [file for file in files if file.endswith(".log")]
             vcf_files = [file for file in files if file.endswith(".vcf.gz")]
             if all(os.path.exists(log_file) for log_file in log_files):
+                print("Start monitor logs")
                 print(vcf_files)
                 monitor_logs(log_files, vcf_files, output_location)
             queue.task_done()
@@ -252,6 +253,8 @@ def startup_multiprocessing(
         process.start()
         processes.append(process)
     for files in file_sets:
+        print("Add files to queue:")
+        print(files)
         queue.put(files)
     for core in range(cores):
         queue.put(None)
@@ -601,6 +604,10 @@ def main():
         user_arguments.cores,
     )
 
+
+def run_exomiser(
+    yaml, vcf, log, temp, config, docker, jar, basename, output_location
+):
 
 if __name__ == "__main__":
     main()

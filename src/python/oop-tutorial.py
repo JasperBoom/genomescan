@@ -23,6 +23,7 @@
 # Imports:
 import math
 from pympler import asizeof
+from datetime import datetime
 
 
 class ClassName:
@@ -242,6 +243,7 @@ def test_new_circle():
 
 # test_new_circle()
 
+
 class Square:
     def __init__(self, side):
         self.side = side
@@ -273,6 +275,7 @@ class PositiveNumber:
     instance of PositiveNumber. You do something similar in Square, but the
     class attribute is appropriately named .side.
     """
+
     def __set_name__(self, owner, name):
         self._name = name
 
@@ -319,17 +322,218 @@ def test_positive_number():
     square.side = -100
 
 
-#test_positive_number()
+# test_positive_number()
+
 
 class Point:
     __slots__ = ("x", "y")
+
     def __init__(self, x, y):
         self.x = x
         self.y = y
 
+
 def test_point():
     point = Point(4, 8)
     point.__dict__
+
+
+# test_point()
+
+
+class Car:
+    def __init__(self, make, model, year, color):
+        self.make = make
+        self.model = model
+        self.year = year
+        self.color = color
+        self.started = False
+        self.speed = 0
+        self.max_speed = 200
+
+    def start(self):
+        print("Starting the car...")
+        self.started = True
+
+    def stop(self):
+        print("Stopping the car...")
+        self.started = False
+
+    def accelerate(self, value):
+        if not self.started:
+            print("Car is not started!")
+            return
+        if self.speed + value <= self.max_speed:
+            self.speed += value
+        else:
+            self.speed = self.max_speed
+        print(f"Accelerating to {self.speed} km/h...")
+
+    def brake(self, value):
+        if self.speed - value >= 0:
+            self.speed -= value
+        else:
+            self.speed = 0
+        print(f"Braking to {self.speed} km/h...")
+
+    def __str__(self):
+        return f"{self.make}, {self.model}, {self.color}: ({self.year})"
+
+    def __repr__(self):
+        return (
+            f"{type(self).__name__}"
+            f'(make="{self.make}", '
+            f'model="{self.model}", '
+            f"year={self.year}, "
+            f'color="{self.color}")'
+        )
+
+
+def test_car():
+    ford_mustang = Car("Ford", "Mustang", 2022, "Black")
+    ford_mustang.start()
+    ford_mustang.accelerate(100)
+    ford_mustang.brake(50)
+    ford_mustang.brake(80)
+    ford_mustang.stop()
+    ford_mustang.accelerate(100)
+
+
+# test_car()
+
+
+def test_car_dunder_methods():
+    toyota_camry = Car("Toyota", "Camry", 2022, "Red")
+    # str(toyota_camry)
+    # print(toyota_camry)
+    # toyota_camry
+    print(repr(toyota_camry))
+
+
+# test_car_dunder_methods()
+
+
+class ThreeDPoint:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+    def __iter__(self):
+        yield from (self.x, self.y, self.z)
+
+    @classmethod
+    def from_sequence(cls, sequence):
+        return cls(*sequence)
+
+    def __repr__(self):
+        return f"{type(self).__name__}({self.x}, {self.y}, {self.z})"
+
+    @staticmethod
+    def show_intro_message(name):
+        print(f"Hey {name}! This is your 3D Point!")
+
+
+def test_three_d_point():
+    print(list(ThreeDPoint(4, 8, 16)))
+    print(ThreeDPoint.from_sequence((4, 8, 16)))
+    point = ThreeDPoint(7, 14, 21)
+    print(point.from_sequence((3, 6, 9)))
+
+    ThreeDPoint.show_intro_message("Pythonista")
+    point = ThreeDPoint(2, 4, 6)
+    point.show_intro_message("Python developer")
+
+
+# test_three_d_point()
+
+
+class Person:
+    def __init__(self, name):
+        self.set_name(name)
+
+    def get_name(self):
+        return self._name
+
+    def set_name(self, value):
+        self._name = value
+
+
+def test_person():
+    jane = Person("Jane")
+    print(jane.get_name())
+    jane.set_name("Jane Doe")
+    print(jane.get_name())
+
+
+# test_person()
+
+"""
+-------------------------------------------------------------------------------
+            Combine all knowledge from above into one class!
+-------------------------------------------------------------------------------
+"""
+
+
+class Employee:
+    company = "Example, Inc."
+
+    def __init__(self, name, birth_date):
+        self.name = name
+        self.birth_date = birth_date
+
+    @property
+    def birth_date(self):
+        return self._birth_date
+
+    @birth_date.setter
+    def birth_date(self, value):
+        self._birth_date = datetime.fromisoformat(value)
+
+    def compute_age(self):
+        today = datetime.today()
+        age = today.year - self.birth_date.year
+        birthday = datetime(
+            today.year, self.birth_date.month, self.birth_date.day
+        )
+        if today < birthday:
+            age -= 1
+        return age
+
+    @classmethod
+    def from_dict(cls, data_dict):
+        return cls(**data_dict)
+
+    def __str__(self):
+        return f"{self.name} is {self.compute_age()} years old"
+
+    def __repr__(self):
+        return (
+            f"{type(self).__name__}("
+            f"name='{self.name}', "
+            f"birth_date='{self.birth_date.strftime('%Y-%m-%d')}')"
+        )
+
+
+def test_employee():
+    john = Employee("John Doe", "1998-12-04")
+    print(john.company)
+    print(john.name)
+    print(john.compute_age())
+    print(john)
+    john
+
+    jane_data = {"name": "Jane Doe", "birth_date": "2001-05-15"}
+    jane = Employee.from_dict(jane_data)
+    print(jane)
+
+
+test_employee()
+"""
+-------------------------------------------------------------------------------
+            Combine all knowledge from above into one class!
+-------------------------------------------------------------------------------
+"""
 
 # Additional information:
 # =======================
