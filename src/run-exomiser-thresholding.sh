@@ -21,30 +21,47 @@
 # -----------------------------------------------------------------------------
 
 #SBATCH --job-name="exomiser-thresholding"
-#SBATCH --mem=50G
-#SBATCH --cpus-per-task=8
+#SBATCH --mem=150G
+#SBATCH --cpus-per-task=100
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/flashblade01/scratch/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/flashblade01/scratch/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-run_exomiser_thresholding_oop() {
-    # The run_exomiser_thresholding_oop function:
+run_prepare_exomiser_files() {
+    # The run_prepare_exomiser_files function:
     #     This function calls the prepare-exomiser-files.py python script.
-    #     This script prepares Exomiser results to determine the optimal
+    #     This script prepares exomiser results to determine the optimal
     #     threshold at which to separate benign from pathogenic variants.
     #     This is the version of the script that uses OOP.
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/prepare-exomiser-files.py \
         --yaml "/home/j.boom/develop/genomescan/src/genome.v14.yml" \
-        --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.test.vcf" \
-        --output "/mnt/flashblade01/scratch/j.boom/test" \
-        --log "/mnt/flashblade01/scratch/j.boom/test/logs" \
+        --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.vcf" \
+        --output "/mnt/flashblade01/scratch/j.boom/results" \
+        --log "/mnt/flashblade01/scratch/j.boom/logs" \
         --hpo "HP:0002858,HP:0500089,HP:0100009,HP:0100010,HP:0033714" \
         --temp "/mnt/flashblade01/scratch/j.boom/tmp" \
         --config "/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties" \
-        --jar "/mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar" \
-        --cores 8
+        --jar "/mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar"
+}
+
+run_collect_exomiser_files() {
+    # The run_collect_exomiser_files function:
+    #     This function calls the collect_exomiser_files.py python script.
+    source /home/j.boom/miniconda3/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/python/collect-exomiser-files.py \
+        --results "/mnt/flashblade01/scratch/j.boom/results" \
+        --cores 100
+}
+
+run_analyse_exomiser_files() {
+    # The run_analyse_exomiser_files function:
+    #     T
+    source /home/j.boom/miniconda3/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/python/analyse-exomiser-files.py \
+        --results "/mnt/flashblade01/scratch/j.boom/tmp" \
+        --cores 1
 }
 
 run_exomiser_thresholding_original() {
@@ -55,8 +72,8 @@ run_exomiser_thresholding_original() {
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/exomiser-thresholding.py \
         --yaml "/home/j.boom/develop/genomescan/src/genome.v14.yml" \
-        --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.vcf" \
-        --output "/mnt/flashblade01/scratch/j.boom/results" \
+        --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.test.vcf" \
+        --output "/mnt/flashblade01/scratch/j.boom/test" \
         --name "" \
         --log "/mnt/flashblade01/scratch/j.boom/logs" \
         --hpo "HP:0002858,HP:0500089,HP:0100009,HP:0100010,HP:0033714" \
@@ -71,7 +88,9 @@ main() {
     # The main function:
     #     This function runs all processing function in correct order.
     #run_exomiser_thresholding_original
-    run_exomiser_thresholding_oop
+    #run_prepare_exomiser_files
+    #run_collect_exomiser_files
+    run_analyse_exomiser_files
 }
 
 # The getopts function.

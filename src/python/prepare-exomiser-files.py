@@ -159,9 +159,10 @@ class Exomiser:
         This function creates a number of class attributes:
             minimal_priority_score: a list of floats to use as minimal priority
                                     score in exomiser.
-            exomiser_output_directories: a list of folder paths for each
+            exomiser_result_files: a list of folder paths for each
                                          minimal priority score for both the
-                                         full and pass only modes.
+                                         full and pass only modes, including
+                                         the file names.
             exomiser_log_files: a list of full file paths to the log files for
                                 each minimal priority score in each exomiser
                                 mode.
@@ -174,7 +175,7 @@ class Exomiser:
     """
 
     minimal_priority_score = []
-    exomiser_output_directories = []
+    exomiser_result_files = []
     exomiser_log_files = []
     yaml_file = ""
     exomiser_command = ""
@@ -230,7 +231,7 @@ class Exomiser:
             This function creates a range of floats that will be tested as
             minimal priority scores in the exomiser settings.
         """
-        for i in numpy.arange(0.01, 1.0, 0.5):
+        for i in numpy.arange(0.01, 1.0, 0.01):
             self.minimal_priority_score.append(float("%.2f" % i))
         self.minimal_priority_score[0] = 0.01
         self.minimal_priority_score.append(1.0)
@@ -345,7 +346,7 @@ class Exomiser:
                 self.singularity()
                 self.sbatch(score, mode)
                 self.exomiser_log_files.append(self.log_file_exomiser_slurm)
-                self.exomiser_output_directories.append(
+                self.exomiser_result_files.append(
                     str(
                         self.yaml_dictionary["outputOptions"]["outputDirectory"]
                         + "/"
@@ -362,11 +363,10 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = "This script executes Exomiser on a trainingset. It changes\
-                   the minimal priority score for each run and collects those\
-                   results. The results are collected in tsv files with a\
-                   known class added."
-    epilog = "This python script has no dependencies."
+    description = "This script executes exomiser on a trainingset. It changes\
+                   the minimal priority score for each run and organises the\
+                   output in a folder structure."
+    epilog = "This python script has two dependencies: numpy & pyyaml"
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
@@ -462,15 +462,6 @@ def parse_argvs():
         type=str,
         default="./exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar",
         help="the location and name of the exomiser jar file",
-    )
-    parser.add_argument(
-        "-r",
-        "--cores",
-        action="store",
-        dest="cores",
-        type=int,
-        default=1,
-        help="the number of cpu cores to assign to multiprocessing",
     )
     parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s [1.0]]"
