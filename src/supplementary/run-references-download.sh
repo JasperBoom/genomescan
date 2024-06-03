@@ -28,7 +28,7 @@
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-genome_file="/mnt/titan/users/j.boom/tool-testing/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa"
+genome_file="/mnt/titan/users/j.boom/tools/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa"
 
 add_chr_to_fasta() {
     # The add_chr_to_fasta function:
@@ -45,7 +45,7 @@ download_genome() {
     #     This function downloads the reference genome fasta file.
     #     It also decompresses the downloaded file.
     wget \
-        --directory-prefix="/mnt/titan/users/j.boom/tool-testing/data" \
+        --directory-prefix="/mnt/titan/users/j.boom/tools/data" \
         ftp://ftp.ensembl.org/pub/release-110/fasta/homo_sapiens/dna/Homo_sapiens.GRCh38.dna.primary_assembly.fa.gz
     gzip \
         -d "${genome_file}.gz"
@@ -80,7 +80,7 @@ get_annotation() {
     # The get_annotation function:
     #     This function downloads the gtf annotation file for humans.
     wget \
-        --directory-prefix="/mnt/titan/users/j.boom/tool-testing/data" \
+        --directory-prefix="/mnt/titan/users/j.boom/tools/data" \
         ftp://ftp.ensembl.org/pub/release-110/gtf/homo_sapiens/Homo_sapiens.GRCh38.110.gtf.gz
 }
 
@@ -89,23 +89,23 @@ create_annotation_index() {
     #     This function downloads the gtfToGenePred software and uses it to
     #     create and index for the gtf file.
     wget \
-        --directory-prefix="/mnt/titan/users/j.boom/tool-testing/data" \
+        --directory-prefix="/mnt/titan/users/j.boom/tools/data" \
         http://hgdownload.cse.ucsc.edu/admin/exe/linux.x86_64/gtfToGenePred
 
     # Fix permissions:
-    chmod 777 /mnt/titan/users/j.boom/tool-testing/data/gtfToGenePred
-    gtf_file="/mnt/titan/users/j.boom/tool-testing/data/Homo_sapiens.GRCh38.110"
+    chmod 777 /mnt/titan/users/j.boom/tools/data/gtfToGenePred
+    gtf_file="/mnt/titan/users/j.boom/tools/data/Homo_sapiens.GRCh38.110"
     gzip \
         -d "${gtf_file}.gtf.gz"
 
     # Run gtfToGenePred:
-    /mnt/titan/users/j.boom/tool-testing/simulating-data/data/gtfToGenePred \
+    /mnt/titan/users/j.boom/tools/simulating-data/data/gtfToGenePred \
         -genePredExt \
         ${gtf_file}.gtf \
-        /mnt/titan/users/j.boom/tool-testing/data/genePredFile.file
+        /mnt/titan/users/j.boom/tools/data/genePredFile.file
 
     # Isolate correct columns:
-    awk 'BEGIN { OFS="\t"} {print $12, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}' /mnt/titan/users/j.boom/tool-testing/data/genePredFile.file \
+    awk 'BEGIN { OFS="\t"} {print $12, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10}' /mnt/titan/users/j.boom/tools/data/genePredFile.file \
         > ${gtf_file}.refflat
 }
 

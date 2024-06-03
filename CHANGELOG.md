@@ -61,3 +61,5 @@ Contact information: info@jboom.org.
 + Added a object oriented programming tutorial for python, followed the steps.
 + Convert exomiser script to multiple OOP scripts, including a script to
   visualise the ROC plot.
++ Finish scripts for Exomiser thresholding.
++ Update paths to files on HPC.

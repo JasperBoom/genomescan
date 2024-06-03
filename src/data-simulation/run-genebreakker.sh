@@ -38,7 +38,7 @@ run_genebreaker() {
     #     the fact that they seem to advise against it.
     source /home/j.boom/miniconda3/bin/activate base
     python3 \
-        /mnt/titan/users/j.boom/tool-testing/GeneBreaker/GeneBreaker/src/variants.py \
+        /mnt/titan/users/j.boom/tools/GeneBreaker/GeneBreaker/src/variants.py \
             --help
 }
 

@@ -1,0 +1,100 @@
+Bootstrap: docker
+From: python:3.8-slim
+
+%help
+Recipe written by Jasper Boom, GenomeScan
+This recipe will build a container that can run phen2gene
+
+%labels
+Author Jasper Boom
+Maintainer Jasper Boom
+Version v1.2.3
+
+%post
+    # Clean and prepare the base container:
+    apt-get clean all
+    apt-get update -y
+    apt-get install -y \
+        software-properties-common
+    add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"
+
+    # Another cleanup and update:
+    apt-get clean all
+    apt-get update -y
+
+    # Install required system packages:
+    apt-get install -y \
+        zlib1g \
+        zlib1g-dev \
+        xz-utils \
+        sqlite3 \
+        openssl \
+        libpng-dev \
+        liblapack-dev \
+        gfortran \
+        libffi-dev \
+        libhdf5-dev \
+        libatlas-base-dev \
+        libicu-dev \
+        ca-certificates \
+        musl-dev \
+        linux-headers-$(uname -r) \
+        g++ \
+        gcc \
+        git \
+        curl \
+        wget \
+        zip
+
+    # Install required python packages:
+    python -m pip install --upgrade pip
+    pip install \
+        matplotlib>=3.1.2 \
+        networkx>=2.4 \
+        numpy>=1.17.3 \
+        pandas>=0.25.3 \
+        scipy>=1.3.2 \
+        seaborn>=0.9.0 \
+        setuptools>=42.0.2 \
+        wheel>=0.33.6 \
+        tornado>=6.0.3 \
+        tk>=8.6.10 \
+        statsmodels>=0.10.2 \
+        six>=1.13.0 \
+        python-dateutil>=2.8.1 \
+        pyparsing>=2.4.5 \
+        patsy>=0.5.1 \
+        kiwisolver>=1.1.0 \
+        decorator>=4.4.1 \
+        cycler>=0.10.0 \
+        certifi>=2019.11.28
+
+    # Final cleanup and update:
+    apt-get clean all
+    apt-get update -y
+
+    # Configure the ssh key for GitHub:
+    mkdir -p /root/.ssh
+    echo "Host github.com" > /root/.ssh/config
+    echo "  StrictHostKeyChecking no" >> /root/.ssh/config
+    chmod 600 /root/.ssh/config
+
+    # Create folders for Phen2Gene:
+    mkdir -p /root/Knowledgebase
+    mkdir -p /root/Scripts
+
+    # Download and setup Phen2Gene:
+    git clone --recursive https://github.com/WGLab/Phen2Gene.git /root/Phen2Gene
+    cd /root/Phen2Gene
+    bash /root/Phen2Gene/setup.sh <<EOF
+        /root/Knowledgebase
+        /root/Scripts
+    EOF
+
+    # Cleanup ssh keys:
+    rm -rf /root/.ssh
+
+    # Make the main script available in PATH:
+    chmod 777 /root/Scripts/phen2gene.py
+    ln -s /root/Scripts/phen2gene.py /usr/local/bin/phen2gene.py
+    echo 'export PATH=$PATH:/root/Scripts' >> /etc/profile

@@ -41,11 +41,11 @@ run_replace() {
     #     FR07961008: meningioma
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/uk-genome-project.py \
-        --tab "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961008/FR07961008.pass.recode.annotated.edit.tab" \
+        --tab "/mnt/titan/users/j.boom/data/pgpuk/FR07961008/FR07961008.pass.recode.annotated.edit.tab" \
         --skip 52 \
         --clinvar-skip 0 \
-        --clinvar "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/meningioma.pathogenic.set.tsv" \
-        --output "/mnt/titan/users/j.boom/r-analysis/2024-02-29-combined/FR07961008.meningioma.pathogenic.set.tsv"
+        --clinvar "/mnt/titan/users/j.boom/data/tsv/meningioma.pathogenic.set.tsv" \
+        --output "/mnt/titan/users/j.boom/data/tsv/FR07961008.meningioma.pathogenic.set.tsv"
 }
 
 main() {

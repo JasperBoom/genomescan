@@ -37,11 +37,11 @@ download_variation_ids() {
     source /home/j.boom/miniconda3/bin/activate base
     wget \
         --verbose \
-        --output-document="/mnt/titan/users/j.boom/test-data/api.txt" \
+        --output-document="/mnt/titan/users/j.boom/clinvar-giab-data/download/api.txt" \
         "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=clinvar&term=ependymomas+AND+single_gene+AND+(("clinsig+pathogenic"))&retmax=5000&retmode=json"
     wget \
         --verbose \
-        --output-document="/mnt/titan/users/j.boom/test-data/gene.txt" \
+        --output-document="/mnt/titan/users/j.boom/clinvar-giab-data/download/gene.txt" \
         "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=clinvar&id=13919&retmode=json"
 }
 
@@ -58,13 +58,13 @@ run_python_script() {
     #     TODO #FIX THE FIRST VARIANT IS ON THE SAME LINE AS THE HEADERS IN VCF
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/benchmark.py \
-        --giab "/mnt/titan/users/j.boom/r-analysis/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
+        --giab "/mnt/titan/users/j.boom/data/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
         --disease-groups "breast,prostate,lung,bronchus,colon,rectum,pancreas,cancer,tumour" \
-        --clinvar "/mnt/titan/users/j.boom/r-analysis/clinvar/clinvar_20240206.vcf" \
-        --header "/mnt/titan/users/j.boom/test-data/default-vcf-header.txt" \
-        --output "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/giab-clinvar.vcf" \
-        --pathogenic "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/pathogenic.vcf" \
-        --benign "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/benign.vcf"
+        --clinvar "/mnt/titan/users/j.boom/data/clinvar/clinvar_20240206.vcf" \
+        --header "/mnt/titan/users/j.boom/clinvar-giab-data/default-vcf-header.txt" \
+        --output "/mnt/titan/users/j.boom/clinvar-giab-data/general-cancer/giab-clinvar.vcf" \
+        --pathogenic "/mnt/titan/users/j.boom/clinvar-giab-data/general-cancer/pathogenic.vcf" \
+        --benign "/mnt/titan/users/j.boom/clinvar-giab-data/general-cancer/benign.vcf"
 }
 
 main() {

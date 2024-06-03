@@ -46,11 +46,11 @@ format_file() {
                 /home/j.boom/develop/genomescan/src/python/uk-genome-project.py \
                 /home/j.boom/develop/genomescan/src/python/combine-vcf.py \
                 /home/j.boom/develop/genomescan/src/python/training-test-subsets.py \
-                /home/j.boom/develop/genomescan/src/python/exomiser-thresholding.py \
                 /home/j.boom/develop/genomescan/src/python/oop-tutorial.py \
                 /home/j.boom/develop/genomescan/src/python/prepare-exomiser-files.py \
                 /home/j.boom/develop/genomescan/src/python/collect-exomiser-files.py \
-                /home/j.boom/develop/genomescan/src/python/analyse-exomiser-files.py
+                /home/j.boom/develop/genomescan/src/python/analyse-exomiser-files.py \
+                /home/j.boom/develop/genomescan/src/python/calculate-final-rank.py
 }
 
 main() {

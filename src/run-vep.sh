@@ -41,14 +41,14 @@ create_benchmark_set(){
             --bind /mnt,/home \
             docker://ensemblorg/ensembl-vep:release_111.0 \
                 vep \
-                    --input_file "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf" \
-                    --output_file "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
-                    --stats_file "/mnt/titan/users/j.boom/vcf/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.summary.maxaf.html" \
+                    --input_file "/mnt/titan/users/j.boom/data/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.vcf" \
+                    --output_file "/mnt/titan/users/j.boom/data/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.annotated.maxaf.vcf" \
+                    --stats_file "/mnt/titan/users/j.boom/data/giab/HG001_GRCh37_1_22_v4.2.1_benchmark.summary.maxaf.html" \
                     --species "human" \
                     --format "vcf" \
                     --assembly "GRCh37" \
-                    --dir_cache "/mnt/titan/users/j.boom/r-analysis/vep" \
-                    --dir_plugins "/mnt/titan/users/j.boom/r-analysis/vep/plugins" \
+                    --dir_cache "/mnt/titan/users/j.boom/data/vep" \
+                    --dir_plugins "/mnt/titan/users/j.boom/data/vep/plugins" \
                     --vcf \
                     --cache \
                     --fork 8 \
@@ -66,7 +66,7 @@ index_fathmm_mkl(){
             tabix \
                 -f \
                 -p "bed" \
-                "/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/fathmm-MKL_Current.tab.gz"
+                "/mnt/titan/users/j.boom/data/vep/plugins_data/fathmm-MKL_Current.tab.gz"
 }
 
 index_alphamissense(){
@@ -84,7 +84,7 @@ index_alphamissense(){
                 -e 2 \
                 -f \
                 -S 1 \
-                "/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/AlphaMissense_hg19.tsv.gz"
+                "/mnt/titan/users/j.boom/data/vep/plugins_data/AlphaMissense_hg19.tsv.gz"
 }
 
 setup_bayesdel_plugin(){
@@ -94,37 +94,37 @@ setup_bayesdel_plugin(){
     #     plugin file for bayesdel.
     source /home/j.boom/miniconda3/bin/activate base
     tar \
-        -zxvf "/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF.tgz" \
-        -C "/mnt/titan/users/j.boom/r-analysis/vep/plugins_data"
+        -zxvf "/mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF.tgz" \
+        -C "/mnt/titan/users/j.boom/data/vep/plugins_data"
     rm \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/*.gz.tbi
+        /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/*.gz.tbi
     gunzip \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/*.gz
-    for file in /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_chr*;
+        /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/*.gz
+    for file in /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_chr*;
     do
         grep -v "^#" ${file} \
-            >> "/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF.txt";
+            >> "/mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF.txt";
     done
     cat \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF.txt \
+        /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF.txt \
         | sort \
               -k1,1 \
               -k2,2n \
-              > "/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_sorted.txt"
+              > "/mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_sorted.txt"
     grep \
         "^#" \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_chr1 \
-        > /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
+        /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_chr1 \
+        > /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
     cat \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_sorted.txt \
-        >> /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
+        /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_sorted.txt \
+        >> /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
     bgzip \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
+        /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt
     tabix \
         -s 1 \
         -b 2 \
         -e 2 \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz
+        /mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz
 }
 
 setup_revel_plugin(){
@@ -134,22 +134,22 @@ setup_revel_plugin(){
     #     plugin file for revel.
     source /home/j.boom/miniconda3/bin/activate base
     unzip \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/revel-v1.3_all_chromosomes.zip
+        /mnt/titan/users/j.boom/data/vep/plugins_data/revel-v1.3_all_chromosomes.zip
     cat \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/revel_with_transcript_ids \
+        /mnt/titan/users/j.boom/data/vep/plugins_data/revel_with_transcript_ids \
         | tr "," "\t" \
-            > /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/tabbed_revel.tsv
+            > /mnt/titan/users/j.boom/data/vep/plugins_data/tabbed_revel.tsv
     sed \
         '1s/.*/#&/' \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/tabbed_revel.tsv \
-        > /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/new_tabbed_revel.tsv
-    bgzip /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/new_tabbed_revel.tsv
+        /mnt/titan/users/j.boom/data/vep/plugins_data/tabbed_revel.tsv \
+        > /mnt/titan/users/j.boom/data/vep/plugins_data/new_tabbed_revel.tsv
+    bgzip /mnt/titan/users/j.boom/data/vep/plugins_data/new_tabbed_revel.tsv
     tabix \
         -f \
         -s 1 \
         -b 2 \
         -e 2 \
-        /mnt/titan/users/j.boom/r-analysis/vep/plugins_data/new_tabbed_revel.tsv.gz
+        /mnt/titan/users/j.boom/data/vep/plugins_data/new_tabbed_revel.tsv.gz
 }
 
 install_plugins(){
@@ -197,12 +197,12 @@ install_plugins(){
             --bind /mnt,/home \
             docker://ensemblorg/ensembl-vep:release_111.0 \
                 INSTALL.pl \
-                    --CACHEDIR "/mnt/titan/users/j.boom/r-analysis/vep" \
+                    --CACHEDIR "/mnt/titan/users/j.boom/data/vep" \
                     --AUTO p \
                     --SPECIES homo_sapiens \
                     --ASSEMBLY GRCh37 \
                     --PLUGINS AlphaMissense,CADD,CAPICE,FATHMM_MKL,dbNSFP \
-                    --PLUGINSDIR "/mnt/titan/users/j.boom/r-analysis/vep/plugins/"
+                    --PLUGINSDIR "/mnt/titan/users/j.boom/data/vep/plugins/"
 }
 
 install_cache(){
@@ -216,12 +216,12 @@ install_cache(){
             --bind /mnt,/home \
             docker://ensemblorg/ensembl-vep:release_111.0 \
                 INSTALL.pl \
-                    --CACHEDIR "/mnt/titan/users/j.boom/r-analysis/vep" \
+                    --CACHEDIR "/mnt/titan/users/j.boom/data/vep" \
                     --AUTO cf \
                     --SPECIES homo_sapiens \
                     --ASSEMBLY GRCh37 \
                     --PLUGINS all \
-                    --PLUGINSDIR "/mnt/titan/users/j.boom/r-analysis/vep/plugins/"
+                    --PLUGINSDIR "/mnt/titan/users/j.boom/data/vep/plugins/"
 }
 
 run_vep_loop() {
@@ -229,7 +229,7 @@ run_vep_loop() {
     #     This function runs the vep annotation tool on all vcf files in the
     #     specified folder.
     #     https://www.ensembl.org/info/docs/tools/vep/script/vep_options.html
-    for file in /mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/*sorted.vcf.gz;
+    for file in /mnt/titan/users/j.boom/data/vcf/*.vcf;
     do
         singularity \
             exec \
@@ -243,18 +243,18 @@ run_vep_loop() {
                         --species "human" \
                         --format "vcf" \
                         --assembly "GRCh37" \
-                        --dir_cache "/mnt/titan/users/j.boom/r-analysis/vep" \
-                        --dir_plugins "/mnt/titan/users/j.boom/r-analysis/vep/plugins" \
+                        --dir_cache "/mnt/titan/users/j.boom/data/vep" \
+                        --dir_plugins "/mnt/titan/users/j.boom/data/vep/plugins" \
                         --vcf \
                         --cache \
                         --fork 5 \
-                        --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/AlphaMissense_hg19.tsv.gz" \
-                        --plugin "CADD,snv=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/InDels.tsv.gz" \
-                        --plugin "CAPICE,snv=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
-                        --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/fathmm-MKL_Current.tab.gz" \
-                        --custom file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/clinvar.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG \
-                        --plugin "BayesDel,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz" \
-                        --plugin "REVEL,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/new_tabbed_revel.tsv.gz";
+                        --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/data/vep/plugins_data/AlphaMissense_hg19.tsv.gz" \
+                        --plugin "CADD,snv=/mnt/titan/users/j.boom/data/vep/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/data/vep/plugins_data/InDels.tsv.gz" \
+                        --plugin "CAPICE,snv=/mnt/titan/users/j.boom/data/vep/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/data/vep/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
+                        --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/data/vep/plugins_data/fathmm-MKL_Current.tab.gz" \
+                        --custom file=/mnt/titan/users/j.boom/data/vep/plugins_data/clinvar.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG \
+                        --plugin "BayesDel,file=/mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz" \
+                        --plugin "REVEL,file=/mnt/titan/users/j.boom/data/vep/plugins_data/new_tabbed_revel.tsv.gz";
     done
 }
 
@@ -267,24 +267,24 @@ run_vep(){
             --bind /mnt,/home \
             docker://ensemblorg/ensembl-vep:release_111.0 \
                 vep \
-                    --input_file /mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961005.pathogenic.brain.sorted.vcf \
-                    --output_file "/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961005.pathogenic.brain.sorted.annotated.vcf" \
-                    --stats_file "/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961005.pathogenic.brain.sorted.stats.html" \
+                    --input_file /mnt/titan/users/j.boom/data/vcf/FR07961005.pathogenic.brain.sorted.vcf \
+                    --output_file "/mnt/titan/users/j.boom/data/vcf/FR07961005.pathogenic.brain.sorted.annotated.vcf" \
+                    --stats_file "/mnt/titan/users/j.boom/data/vcf/FR07961005.pathogenic.brain.sorted.stats.html" \
                     --species "human" \
                     --format "vcf" \
                     --assembly "GRCh37" \
-                    --dir_cache "/mnt/titan/users/j.boom/r-analysis/vep" \
-                    --dir_plugins "/mnt/titan/users/j.boom/r-analysis/vep/plugins" \
+                    --dir_cache "/mnt/titan/users/j.boom/data/vep" \
+                    --dir_plugins "/mnt/titan/users/j.boom/data/vep/plugins" \
                     --vcf \
                     --cache \
                     --fork 5 \
-                    --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/AlphaMissense_hg19.tsv.gz" \
-                    --plugin "CADD,snv=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/InDels.tsv.gz" \
-                    --plugin "CAPICE,snv=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
-                    --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/fathmm-MKL_Current.tab.gz" \
-                    --custom file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/clinvar.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG \
-                    --plugin "BayesDel,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz" \
-                    --plugin "REVEL,file=/mnt/titan/users/j.boom/r-analysis/vep/plugins_data/new_tabbed_revel.tsv.gz";
+                    --plugin "AlphaMissense,file=/mnt/titan/users/j.boom/data/vep/plugins_data/AlphaMissense_hg19.tsv.gz" \
+                    --plugin "CADD,snv=/mnt/titan/users/j.boom/data/vep/plugins_data/whole_genome_SNVs.tsv.gz,indels=/mnt/titan/users/j.boom/data/vep/plugins_data/InDels.tsv.gz" \
+                    --plugin "CAPICE,snv=/mnt/titan/users/j.boom/data/vep/plugins_data/capice_v1.0_build37_snvs.tsv.gz,indels=/mnt/titan/users/j.boom/data/vep/plugins_data/capice_v1.0_build37_indels.tsv.gz" \
+                    --plugin "FATHMM_MKL,/mnt/titan/users/j.boom/data/vep/plugins_data/fathmm-MKL_Current.tab.gz" \
+                    --custom file=/mnt/titan/users/j.boom/data/vep/plugins_data/clinvar.vcf.gz,short_name=ClinVar,format=vcf,type=exact,coords=0,fields=CLNSIG \
+                    --plugin "BayesDel,file=/mnt/titan/users/j.boom/data/vep/plugins_data/BayesDel_170824_addAF/BayesDel_170824_addAF_all_scores.txt.gz" \
+                    --plugin "REVEL,file=/mnt/titan/users/j.boom/data/vep/plugins_data/new_tabbed_revel.tsv.gz";
 }
 
 main() {

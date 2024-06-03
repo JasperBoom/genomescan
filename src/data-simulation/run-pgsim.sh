@@ -36,7 +36,7 @@ run_pgsim() {
     #     purpose.
     source /home/j.boom/miniconda3/bin/activate base
     perl \
-        /mnt/titan/users/j.boom/tool-testing/PGsim/PG_planner.pl \
+        /mnt/titan/users/j.boom/tools/PGsim/PG_planner.pl \
             --help
 }
 

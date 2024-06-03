@@ -35,10 +35,10 @@ run_script() {
     #     filtering.
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/training-test-subsets.py \
-        --output "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/" \
-        --clinvar "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/temp/pathogenic.general.vcf" \
-        --testset "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961001/FR07961001.pass.recode.vcf" \
-        --trainingset "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961000/FR07961000.pass.recode.vcf"
+        --output "/mnt/titan/users/j.boom/data/vcf/" \
+        --clinvar "/mnt/titan/users/j.boom/data/pathogenic-variants/pathogenic.general.vcf" \
+        --testset "/mnt/titan/users/j.boom/data/pgpuk/FR07961001/FR07961001.pass.recode.vcf" \
+        --trainingset "/mnt/titan/users/j.boom/data/pgpuk/FR07961000/FR07961000.pass.recode.vcf"
 }
 
 main() {

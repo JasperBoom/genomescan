@@ -42,12 +42,12 @@ run_version_14() {
                 -Xms60g \
                 -Xmx80g \
                 -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
-                -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
+                -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
                     --analysis "/home/j.boom/develop/genomescan/src/genome.v14.yml" \
                     --assembly "GRCh37" \
-                    --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.test.vcf" \
-                    --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties \
-                    2>&1 | tee /mnt/titan/users/j.boom/tool-testing/Exomiser/results/command.v14.log
+                    --vcf "/mnt/titan/users/j.boom/data/vcf/FR07961000.pathogenic.general.test.vcf" \
+                    --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties \
+                    2>&1 | tee /mnt/titan/users/j.boom/tools/Exomiser/results/command.v14.log
 }
 
 run_exomiser_docker() {
@@ -63,22 +63,22 @@ run_exomiser_docker() {
                 -Xms15g \
                 -Xmx20g \
                 -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
-                -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-                    --analysis "/mnt/titan/users/j.boom/tool-testing/Exomiser/genome.v13.yml" \
+                -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
+                    --analysis "/home/j.boom/develop/genomescan/src/genome.v13.yml" \
                     --assembly "GRCh37" \
-                    --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.test.vcf" \
-                    --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties.v13 \
-                    2>&1 | tee /mnt/titan/users/j.boom/tool-testing/Exomiser/results/command.v13.log
+                    --vcf "/mnt/titan/users/j.boom/data/vcf/FR07961000.pathogenic.general.test.vcf" \
+                    --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties.v13 \
+                    2>&1 | tee /mnt/titan/users/j.boom/tools/Exomiser/results/command.v13.log
 }
 
 run_test() {
     # The run_test function:
     #     This function runs a test set from the exomiser repository.
     java \
-        -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-            --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties.v13 \
-            --sample /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/examples/pfeiffer-phenopacket.yml \
-            --vcf /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/examples/Pfeiffer.vcf.gz \
+        -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
+            --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties.v13 \
+            --sample /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-13.3.0/examples/pfeiffer-phenopacket.yml \
+            --vcf /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-13.3.0/examples/Pfeiffer.vcf.gz \
             --assembly hg19
 }
 
@@ -95,12 +95,12 @@ run_exomiser() {
         -Xms15g \
         -Xmx20g \
         -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
-        -jar /mnt/titan/users/j.boom/tool-testing/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
-            --analysis "/mnt/titan/users/j.boom/tool-testing/Exomiser/genome.yml" \
+        -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-13.3.0/exomiser-cli-13.3.0.jar \
+            --analysis "/home/j.boom/develop/genomescan/src/genome.v13.yml" \
             --assembly "GRCh37" \
-            --vcf "/mnt/titan/users/j.boom/r-analysis/2024-02-29-exomiser-thresholding/FR07961000.pathogenic.general.vcf" \
-            --spring.config.location=/mnt/titan/users/j.boom/tool-testing/Exomiser/application.properties \
-            2>&1 | tee /mnt/titan/users/j.boom/tool-testing/Exomiser/results/command.v13.log
+            --vcf "/mnt/titan/users/j.boom/data/vcf/FR07961000.pathogenic.general.vcf" \
+            --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties \
+            2>&1 | tee /mnt/titan/users/j.boom/tools/Exomiser/results/command.v13.log
 }
 
 main() {

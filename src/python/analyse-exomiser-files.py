@@ -28,7 +28,6 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seaborn as sns
 
 
 class Data:
@@ -100,33 +99,13 @@ class Data:
         ).sum()
         return [TN, FN, FP, TP]
 
-    def visualize_confusion_matrix(self, confusion_matrix):
-        """
-        The visualize_confusion_matrix function:
-            This function creates a heatmap using the metrics from the
-            calculate_metrics function. Showing the confusion matrix for
-            benign and pathogenic variants in predicted and actual
-            classification.
-        """
-        sns.heatmap(
-            np.array(confusion_matrix).reshape((2, 2)),
-            annot=True,
-            fmt="d",
-            xticklabels=["Benign", "Pathogenic"],
-            yticklabels=["Benign", "Pathogenic"],
-        )
-        plt.xlabel("Predicted")
-        plt.ylabel("Actual")
-        plt.title("Confusion Matrix")
-        plt.show()
-
     def get_minimal_priority_score(self):
         """
         The get_minimal_priority_score function:
             This function used the file path of the input tsv file and isolates
             the minimal priority score in the file name. This is returned.
         """
-        return self.file_path.split("/")[-1].split("_")[2]
+        return self.file_path.split("/")[-1].strip(".tsv").split("_")[-1]
 
 
 class ReceiverOperatorCurve:
@@ -135,15 +114,25 @@ class ReceiverOperatorCurve:
         This class
 
         This function creates a number of class attributes:
-            tpr = an empty dictionary that will store the true positive rates.
-            fpr = an empty dictionary that will store the false positive rates.
+            tpr_dict = an empty dictionary that will store the true positive
+                       rates with the minimal priority score as key.
+            fpr_dict = an empty dictionary that will store the false positive
+                       rates with the minimal priority score as key.
+            tpr_values = a flattened list version of tpr_dict.
+            fpr_values = a flattened list version of fpr_dict.
+            thresholds = a list of thresholds.
+            optimal_threshold = the threshold with the optimal tpr and fpr.
     """
 
-    tpr = {}
-    fpr = {}
-    optimal_threshold = ""
+    tpr_dict = {}
+    fpr_dict = {}
+    tpr_values = []
+    fpr_values = []
+    thresholds = []
+    optimal_threshold = 0
+    optimal_threshold_index = 0
 
-    def __init__(self, confusion_matrix_dictionary):
+    def __init__(self, confusion_matrix_dictionary, results_folder):
         """
         The initializer function:
             This function creates an instance attribute:
@@ -151,8 +140,10 @@ class ReceiverOperatorCurve:
                                               priority scores as keys and
                                               confusion matrix metrics as
                                               values.
+                results_folder = the folder with the Exomiser output files.
         """
         self.confusion_matrix_dictionary = confusion_matrix_dictionary
+        self.results_folder = results_folder
 
     def calculate_tpr_fpr(self):
         """
@@ -163,8 +154,8 @@ class ReceiverOperatorCurve:
         """
         for threshold, values in self.confusion_matrix_dictionary.items():
             tn, fn, fp, tp = values
-            self.tpr[threshold] = tp / (tp + fn)
-            self.fpr[threshold] = fp / (fp + tn)
+            self.tpr_dict[threshold] = 0.0 if tp + fn == 0 else tp / (tp + fn)
+            self.fpr_dict[threshold] = 0.0 if fp + tn == 0 else fp / (fp + tn)
 
     def calculate_optimal_threshold(self):
         """
@@ -173,9 +164,12 @@ class ReceiverOperatorCurve:
             classification. This thresholds is retrieved from the set of
             minimal priority scores that were tested.
         """
-        self.optimal_threshold = min(
-            self.tpr.keys(), key=lambda i: abs(1 - self.tpr[i] - self.fpr[i])
+        youden_j = np.array(self.tpr_values) - np.array(self.fpr_values)
+        self.optimal_threshold = self.thresholds[np.argmax(youden_j)]
+        self.optimal_threshold_index = self.thresholds.index(
+            self.thresholds[np.argmax(youden_j)]
         )
+        print("The optimal threshold is: " + str(self.optimal_threshold))
 
     def plot_roc_curve(self):
         """
@@ -184,28 +178,40 @@ class ReceiverOperatorCurve:
             all tested minimal priority scores. Additionally, it adds a point
             with text for the minimal priority score that performs best.
         """
+        self.thresholds = sorted(
+            [
+                str(f"{float(threshold):.2f}")
+                for threshold in self.tpr_dict.keys()
+            ]
+        )
+        for threshold in self.thresholds:
+            self.tpr_values.append(self.tpr_dict[str(threshold)])
+            self.fpr_values.append(self.fpr_dict[str(threshold)])
+        self.tpr_values.insert(0, 1.0)
+        self.fpr_values.insert(0, 1.0)
         self.calculate_optimal_threshold()
         plt.plot(
-            list(self.fpr.values()), list(self.tpr.values()), label="ROC Curve"
+            self.fpr_values, self.tpr_values, label="ROC Curve", color="#83b96d"
         )
         plt.xlabel("False Positive Rate")
         plt.ylabel("True Positive Rate")
-        plt.title("Receiver Operating Characteristic (ROC) Curve")
         plt.scatter(
-            self.fpr[self.optimal_threshold],
-            self.tpr[self.optimal_threshold],
-            color="red",
+            self.fpr_values[self.optimal_threshold_index],
+            self.tpr_values[self.optimal_threshold_index],
+            color="#00a6cf",
             label="Optimal Threshold",
+            zorder=5,
         )
         plt.text(
-            self.fpr[self.optimal_threshold],
-            self.tpr[self.optimal_threshold],
-            f"Threshold: {self.optimal_threshold}",
+            self.fpr_values[self.optimal_threshold_index] + 0.1,
+            self.tpr_values[self.optimal_threshold_index] - 0.05,
+            f"{self.optimal_threshold}",
             fontsize=8,
             ha="right",
         )
         plt.legend()
-        plt.show()
+        plt.savefig(self.results_folder + "/roc-exomiser-thresholding.png")
+        plt.clf()
 
 
 def process_data(file):
@@ -226,7 +232,8 @@ def parse_argvs():
         including version and help pages.
     """
     description = "."
-    epilog = "This python script has no dependencies."
+    epilog = "This python script has three dependencies: matplotlib,\
+              numpy & pandas."
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
@@ -260,7 +267,8 @@ def parse_argvs():
 def main():
     """
     The main function:
-        This function calls all processing functions in correct order.
+        This function calls all processing functions in correct order. It also
+        creates a multiprocessing pool to handle multiple cores.
     """
     user_arguments = parse_argvs()
     pool = multiprocessing.Pool(processes=user_arguments.cores)
@@ -279,7 +287,9 @@ def main():
     for matrix in results:
         key, value = matrix
         confusion_matrix_dictionary[key] = value
-    roc_plot = ReceiverOperatorCurve(confusion_matrix_dictionary)
+    roc_plot = ReceiverOperatorCurve(
+        confusion_matrix_dictionary, user_arguments.results_folder
+    )
     roc_plot.calculate_tpr_fpr()
     roc_plot.plot_roc_curve()
 

@@ -30,7 +30,7 @@
 
 # Absolute path to input reference fasta file
 # type = string | required: yes
-reference: "/mnt/titan/users/j.boom/tool-testing/data/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
+reference: "/mnt/titan/users/j.boom/tools/data/Homo_sapiens.GRCh38.dna.primary_assembly.fa"
 
 # How to partition the reference for analysis. By default, NEAT will
 # attempt to process one contig per thread. However, if you have very

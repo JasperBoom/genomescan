@@ -34,11 +34,11 @@ run_combine() {
     #     combines two vcf files based on the IDs found in a tabular file.
     source /home/j.boom/miniconda3/bin/activate base
     python3 /home/j.boom/develop/genomescan/src/python/combine-vcf.py \
-        --benign "/mnt/titan/users/j.boom/r-analysis/pgpuk/FR07961001/FR07961001.pass.recode.vcf" \
-        --pathogenic "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/general-cancer/pathogenic.vcf" \
-        --tabular "/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961001.general.cancer.subset.3.plus.4.filtered.tsv" \
-        --output "/mnt/titan/users/j.boom/r-analysis/2024-02-29-first-filter/FR07961001.general.cancer.subset.3.plus.4.filtered.vcf" \
-        --header "/mnt/titan/users/j.boom/test-data/default-vcf-header.txt"
+        --benign "/mnt/titan/users/j.boom/data/pgpuk/FR07961001/FR07961001.pass.recode.vcf" \
+        --pathogenic "/mnt/titan/users/j.boom/clinvar-giab-data/general-cancer/pathogenic.vcf" \
+        --tabular "/mnt/titan/users/j.boom/data/tsv/FR07961001.general.cancer.subset.3.plus.4.filtered.tsv" \
+        --output "/mnt/titan/users/j.boom/data/tsv/FR07961001.general.cancer.subset.3.plus.4.filtered.vcf" \
+        --header "/mnt/titan/users/j.boom/clinvar-giab-data/default-vcf-header.txt"
 }
 
 main() {

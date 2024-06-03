@@ -34,14 +34,16 @@ run_script() {
     #     folder. This inserts a meningioma pathogenic variant, sorts the vcf
     #     file, compresses it and creates an index. The additional parts like
     #     compression and indexing do not yet work.
+    #     This script is aimed at using patient data from GenomeScan, which
+    #     includes a stats file part of the DRAGEN pipeline.
     source /home/j.boom/miniconda3/bin/activate base
-    for file in /mnt/titan/users/j.boom/test-data/vcf/*.vcf;
+    for file in /mnt/titan/users/j.boom/data/vcf/*.vcf;
     do
         python3 /home/j.boom/develop/genomescan/src/python/imiv.py \
             --input "${file}" \
-            --stats "/mnt/titan/users/j.boom/test-data/vcf/stats.tsv" \
+            --stats "/mnt/titan/users/j.boom/data/vcf/stats.tsv" \
             --meningioma "/mnt/titan/users/j.boom/test-data/clinvar-giab-test-data/meningioma/pathogenic.vcf" \
-            --output "/mnt/titan/users/j.boom/test-data/vcf/adjusted/";
+            --output "/mnt/titan/users/j.boom/data/vcf/adjusted/";
     done
 }
 

@@ -1,0 +1,11 @@
+Bootstrap: docker
+From: python:3.11-slim
+
+%help
+Recipe written by Suzanne van der Steen and Jasper Boom, GenomeScan
+
+%post
+    apt-get clean all
+    apt-get update -y
+    apt-get install -y pigz
+    pip install xengsort==2.0.5

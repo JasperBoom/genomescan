@@ -22,10 +22,10 @@
 
 # Imports:
 import argparse
-import gzip
 import multiprocessing
 import os
-import pandas
+import re
+from cyvcf2 import VCF
 
 
 class Collect:
@@ -61,7 +61,7 @@ class Collect:
             their .vcf.gz file extension.
         """
         for mode in self.vcf_files:
-            for root, dirs, files in os.walk(self.results_directory + mode):
+            for root, _, files in os.walk(self.results_directory + mode):
                 for file in files:
                     if file.endswith(".vcf.gz"):
                         self.vcf_files[mode].append(os.path.join(root, file))
@@ -76,7 +76,7 @@ class Collect:
             score will be the key whilst a list of two vcf files will be the
             value. The new dictionary is returned.
         """
-        for mode, files in self.vcf_files.items():
+        for _, files in self.vcf_files.items():
             for file in files:
                 value = float(file.split("/")[-2])
                 if value not in self.vcf_sets:
@@ -119,6 +119,8 @@ class Tabular:
         "EXOMISER_ACMG_EVIDENCE",
         "EXOMISER_ACMG_DISEASE_ID",
         "EXOMISER_ACMG_DISEASE_NAME",
+        "KNOWN_CLASS",
+        "PREDICTED_CLASS",
     ]
     dataframes = {}
 
@@ -160,40 +162,35 @@ class Tabular:
         """
         if "PASS_ONLY" in value[0] and "FULL" in value[1]:
             self._vcf_collection = value
-        elif "PASS_ONLY" not in value[0] or "FULL" not in value[1]:
+        else:
             self._vcf_collection = [value[1], value[0]]
 
-    def write_tsv(self):
+    def parse_exomiser_info(self, info_field):
         """
-        The write_tsv function:
-            This function writes a pandas dataframe to a file using tabs as
-            a separator.
+        The parse_exomiser_info function:
+            This function selects a string in between two brackets. It selects
+            the first element/group and splits on a pipe character. The list is
+            returned.
         """
-        self.dataframes["FULL"].to_csv(
-            self.results_directory
-            + "/"
-            + self.vcf_collection[1].split("/")[-3]
-            + "_"
-            + self.minimal_priority_score
-            + "_"
-            + self.vcf_collection[1].split("/")[-1].split(".")[0]
-            + ".tsv",
-            sep="\t",
-            header=True,
-            index=False,
-        )
+        match = re.match(r"\{([^{}]+)\}", info_field)
+        if match:
+            first_set = match.group(1)
+            elements = first_set.split("|")
+            return elements
+        else:
+            return []
 
     def create_tsv(self):
         """
         The create_tsv function:
-            This function creates an empty dataframe with columns corresponding to
-        the different info fields that exomiser adds to the vcf file. Then
-        a vcf file is processed so that the known class and the exomiser info
-        are extracted and written to the empty dataframe. If the vcf only
-        contains variants that passed all filters, we consider them pathogenic.
-        If the vcf contains all variants, a check is performed against the
-        pass only vcf, which are pathogenic, the other variants are considered
-        benign. This dataframe is returned.
+            This function creates an empty dataframe with columns corresponding
+            to the different info fields that exomiser adds to the vcf file.
+            Then a vcf file is processed so that the known class and the
+            exomiser infoare extracted and written to the empty dataframe. If
+            the vcf only contains variants that passed all filters, we consider
+            them pathogenic. If the vcf contains all variants, a check is
+            performed against the pass only vcf, which are pathogenic, the
+            other variants are considered benign. This dataframe is returned.
 
             This function fills an empty dataframe with columns corresponding
             to the different exomiser annotations added to the vcf info field.
@@ -204,60 +201,50 @@ class Tabular:
             list of pathogenic variants, matches are again classified
             pathogenic, the others are benign.
         """
-        self.dataframes = {
-            mode: pandas.DataFrame(columns=self.column_names)
-            for mode in ["PASS_ONLY", "FULL"]
-        }
-        for vcf in self.vcf_collection:
-            mode = vcf.split("/")[-3]
-            with gzip.open(vcf, "r") as file:
-                for line in file:
-                    correct_format_line = str(line, "latin-1")
-                    if correct_format_line.startswith("#"):
-                        continue
-                    info = correct_format_line.split("\t")[7].split(";")
-                    known_class = next(
-                        (
-                            item.strip("Class=")
-                            for item in info
-                            if item.startswith("Class=")
-                        ),
-                        "",
+        pass_only_ids = []
+        for vcf_file in self.vcf_collection:
+            mode = vcf_file.split("/")[-3]
+            output_file = (
+                self.results_directory
+                + "/"
+                + str(mode)
+                + "_"
+                + str(f"{float(self.minimal_priority_score):.2f}")
+                + ".tsv"
+            )
+            with open(output_file, "w") as file_out:
+                file_out.write("\t".join(self.column_names) + "\n")
+                vcf = VCF(vcf_file)
+                for variant in vcf:
+                    known_class = variant.INFO.get("Class", "N/A")
+                    exomiser_info = self.parse_exomiser_info(
+                        variant.INFO.get("Exomiser", "N/A")
                     )
-                    exomiser_info = next(
-                        (
-                            item.strip("Exomiser=")
-                            .split(",")[0]
-                            .strip("{}")
-                            .split("|")
-                            for item in info
-                            if item.startswith("Exomiser=")
-                        ),
-                        [""] * 18,
-                    )
-                    exomiser_info.extend([""] * (18 - len(exomiser_info)))
                     info_dictionary = dict(
                         zip(self.column_names, exomiser_info)
                     )
                     info_dictionary["KNOWN_CLASS"] = known_class
                     if mode == "PASS_ONLY":
                         info_dictionary["PREDICTED_CLASS"] = "Pathogenic"
+                        pass_only_ids.append(info_dictionary["ID"])
                     elif mode == "FULL":
-                        check_class = any(
-                            self.dataframes["PASS_ONLY"]["ID"].isin(
-                                [info_dictionary["ID"]]
-                            )
+                        predicted_class = (
+                            "Pathogenic"
+                            if info_dictionary["ID"] in pass_only_ids
+                            else "Benign"
                         )
-                        info_dictionary["PREDICTED_CLASS"] = (
-                            "Pathogenic" if check_class else "Benign"
+                        info_dictionary["PREDICTED_CLASS"] = predicted_class
+                    info_dictionary["EXOMISER_ACMG_CLASSIFICATION"] = "UNKNOWN"
+                    info_dictionary["EXOMISER_ACMG_EVIDENCE"] = "UNKNOWN"
+                    info_dictionary["EXOMISER_ACMG_DISEASE_ID"] = "UNKNOWN"
+                    info_dictionary["EXOMISER_ACMG_DISEASE_NAME"] = "UNKNOWN"
+                    file_out.write(
+                        "\t".join(
+                            str(info_dictionary.get(col, ""))
+                            for col in self.column_names
                         )
-                    self.dataframes[mode] = pandas.concat(
-                        [
-                            self.dataframes[mode],
-                            pandas.DataFrame([info_dictionary]),
-                        ]
+                        + "\n"
                     )
-        self.write_tsv()
 
 
 def process_set(minimal_priority_score, vcf_set, results_folder):

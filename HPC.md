@@ -3,7 +3,7 @@ This file contains a description of the folders on the titan users mount.
 The descriptions concern what files are in the folders or what operations were
 performed to generate the files.
 
-## bed
+## capture-kit-bed-files
 This folder contains bed files for both hg38 and hg19 used by genomescan when
 performing variant calling or other analysis steps. The bed file describes the
 agilent capture kits.
@@ -13,7 +13,26 @@ S31285117 is used for agilent sureselect human all exon v7 on hg19.
 
 I stopped using these files on 2024-02-13.
 
-## clinvar
+## clinvar-giab-data
+This folder contains subfolders with VEP tabular files based on vcf files
+collected from ClinVar. the folder name indicates what kind of cancer was used
+as search term in ClinVar. These files are used by the R scripts.  
+It also contains a header vcf file, which is used to create new vcf files.
+
+## data
+This folder contains all files used for the R analysis and Exomiser analysis.
+So, the test data from the personal genome project uk (**pgpuk**), an
+annotated giab sample (**giab**), the input files for the vep plugins and
+reference (**vep**) and the clinvar download (**clinvar**).  
+Additionally, **tsv** and **vcf** folders that contain uk personal genome
+vcf files combined with pathogenic variants and **pathogenic-variants** that
+contains vcf files used for the files in the datestamped folders.
+
+## errors & logs
+Simply the error and log output from sbatch commands for all things I submit.
+Are deleted regularly when doing tests.
+
+## manual-clinvar
 This folder contains the downloads from the ClinVar database.  
 These are the full vcf files, both grch37 and grch38 and the xml version.  
 https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh37/  
@@ -31,22 +50,6 @@ search bar, using the human phenotype ontology term for meningioma, the term
 from these downloads extracted by hand instead of using awk, since I wasn't able
 to get awk to perform the right actions.
 
-## errors & logs
-Simply the error and log output from sbatch commands for all things I submit.
-Are deleted regularly when doing tests.
-
-## r-analysis
-This folder contains all files used for the R analysis. So, the test data from
-the personal genome project uk (**pgpuk**), an annotated giab
-sample (**giab**), the input files for the vep plugins and reference (**vep**)
-and the clinvar download (**clinvar**).  
-Additionally, datestamped folders that contain uk personal genome vcf files
-combined with pathogenic variants and **pathogenic-variants** that contains
-vcf files used for the files in the datestamped folders.
-
-For example, the **2024-02-30-combined** folder contains the vcf files used
-for testing exomiser and setting thresholds.
-
 ## snakemake-tutorial
 This folder has the data files for the snakemake tutorial: 
 https://snakemake.readthedocs.io/en/stable/tutorial/basics.html
@@ -55,13 +58,7 @@ https://snakemake.readthedocs.io/en/stable/tutorial/basics.html
 Just a folder to direct temporary files to, for example when running java
 based tools.
 
-## test-data
-This folder contains subfolders with VEP tabular files based on vcf files
-collected from ClinVar. the folder name indicates what kind of cancer was used
-as search term in ClinVar. These files are used by the R scripts.  
-It also contains a header vcf file, which is used to create new vcf files.
-
-## tool-testing
+## tools
 This folder contains a collection of subfolders mostly targeted at different
 simulation tools. The **data** folder contains reference files from ensembl.  
 The **simulated_data** contains output files from tests with neat. The rest are

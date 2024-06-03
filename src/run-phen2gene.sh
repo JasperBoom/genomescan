@@ -20,33 +20,36 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="check-exomiser-logs"
-#SBATCH --mem=4G
+#SBATCH --job-name="phen2gene"
+#SBATCH --mem=10G
 #SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-check_files() {
-    # The check_files function:
-    #     This function loops over all files in a directory and check for the
-    #     string java.io.IOException:, if present, it prints the file name.
-    #directory="/mnt/titan/users/j.boom/logs/PASS_ONLY"
-    directory="/mnt/titan/users/j.boom/logs/FULL"
-    for file in  "${directory}"/*;
-    do
-        if grep -q "java\.io\.IOException:" "$file";
-        then
-            echo "$(basename "${file}")"
-        fi
-    done
+run_phen2gene() {
+    # The run_phen2gene function:
+    #     This function runs Phen2Gene using a customized container build for
+    #     GenomeScan.
+    singularity \
+        exec \
+            --containall \
+            --bind /home,/mnt \
+            --cleanenv \
+            /mnt/shared/tools/phen2gene/phen2gene-1.2.3.sif \
+            /root/Scripts/phen2gene.py \
+                --file "/mnt/flashblade01/scratch/j.boom/phen2gene/meningioma_hpo.txt" \
+                --verbosity \
+                --output "/mnt/flashblade01/scratch/j.boom/phen2gene" \
+                --name "meningioma" \
+                --database "/root/Knowledgebase"
 }
 
 main() {
     # The main function:
     #     This function runs all processing function in correct order.
-    check_files
+    run_phen2gene
 }
 
 # The getopts function.
@@ -57,22 +60,20 @@ do
     case ${option} in
         v)
             echo ""
-            echo "run-check-exomiser-logs.sh [1.0]"
+            echo "run-phen2gene.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-check-exomiser-logs.sh [-v] [-h]"
+            echo "Usage: run-phen2gene.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script loops over all files in a directory checking for"
-            echo "a java error. If the error was reported, the filename is"
-            echo "shown in the terminal."
+            echo "This script runs trial commands for testing phen2gene."
             echo ""
 
             exit

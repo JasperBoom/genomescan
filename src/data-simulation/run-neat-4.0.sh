@@ -38,7 +38,7 @@ run_neat() {
     neat \
         read-simulator \
         -c "/home/j.boom/develop/genomescan/src/data-simulation/template_neat_config.yml" \
-        -o "/mnt/titan/users/j.boom/tool-testing/simulated_data/${time_stamp}"
+        -o "/mnt/titan/users/j.boom/tools/simulated_data/${time_stamp}"
 }
 
 main() {

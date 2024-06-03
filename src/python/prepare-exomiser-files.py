@@ -26,6 +26,7 @@ import datetime
 import numpy
 import os
 import subprocess
+import sys
 import yaml
 
 
@@ -464,6 +465,14 @@ def parse_argvs():
         help="the location and name of the exomiser jar file",
     )
     parser.add_argument(
+        "-u",
+        "--update",
+        action="store_true",
+        dest="update_vcf",
+        help="instead of running exomiser, just update the input vcf with\
+              correct class information.",
+    )
+    parser.add_argument(
         "-v", "--version", action="version", version="%(prog)s [1.0]]"
     )
     argvs = parser.parse_args()
@@ -477,25 +486,27 @@ def main():
     """
     user_arguments = parse_argvs()
     vcf = Variants(user_arguments.vcf_file)
-    yaml = Settings(
-        user_arguments.yaml_file,
-        vcf.vcf_file,
-        user_arguments.hpo_terms,
-        user_arguments.output_name,
-    )
-    exomiser = Exomiser(
-        yaml.fill_output_options(),
-        user_arguments.output_location,
-        yaml.exomiser_output_name,
-        user_arguments.docker_container,
-        user_arguments.temp_folder,
-        user_arguments.exomiser_jar,
-        vcf.vcf_file,
-        user_arguments.config_location,
-        user_arguments.log_file,
-    )
-    exomiser.run_exomiser()
-
+    if user_arguments.update_vcf:
+        sys.exit(0)
+    else:
+        yaml = Settings(
+            user_arguments.yaml_file,
+            vcf.vcf_file,
+            user_arguments.hpo_terms,
+            user_arguments.output_name,
+        )
+        exomiser = Exomiser(
+            yaml.fill_output_options(),
+            user_arguments.output_location,
+            yaml.exomiser_output_name,
+            user_arguments.docker_container,
+            user_arguments.temp_folder,
+            user_arguments.exomiser_jar,
+            vcf.vcf_file,
+           user_arguments.config_location,
+            user_arguments.log_file,
+        )
+        exomiser.run_exomiser()
 
 if __name__ == "__main__":
     main()

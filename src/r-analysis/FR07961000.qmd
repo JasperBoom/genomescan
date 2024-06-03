@@ -197,7 +197,6 @@ FR07961000.pca.scatterplot <- ggplot(
     scale_colour_manual(values=c("#83b96d",
                                  "#00a6cf"),
                         name="Clinical significance") +
-    ggtitle("Projection of data on principal components one and two") +
     xlab(paste(paste("PC1 -",
                      format(round(FR07961000.pca.variance["PC1"] * 100),
                             2,
@@ -494,7 +493,6 @@ FR07961000.lineplot <- ggplot(data=FR07961000.cp.roc.data,
                                  "#003670",
                                  "#C73B1D"),
                         name="Annotation source") +
-    ggtitle("Receiver Operating Curves based on the five annotation scores") +
     xlab("False Positive Rate") +
     ylab("True Positive Rate") +
     xlim(-0.1, 1) +

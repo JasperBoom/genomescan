@@ -146,21 +146,49 @@ FR07961000.set.1.combined.roc.plots <- ggplot(
     aes(m=M,
         d=D,
         colour=name)) +
-    geom_roc(n.cuts=5,
+    geom_roc(n.cuts=0,
              labelsize=5,
              labelround=2,
              show.legend=TRUE,
              labels=FALSE) +
+    theme(legend.position=c(0.95,0.001),
+          legend.justification=c(1,0)) +
+    scale_colour_manual(values=c("#ec9e62",
+                                 "#00a6cf",
+                                 "#83b96d",
+                                 "#003670",
+                                 "#C73B1D"),
+                        name="Annotation source") +
+    xlab("False Positive Rate") +
+    ylab("True Positive Rate") +
     xlim(-0.1, 1) +
     ylim(0, 1.1)
-
-FR07961000.set.1.combined.roc.plots +
-    facet_wrap(~ name)
 
 # Calculate the AUC of each ROC plot.
 calc_auc(FR07961000.set.1.combined.roc.plots) |>
     knitr::kable(format="html") |>
     kableExtra::kable_classic(full_width=FALSE)
+
+## Change the title of all plots.
+FR07961000.set.1.combined.roc.plots.facet.titles <- c(
+    paste("CADD PHRED - AUC: 0.5002"),
+    paste("CADD RAW - AUC: 0.5002"),
+    paste("CAPICE SCORE - AUC: 0.4991"),
+    paste("FATHMM MKL C - AUC: 0.5003"),
+    paste("FATHMM MKL NC - AUC: 0.4987"))
+
+## Add names to the vector.
+names(FR07961000.set.1.combined.roc.plots.facet.titles) <- c(
+    "CADD_PHRED",
+    "CADD_RAW",
+    "CAPICE_SCORE",
+    "FATHMM_MKL_C",
+    "FATHMM_MKL_NC"
+)
+
+FR07961000.set.1.combined.roc.plots +
+    facet_wrap(~ name,
+               labeller=as_labeller(FR07961000.set.1.combined.roc.plots.facet.titles))
 ```
 
 ```{r}
@@ -211,7 +239,6 @@ FR07961000.set.1.pca.scatterplot <- ggplot(
     scale_colour_manual(values=c("#83b96d",
                                  "#00a6cf"),
                         name="Clinical significance") +
-    ggtitle("Projection of data on principal components one and two") +
     xlab(paste(paste("PC1 -",
                      format(round(FR07961000.set.1.pca.variance["PC1"] * 100),
                             2,

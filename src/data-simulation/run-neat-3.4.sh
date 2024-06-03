@@ -37,16 +37,16 @@ run_neat() {
     #     data. I still need to add a predefined VCF and random variant
     #     generator flag.
     source /home/j.boom/miniconda3/bin/activate base
-    python3 /mnt/titan/users/j.boom/tool-testing/NEAT-3.4/gen_reads.py \
-        -r "/mnt/titan/users/j.boom/tool-testing/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa" \
+    python3 /mnt/titan/users/j.boom/tools/NEAT-3.4/gen_reads.py \
+        -r "/mnt/titan/users/j.boom/tools/data/Homo_sapiens.GRCh37.dna.primary_assembly.chr.fa" \
         -R 147 \
-        -o "/mnt/titan/users/j.boom/tool-testing/simulated_data/R-${SLURM_JOB_NAME}-${SLURM_JOB_ID}" \
+        -o "/mnt/titan/users/j.boom/tools/simulated_data/R-${SLURM_JOB_NAME}-${SLURM_JOB_ID}" \
         -p 2 \
         -M 0.016 \
-        -tr /mnt/titan/users/j.boom/bed/hg19/S31285117_Covered_50bpFlank.tiny.bed \
-        -m "/mnt/titan/users/j.boom/tool-testing/NEAT-3.4/models/MutModel_NA12878.pickle.gz" \
+        -tr /mnt/titan/users/j.boom/capture-kit-bed-files/hg19/S31285117_Covered_50bpFlank.tiny.bed \
+        -m "/mnt/titan/users/j.boom/tools/NEAT-3.4/models/MutModel_NA12878.pickle.gz" \
         --pe 300 30 \
-        -v "/mnt/titan/users/j.boom/tool-testing/NEAT-3.4/data/small.vcf" \
+        -v "/mnt/titan/users/j.boom/tools/NEAT-3.4/data/small.vcf" \
         --rng 1995 \
         --no-fastq \
         --vcf
