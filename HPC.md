@@ -15,7 +15,7 @@ I stopped using these files on 2024-02-13.
 
 ## clinvar-giab-data
 This folder contains subfolders with VEP tabular files based on vcf files
-collected from ClinVar. the folder name indicates what kind of cancer was used
+collected from ClinVar. The folder name indicates what kind of cancer was used
 as search term in ClinVar. These files are used by the R scripts.  
 It also contains a header vcf file, which is used to create new vcf files.
 
@@ -26,7 +26,7 @@ annotated giab sample (**giab**), the input files for the vep plugins and
 reference (**vep**) and the clinvar download (**clinvar**).  
 Additionally, **tsv** and **vcf** folders that contain uk personal genome
 vcf files combined with pathogenic variants and **pathogenic-variants** that
-contains vcf files used for the files in the datestamped folders.
+contains vcf files used for most vcf files.
 
 ## errors & logs
 Simply the error and log output from sbatch commands for all things I submit.

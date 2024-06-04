@@ -82,37 +82,43 @@ run_validation_set() {
     #    --update \
     #    2>&1 | tee /mnt/flashblade01/scratch/j.boom/logs/run_prepare_exomiser_files.log
 
-    singularity \
-        exec \
-            --containall \
-            --bind /mnt,/home \
-            docker://amazoncorretto:21.0.2-alpine3.19 \
-            java \
-                -Xms60g \
-                -Xmx80g \
-                -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
-                -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
-                    --analysis "/home/j.boom/develop/genomescan/src/genome.v14.threshold.024.PASSONLY.yml" \
-                    --assembly "GRCh37" \
-                    --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.fixed.vcf" \
-                    --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties \
-                    2>&1 | tee /mnt/flashblade01/scratch/j.boom/validation/PASS_ONLY/genome.v14.threshold.024.PASSONLY.log
+    #singularity \
+    #    exec \
+    #        --containall \
+    #        --bind /mnt,/home \
+    #        docker://amazoncorretto:21.0.2-alpine3.19 \
+    #        java \
+    #            -Xms60g \
+    #            -Xmx80g \
+    #            -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
+    #            -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
+    #                --analysis "/home/j.boom/develop/genomescan/src/genome.v14.threshold.024.PASSONLY.yml" \
+    #                --assembly "GRCh37" \
+    #                --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.fixed.vcf" \
+    #                --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties \
+    #                2>&1 | tee /mnt/flashblade01/scratch/j.boom/validation/PASS_ONLY/genome.v14.threshold.024.PASSONLY.log
 
-    singularity \
-        exec \
-            --containall \
-            --bind /mnt,/home \
-            docker://amazoncorretto:21.0.2-alpine3.19 \
-            java \
-                -Xms60g \
-                -Xmx80g \
-                -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
-                -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
-                    --analysis "/home/j.boom/develop/genomescan/src/genome.v14.threshold.024.FULL.yml" \
-                    --assembly "GRCh37" \
-                    --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.fixed.vcf" \
-                    --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties \
-                    2>&1 | tee /mnt/flashblade01/scratch/j.boom/validation/FULL/genome.v14.threshold.024.FULL.log
+    #singularity \
+    #    exec \
+    #        --containall \
+    #        --bind /mnt,/home \
+    #        docker://amazoncorretto:21.0.2-alpine3.19 \
+    #        java \
+    #            -Xms60g \
+    #            -Xmx80g \
+    #            -Djava.io.tmpdir=/mnt/titan/users/j.boom/tmp \
+    #            -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
+    #                --analysis "/home/j.boom/develop/genomescan/src/genome.v14.threshold.024.FULL.yml" \
+    #                --assembly "GRCh37" \
+    #                --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.fixed.vcf" \
+    #                --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties \
+    #                2>&1 | tee /mnt/flashblade01/scratch/j.boom/validation/FULL/genome.v14.threshold.024.FULL.log
+
+    source /home/j.boom/miniconda3/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/python/collect-exomiser-files.py \
+        --results "/mnt/flashblade01/scratch/j.boom/validation" \
+        --cores 10 \
+        2>&1 | tee /mnt/flashblade01/scratch/j.boom/logs/run_collect_exomiser_files.log
 }
 
 main() {
