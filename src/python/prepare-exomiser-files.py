@@ -503,10 +503,11 @@ def main():
             user_arguments.temp_folder,
             user_arguments.exomiser_jar,
             vcf.vcf_file,
-           user_arguments.config_location,
+            user_arguments.config_location,
             user_arguments.log_file,
         )
         exomiser.run_exomiser()
+
 
 if __name__ == "__main__":
     main()

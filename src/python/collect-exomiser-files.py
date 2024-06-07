@@ -31,6 +31,11 @@ from cyvcf2 import VCF
 class Collect:
     """
     The Collect class:
+        This class organises the output from prepare-exomiser-files.py into
+        a dictionary. The key in this dictionary corresponds to a minimal
+        priority score, the value is a list of the Exomiser output files for
+        the FULL and PASS_ONLY modes.
+
         This function creates a number of class attributes:
             vcf_files = a skeleton dictionary with two keys (FULL and
                         PASS_ONLY), the values are lists to be filled with full
@@ -264,7 +269,9 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = "."
+    description = "This python script is used to convert Exomiser output with\
+                   a range of minimal priority scores into tsv files with the\
+                   annotation that Exomiser adds to the vcf files."
     epilog = "This python script has no dependencies."
     parser = argparse.ArgumentParser(
         description=description,

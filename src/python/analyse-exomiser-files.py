@@ -111,7 +111,8 @@ class Data:
 class ReceiverOperatorCurve:
     """
     The ReceiverOperatorCurve class:
-        This class
+        This class creates an ROC plot including an AUC for the input
+        dictionary of confusion matrices. The ROC plot is written to a png file.
 
         This function creates a number of class attributes:
             tpr_dict = an empty dictionary that will store the true positive
@@ -169,7 +170,6 @@ class ReceiverOperatorCurve:
         self.optimal_threshold_index = self.thresholds.index(
             self.thresholds[np.argmax(youden_j)]
         )
-        print("The optimal threshold is: " + str(self.optimal_threshold))
 
     def plot_roc_curve(self):
         """
@@ -190,6 +190,7 @@ class ReceiverOperatorCurve:
         self.tpr_values.insert(0, 1.0)
         self.fpr_values.insert(0, 1.0)
         self.calculate_optimal_threshold()
+        auc = np.trapz(sorted(self.tpr_values), sorted(self.fpr_values))
         plt.plot(
             self.fpr_values, self.tpr_values, label="ROC Curve", color="#83b96d"
         )
@@ -208,6 +209,14 @@ class ReceiverOperatorCurve:
             f"{self.optimal_threshold}",
             fontsize=8,
             ha="right",
+        )
+        plt.text(
+            0.6,
+            0.3,
+            f"AUC = {auc:.4f}",
+            fontsize=12,
+            ha="center",
+            transform=plt.gca().transAxes,
         )
         plt.legend()
         plt.savefig(self.results_folder + "/roc-exomiser-thresholding.png")
@@ -231,7 +240,9 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = "."
+    description = "This python script is used to create an ROC plot for the\
+                   range of minimal priority score test runs with Exomiser. It\
+                   also determines the optimal minimal priority score."
     epilog = "This python script has three dependencies: matplotlib,\
               numpy & pandas."
     parser = argparse.ArgumentParser(

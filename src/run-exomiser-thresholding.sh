@@ -75,7 +75,9 @@ run_analyse_exomiser_files() {
 run_validation_set() {
     # The run_validation_set function:
     #     This function runs the newest version of Exomiser using the minimal
-    #     priority score determined in the thresholding.
+    #     priority score determined in the thresholding. This uses the
+    #     validation dataset.
+
     #source /home/j.boom/miniconda3/bin/activate base
     #python3 /home/j.boom/develop/genomescan/src/python/prepare-exomiser-files.py \
     #    --vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.vcf" \
@@ -114,11 +116,17 @@ run_validation_set() {
     #                --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties \
     #                2>&1 | tee /mnt/flashblade01/scratch/j.boom/validation/FULL/genome.v14.threshold.024.FULL.log
 
+    #source /home/j.boom/miniconda3/bin/activate base
+    #python3 /home/j.boom/develop/genomescan/src/python/collect-exomiser-files.py \
+    #    --results "/mnt/flashblade01/scratch/j.boom/validation" \
+    #    --cores 10 \
+    #    2>&1 | tee /mnt/flashblade01/scratch/j.boom/logs/run_collect_exomiser_files.log
+
     source /home/j.boom/miniconda3/bin/activate base
-    python3 /home/j.boom/develop/genomescan/src/python/collect-exomiser-files.py \
+    python3 /home/j.boom/develop/genomescan/src/python/analyse-exomiser-files.py \
         --results "/mnt/flashblade01/scratch/j.boom/validation" \
         --cores 10 \
-        2>&1 | tee /mnt/flashblade01/scratch/j.boom/logs/run_collect_exomiser_files.log
+        2>&1 | tee /mnt/flashblade01/scratch/j.boom/logs/run_analyse_exomiser_files.log
 }
 
 main() {
@@ -126,8 +134,8 @@ main() {
     #     This function runs all processing function in correct order.
     #run_prepare_exomiser_files
     #run_collect_exomiser_files
-    #run_analyse_exomiser_files
-    run_validation_set
+    run_analyse_exomiser_files
+    #run_validation_set
 }
 
 # The getopts function.
