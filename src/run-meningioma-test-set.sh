@@ -22,16 +22,47 @@
 
 #SBATCH --job-name="meningioma-test-set"
 #SBATCH --mem=200G
-#SBATCH --cpus-per-task=12
+#SBATCH --cpus-per-task=5
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/flashblade01/scratch/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/flashblade01/scratch/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-#INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.vcf"
+INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.vcf"
 #INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.vcf"
 #INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961006.pathogenic.meningioma.vcf"
 #INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.test.vcf"
+
+run_ranking() {
+    # The run_ranking function:
+    #     This function runs the python script that takes care of ranking the
+    #     variants in pathogenic order.
+    source /home/j.boom/miniconda3/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/python/calculate-final-rank.py \
+        --vep-training "${INPUT_VCF::-3}fixed.sorted.annotated.vcf" \
+        --exomiser-training "${INPUT_VCF::-3}fixed.sorted.exomiser.024.vcf" \
+        --output_training "/mnt/flashblade01/scratch/j.boom/data/xFR07961000" \
+        --phen2gene "/mnt/flashblade01/scratch/j.boom/phen2gene/meningioma.associated_gene_list"
+}
+
+run_exomiser() {
+    # The run_exomiser function:
+    #     This function runs exomiser on the test dataset.
+    singularity \
+        exec \
+            --containall \
+            --bind /mnt,/home \
+            docker://amazoncorretto:21.0.2-alpine3.19 \
+            java \
+                -Xms60g \
+                -Xmx80g \
+                -Djava.io.tmpdir=/mnt/flashblade01/scratch/j.boom/tmp \
+                -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
+                    --analysis "/home/j.boom/develop/genomescan/src/genome.v14.threshold.024.FULL.yml" \
+                    --assembly "GRCh37" \
+                    --vcf "${INPUT_VCF::-3}fixed.sorted.vcf" \
+                    --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties
+}
 
 filter_vep() {
     # The filter_vep function:
@@ -113,8 +144,10 @@ main() {
     #     This function runs all processing function in correct order.
     #add_class_info
     #prepare_vcf_file
-    run_vep
+    #run_vep
     #filter_vep
+    #run_exomiser
+    run_ranking
 }
 
 # The getopts function.

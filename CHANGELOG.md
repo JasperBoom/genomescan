@@ -63,3 +63,4 @@ Contact information: info@jboom.org.
   visualise the ROC plot.
 + Finish scripts for Exomiser thresholding.
 + Update paths to files on HPC.
++ Finish python script that determines feature weights for final ranking.

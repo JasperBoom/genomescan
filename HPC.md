@@ -3,16 +3,6 @@ This file contains a description of the folders on the titan users mount.
 The descriptions concern what files are in the folders or what operations were
 performed to generate the files.
 
-## capture-kit-bed-files
-This folder contains bed files for both hg38 and hg19 used by genomescan when
-performing variant calling or other analysis steps. The bed file describes the
-agilent capture kits.
-
-The 50bp flank files extend the regions by 50 basepairs on both sides.  
-S31285117 is used for agilent sureselect human all exon v7 on hg19.
-
-I stopped using these files on 2024-02-13.
-
 ## clinvar-giab-data
 This folder contains subfolders with VEP tabular files based on vcf files
 collected from ClinVar. The folder name indicates what kind of cancer was used
@@ -31,6 +21,10 @@ contains vcf files used for most vcf files.
 ## errors & logs
 Simply the error and log output from sbatch commands for all things I submit.
 Are deleted regularly when doing tests.
+
+## flashblade
+This folder contains all folders from flashblade, which were used to run vep,
+exomiser and the ranking scripts on a faster I/O system.
 
 ## manual-clinvar
 This folder contains the downloads from the ClinVar database.  

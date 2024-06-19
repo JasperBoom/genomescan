@@ -21,8 +21,8 @@
 # -----------------------------------------------------------------------------
 
 #SBATCH --job-name="exomiser-thresholding"
-#SBATCH --mem=200G
-#SBATCH --cpus-per-task=10
+#SBATCH --mem=20G
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/flashblade01/scratch/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/flashblade01/scratch/j.boom/errors/R-%x-%j.error"
@@ -159,9 +159,10 @@ do
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs a python script that runs Exomiser and"
-            echo "prepares results in order to determine thresholds later."
-            echo ""
+            echo "This script runs python scripts that run Exomiser and"
+            echo "prepares results in order to determine thresholds."
+            echo "Processes the exomiser results and determines the MPS"
+            echo "threshold."
 
             exit
             ;;

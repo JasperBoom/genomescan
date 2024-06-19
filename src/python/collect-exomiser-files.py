@@ -272,7 +272,7 @@ def parse_argvs():
     description = "This python script is used to convert Exomiser output with\
                    a range of minimal priority scores into tsv files with the\
                    annotation that Exomiser adds to the vcf files."
-    epilog = "This python script has no dependencies."
+    epilog = "This python script has one dependency: cyvcf2."
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,

@@ -28,7 +28,14 @@ from cyvcf2 import VCF
 class VEP:
     """
     The VEP class:
+        This class takes care of filtering a vcf file based on VEP annotation.
+        The variants that pass all filters are written to a new file.
+
         This function creates a number of class attributes:
+            vep_annotation = a list of strings with the names of each bit of
+                             annotation that VEP could add to a variant.
+            score_names = a list of strings with the names of the annotation
+                          scores that are used for the filtering.
     """
 
     vep_annotation = [
@@ -55,14 +62,11 @@ class VEP:
         "FLAGS",
         "SYMBOL_SOURCE",
         "HGNC_ID",
-        "SOURCE",
         "CADD_PHRED",
         "CADD_RAW",
         "CAPICE_SCORE",
         "FATHMM_MKL_C",
         "FATHMM_MKL_NC",
-        "ClinVar",
-        "ClinVar_CLNSIG",
     ]
     score_names = [
         "CADD_PHRED",
@@ -76,6 +80,11 @@ class VEP:
         """
         The initializer function:
             This function creates an instance attribute:
+                vcf = the input vcf file that needs to be filtered.
+                output = a string to use as the output name of the filtered vcf
+                         file.
+                thresholds = a list of floats to use as thresholds for the
+                             annotation scores.
         """
         self.vcf = vcf_file
         self.output = output_name
@@ -85,8 +94,8 @@ class VEP:
     def vcf(self):
         """
         The vcf property function:
-            This function converts vcf to a property which score_classification in a
-            corrected list that is returned.
+            This function converts vcf to a property which results
+            in a cyvcf2 object that is returned.
         """
         return self._vcf
 
@@ -101,13 +110,18 @@ class VEP:
     def filter_vep(self):
         """
         The filter_vep function:
+            This function filters a vcf file. It opens a new file, then loops
+            through all variants in the input vcf file. It collects the
+            annotation scores of interest, applies the input thresholds, and
+            checks the final class (if all 5 scores are present). Any variants
+            called pathogenic or with too few annotation scores are written to
+            the new file.
         """
         with open(self.output, "w") as file_out:
             file_out.write(self.vcf.raw_header)
             for variant in self.vcf:
                 csq_info = variant.INFO.get("CSQ", "N/A")
-                class_info = variant.INFO.get("Class", "N/A")
-                if csq_info != "N/A" and class_info != "N/A":
+                if csq_info != "N/A":
                     annotation = csq_info.split(",")[0].split("|")
                     annotation_dict = dict(zip(self.vep_annotation, annotation))
                     score_classification = []
@@ -121,69 +135,72 @@ class VEP:
                                 score_classification.append("Pathogenic")
                             else:
                                 score_classification.append("Benign")
-                if score_classification:
+                if score_classification and len(score_classification) == 5:
                     pathogenic_count = score_classification.count("Pathogenic")
                     benign_count = score_classification.count("Benign")
                     if pathogenic_count > benign_count:
-                        predicted_class = "Pathogenic"
+                        file_out.write(str(variant))
                     elif benign_count > pathogenic_count:
-                        predicted_class = "Benign"
-                    else:
-                        predicted_class = "Unknown"
+                        pass
                 else:
-                    predicted_class = "Unknown"
-                print(score_classification)
-                print(predicted_class)
+                    file_out.write(str(variant))
 
-    def check_missing_scores(self):
+    def create_confusion_matrix(self):
         """
-        The check_missing_scores function:
+        The create_confusion_matrix function:
+            This function is used to calculate the metrics for a confusion
+            matrix, using the new first filtering method (where variants
+            missing annotation scores are kept for Exomiser instead of
+            removed).
         """
-        # SETUP VARIANT COUNTERS
         total_variants = 0
-        count_with_five_values = 0
-        count_with_three_values = 0
-        count_without_any_value = 0
-        count_with_other_number_of_values = 0
+        unknown_variants = 0
+        true_positives = 0
+        true_negatives = 0
+        false_positives = 0
+        false_negatives = 0
         for variant in self.vcf:
+            total_variants += 1
             csq_info = variant.INFO.get("CSQ", "N/A")
             class_info = variant.INFO.get("Class", "N/A")
-            if csq_info != "N/A" and class_info != "N/A":
+            if csq_info != "N/A":
                 annotation = csq_info.split(",")[0].split("|")
                 annotation_dict = dict(zip(self.vep_annotation, annotation))
-                # COUNT THE NUMBER OF SCORES PRESENT OUT OF 5
-                values_present = [
-                    annotation_dict[field]
-                    for field in self.score_names
-                    if annotation_dict[field]
-                ]
-                num_values_present = len(values_present)
-                if class_info == "Benign" or class_info == "Pathogenic":
-                    # COUNT TOTAL NUMBER OF VARIANTS
-                    total_variants += 1
-                    # KEEP TRACK OF NUMBER OF FILLED ANNOTATIONS
-                    if num_values_present == 5:
-                        count_with_five_values += 1
-                    elif num_values_present == 3:
-                        count_with_three_values += 1
-                    elif num_values_present == 0:
-                        count_without_any_value += 1
-                    elif num_values_present == 1 or num_values_present == 4:
-                        count_with_other_number_of_values += 1
-        # PRINT THE COUNTS
-        print(f"Total variants: {total_variants}")
-        print(
-            f"Variants with five values in specified fields: {count_with_five_values}"
-        )
-        print(
-            f"Variants with three values in specified fields: {count_with_three_values}"
-        )
-        print(
-            f"Variants without any value in specified fields: {count_without_any_value}"
-        )
-        print(
-            f"Variants with either one or four values in specified fields: {count_with_other_number_of_values}"
-        )
+                score_classification = []
+                for key, threshold in zip(self.score_names, self.thresholds):
+                    value = annotation_dict.get(key, None)
+                    if value is not None and value != "":
+                        value = float(value)
+                        if value > threshold:
+                            score_classification.append("Pathogenic")
+                        else:
+                            score_classification.append("Benign")
+            if score_classification and len(score_classification) == 5:
+                pathogenic_count = score_classification.count("Pathogenic")
+                benign_count = score_classification.count("Benign")
+                if pathogenic_count > benign_count:
+                    predicted_class = "Pathogenic"
+                elif benign_count > pathogenic_count:
+                    predicted_class = "Benign"
+                if (
+                    class_info == "Pathogenic"
+                    and predicted_class == "Pathogenic"
+                ):
+                    true_positives += 1
+                elif class_info == "Benign" and predicted_class == "Benign":
+                    true_negatives += 1
+                elif class_info == "Benign" and predicted_class == "Pathogenic":
+                    false_positives += 1
+                elif class_info == "Pathogenic" and predicted_class == "Benign":
+                    false_negatives += 1
+            else:
+                unknown_variants += 1
+        print("The total number of variants = " + str(total_variants))
+        print("The number of unknown variants = " + str(unknown_variants))
+        print("True positives " + str(true_positives))
+        print("True negatvies " + str(true_negatives))
+        print("False positives " + str(false_positives))
+        print("False negatives " + str(false_negatives))
 
 
 def parse_argvs():
@@ -192,8 +209,10 @@ def parse_argvs():
         This function handles all positional arguments that the script accepts,
         including version and help pages.
     """
-    description = "."
-    epilog = "This python script has no dependencies."
+    description = "This python script is used to filter a VEP annotated vcf\
+                   file based on input thresholds, the variants that pass the\
+                   filter are written to a new file."
+    epilog = "This python script has one dependency: cyvcf2."
     parser = argparse.ArgumentParser(
         description=description,
         epilog=epilog,
@@ -236,7 +255,6 @@ def main():
     vep = VEP(
         user_arguments.vcf_file, output_file, user_arguments.vep_thresholds
     )
-    # vep.check_missing_scores()
     vep.filter_vep()
 
 
