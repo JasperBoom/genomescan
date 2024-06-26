@@ -21,17 +21,33 @@
 # -----------------------------------------------------------------------------
 
 #SBATCH --job-name="family-data"
-#SBATCH --mem=50G
-#SBATCH --cpus-per-task=10
+#SBATCH --mem=100G
+#SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
 #SBATCH --output="/mnt/flashblade01/scratch/j.boom/logs/R-%x-%j.log"
 #SBATCH --error="/mnt/flashblade01/scratch/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
+run_ranking() {
+    # The run_ranking function:
+    #     This function runs the python script that takes care of ranking the
+    #     variants in pathogenic order.
+    INPUT_DIR="/mnt/flashblade01/scratch/j.boom/data/family/results"
+    source /home/j.boom/miniconda3/bin/activate base
+
+    for VCF in "${INPUT_DIR}"/*.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.vcf;
+    do
+        python3 /home/j.boom/develop/genomescan/src/python/rank-variants.py \
+            --phen2gene "/mnt/flashblade01/scratch/j.boom/phen2gene/meningioma.associated_gene_list" \
+            --filtered-vcf "${VCF}" \
+            --output "${VCF::-3}ranking"
+    done
+}
+
 run_exomiser() {
     # The run_exomiser function:
     #     This function runs exomiser on the datasets.
-    VCF=/mnt/flashblade01/scratch/j.boom/data/family/103003-007-071-12433993.hard-filtered.sorted.vcf
+    VCF="/mnt/flashblade01/scratch/j.boom/data/family/103937-026-022-17028318.hard-filtered.sorted.annotated.vep.filtered.vcf"
     singularity \
         exec \
             --containall \
@@ -42,10 +58,24 @@ run_exomiser() {
                 -Xmx80g \
                 -Djava.io.tmpdir=/mnt/flashblade01/scratch/j.boom/tmp \
                 -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
-                    --analysis "/mnt/flashblade01/scratch/j.boom/data/family/genome.v14.threshold.024.FULL.yaml" \
+                    --analysis "/home/j.boom/develop/genomescan/src/genome.v14.threshold.024.PASSONLY.yml" \
                     --assembly "GRCh37" \
                     --vcf "${VCF}" \
                     --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties
+}
+
+filter_vep() {
+    # The filter_vep function:
+    #     This function runs a python script to filter a vcf file annotated by
+    #     vep based on predetermined thresholds.
+    source /home/j.boom/miniconda3/bin/activate base
+    INPUT_DIR="/mnt/flashblade01/scratch/j.boom/data/family"
+
+    for VCF in "${INPUT_DIR}"/*.hard-filtered.sorted.annotated.vcf;
+    do
+        python3 /home/j.boom/develop/genomescan/src/python/filter-vep-vcf.py \
+            --vcf "${VCF}"
+    done
 }
 
 run_vep() {
@@ -120,7 +150,9 @@ main() {
     #     This function runs all processing function in correct order.
     #prepare_vcf_file
     #run_vep
-    run_exomiser
+    #filter_vep
+    #run_exomiser
+    run_ranking
 }
 
 # The getopts function.

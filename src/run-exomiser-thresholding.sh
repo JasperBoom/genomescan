@@ -163,6 +163,7 @@ do
             echo "prepares results in order to determine thresholds."
             echo "Processes the exomiser results and determines the MPS"
             echo "threshold."
+            echo ""
 
             exit
             ;;

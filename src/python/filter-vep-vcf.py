@@ -251,11 +251,13 @@ def main():
         This function calls all processing functions in correct order.
     """
     user_arguments = parse_argvs()
-    output_file = user_arguments.vcf_file[:-3] + "vep_filtered.vcf"
+    output_file = user_arguments.vcf_file[:-3] + "vep.filtered.vcf"
     vep = VEP(
         user_arguments.vcf_file, output_file, user_arguments.vep_thresholds
     )
     vep.filter_vep()
+    # Used during training and testing.
+    # vep.create_confusion_matrix()
 
 
 if __name__ == "__main__":

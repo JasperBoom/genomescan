@@ -74,12 +74,12 @@ analysis:
   - omimPrioritiser: {}
   - hiPhivePrioritiser:
       runParams: human,mouse,fish,ppi
-  vcf: /mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.fixed.vcf
+  vcf: /mnt/flashblade01/scratch/j.boom/data/family/103937-026-022-17028318.hard-filtered.sorted.annotated.vep.filtered.vcf
 outputOptions:
   numGenes: 0
   outputContributingVariantsOnly: false
-  outputDirectory: /mnt/flashblade01/scratch/j.boom/validation/PASS_ONLY
-  outputFileName: 20240603_validation_024
+  outputDirectory: /mnt/flashblade01/scratch/j.boom/data/family
+  outputFileName: 103937-026-022-17028318.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly
   outputFormats:
   - HTML
   - TSV_VARIANT

@@ -1,4 +1,4 @@
- #!/usr/bin/env bash
+#!/usr/bin/env bash
 
 # -----------------------------------------------------------------------------
 # GenomeScan internship repository.
@@ -20,74 +20,55 @@
 # Contact information: info@jboom.org.
 # -----------------------------------------------------------------------------
 
-#SBATCH --job-name="format-python-file"
-#SBATCH --mem=10G
+#SBATCH --job-name="feature-weights"
+#SBATCH --mem=50G
 #SBATCH --cpus-per-task=1
 #SBATCH --export=ALL
-#SBATCH --output="/mnt/titan/users/j.boom/logs/R-%x-%j.log"
-#SBATCH --error="/mnt/titan/users/j.boom/errors/R-%x-%j.error"
+#SBATCH --output="/mnt/flashblade01/scratch/j.boom/logs/R-%x-%j.log"
+#SBATCH --error="/mnt/flashblade01/scratch/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-format_file() {
-    # The format_file function:
-    #     This function runs black in singularity to format the input
-    #     python files.
-    singularity \
-        exec \
-            --containall \
-           --bind /home,/mnt docker://pyfound/black:latest_release \
-            black \
-                --line-length 80 \
-                --target-version py312 \
-                --verbose \
-                /home/j.boom/develop/genomescan/snakemake-tutorial/scripts/plot-quals.py \
-                /home/j.boom/develop/genomescan/src/python/uk-genome-project.py \
-                /home/j.boom/develop/genomescan/src/python/training-test-subsets.py \
-                /home/j.boom/develop/genomescan/src/python/rank-variants.py \
-                /home/j.boom/develop/genomescan/src/python/prepare-exomiser-files.py \
-                /home/j.boom/develop/genomescan/src/python/imiv.py \
-                /home/j.boom/develop/genomescan/src/python/filter-vep-vcf.py \
-                /home/j.boom/develop/genomescan/src/python/combine-vcf.py \
-                /home/j.boom/develop/genomescan/src/python/collect-exomiser-files.py \
-                /home/j.boom/develop/genomescan/src/python/calculate-final-rank.py \
-                /home/j.boom/develop/genomescan/src/python/benchmark.py \
-                /home/j.boom/develop/genomescan/src/python/analyse-exomiser-files.py \
-                /home/j.boom/develop/genomescan/src/python/monte-carlo-simulation.py
+run_ranking() {
+    # The run_ranking function:
+    #     This function runs the python script that takes care of ranking the
+    #     variants in pathogenic order.
+    source /home/j.boom/miniconda3/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/python/calculate-final-rank.py \
+        --vep-training "/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.fixed.sorted.annotated.vcf" \
+        --exomiser-training "/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.fixed.sorted.exomiser.024.vcf" \
+        --output_training "/mnt/flashblade01/scratch/j.boom/data/xFR07961000" \
+        --phen2gene "/mnt/flashblade01/scratch/j.boom/phen2gene/meningioma.associated_gene_list"
 }
 
 main() {
     # The main function:
     #     This function runs all processing function in correct order.
-    format_file
+    run_ranking
 }
 
 # The getopts function.
 # https://kodekloud.com/blog/bash-getopts/
-OPT_STRING="i:vh"
+OPT_STRING="vh"
 while getopts ${OPT_STRING} option;
 do
     case ${option} in
-        i)
-            python_file=${OPTARG}
-            ;;
         v)
             echo ""
-            echo "run-format-python-file.sh [1.0]"
+            echo "run-feature-weights.sh [1.0]"
             echo ""
 
             exit
             ;;
         h)
             echo ""
-            echo "Usage: run-format-python-file.sh [-v] [-h]"
+            echo "Usage: run-feature-weights.sh [-v] [-h]"
             echo ""
             echo "Optional arguments:"
             echo " -v          Show the software's version number and exit."
             echo " -h          Show this help page and exit."
             echo ""
-            echo "This script runs the black tool on input python files."
-            echo "Black is used to format python code and convert to"
-            echo "their adjusted version of pep8."
+            echo "This scripts determines the feature weights using a python"
+            echo "script."
             echo ""
 
             exit
@@ -115,4 +96,4 @@ main
 
 # Additional information:
 # =======================
-# https://black.readthedocs.io/en/stable/usage_and_configuration/black_docker_image.html
+#

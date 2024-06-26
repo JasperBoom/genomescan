@@ -28,21 +28,28 @@
 #SBATCH --error="/mnt/flashblade01/scratch/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
-INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.vcf"
+#INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.vcf"
 #INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.vcf"
-#INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961006.pathogenic.meningioma.vcf"
-#INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961000.pathogenic.general.test.vcf"
+INPUT_VCF="/mnt/flashblade01/scratch/j.boom/data/FR07961006.pathogenic.meningioma.vcf"
+
+run_monte_carlo_simulation() {
+    # The run_monte_carlo_simulation function:
+    #     This function uses a python script to run a Monte-Carlo simulation
+    #     on the ranked variants in order to determine the performance.
+    source /home/j.boom/miniconda3/bin/activate base
+    python3 /home/j.boom/develop/genomescan/src/python/monte-carlo-simulation.py \
+        --tsv "/mnt/flashblade01/scratch/j.boom/data/FR07961006.ranking.tsv"
+}
 
 run_ranking() {
     # The run_ranking function:
     #     This function runs the python script that takes care of ranking the
     #     variants in pathogenic order.
     source /home/j.boom/miniconda3/bin/activate base
-    python3 /home/j.boom/develop/genomescan/src/python/calculate-final-rank.py \
-        --vep-training "${INPUT_VCF::-3}fixed.sorted.annotated.vcf" \
-        --exomiser-training "${INPUT_VCF::-3}fixed.sorted.exomiser.024.vcf" \
-        --output_training "/mnt/flashblade01/scratch/j.boom/data/xFR07961000" \
-        --phen2gene "/mnt/flashblade01/scratch/j.boom/phen2gene/meningioma.associated_gene_list"
+    python3 /home/j.boom/develop/genomescan/src/python/rank-variants.py \
+        --phen2gene "/mnt/flashblade01/scratch/j.boom/phen2gene/meningioma.associated_gene_list" \
+        --filtered-vcf "/mnt/flashblade01/scratch/j.boom/data/FR07961006.pathogenic.meningioma.fixed.sorted.annotated.vep.filtered.exomiser.024.passonly.vcf" \
+        --output "/mnt/flashblade01/scratch/j.boom/data/FR07961006.ranking"
 }
 
 run_exomiser() {
@@ -58,9 +65,9 @@ run_exomiser() {
                 -Xmx80g \
                 -Djava.io.tmpdir=/mnt/flashblade01/scratch/j.boom/tmp \
                 -jar /mnt/titan/users/j.boom/tools/Exomiser/exomiser-cli-14.0.0/exomiser-cli-14.0.0.jar \
-                    --analysis "/home/j.boom/develop/genomescan/src/genome.v14.threshold.024.FULL.yml" \
+                    --analysis "/home/j.boom/develop/genomescan/src/genome.v14.threshold.024.PASSONLY.yml" \
                     --assembly "GRCh37" \
-                    --vcf "${INPUT_VCF::-3}fixed.sorted.vcf" \
+                    --vcf "${INPUT_VCF::-3}fixed.sorted.annotated.vep.filtered.vcf" \
                     --spring.config.location=/mnt/titan/users/j.boom/tools/Exomiser/application.properties
 }
 
@@ -69,7 +76,7 @@ filter_vep() {
     #     This function runs a python script to filter a vcf file annotated by
     #     vep based on predetermined thresholds.
     source /home/j.boom/miniconda3/bin/activate base
-    python3 /home/j.boom/develop/genomescan/src/python/process-vcf.py \
+    python3 /home/j.boom/develop/genomescan/src/python/filter-vep-vcf.py \
         --vcf "${INPUT_VCF::-3}fixed.sorted.annotated.vcf"
 }
 
@@ -147,7 +154,8 @@ main() {
     #run_vep
     #filter_vep
     #run_exomiser
-    run_ranking
+    #run_ranking
+    run_monte_carlo_simulation
 }
 
 # The getopts function.

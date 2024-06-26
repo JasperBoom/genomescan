@@ -367,6 +367,11 @@ class TSV:
             combined_df_clean["CADD_PHRED"]
             + (abs(min(combined_df_clean["CADD_PHRED"])) + 1)
         ) / max(combined_df_clean["CADD_PHRED"])
+        print(
+            "CADD_PHRED min: "
+            + str((abs(min(combined_df_clean["CADD_PHRED"])) + 1))
+        )
+        print("CADD_PHRED max: " + str(max(combined_df_clean["CADD_PHRED"])))
         # Normalise features with negative values based on benign and
         # pathogenic ranges, through the use of knowledge based normaliation.
         for feature in ["CADD_RAW", "FATHMM_MKL_C", "FATHMM_MKL_NC"]:
@@ -385,11 +390,19 @@ class TSV:
                     x, benign_range, pathogenic_range
                 )
             )
+            print("Benign range: " + str(feature) + ": " + str(benign_range))
+            print(
+                "Pathogenic range: "
+                + str(feature)
+                + ": "
+                + str(pathogenic_range)
+            )
         # Normalise the PHEN2GENE ranking to be within a 0 to 1 range.
         combined_df_clean["PHEN2GENE_RANK_NORMALISED"] = 1 - (
             combined_df_clean["PHEN2GENE_RANK"]
             / max(combined_df_clean["PHEN2GENE_RANK"])
         )
+        print("PHEN2GENE max: " + str(max(combined_df_clean["PHEN2GENE_RANK"])))
         combined_df_clean.to_csv(
             self.output + "-combined-clean-normalised.tsv",
             sep="\t",
