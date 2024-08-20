@@ -45,14 +45,16 @@ format_file() {
                 /home/j.boom/develop/genomescan/src/python/training-test-subsets.py \
                 /home/j.boom/develop/genomescan/src/python/rank-variants.py \
                 /home/j.boom/develop/genomescan/src/python/prepare-exomiser-files.py \
+                /home/j.boom/develop/genomescan/src/python/monte-carlo-simulation.py \
                 /home/j.boom/develop/genomescan/src/python/imiv.py \
                 /home/j.boom/develop/genomescan/src/python/filter-vep-vcf.py \
                 /home/j.boom/develop/genomescan/src/python/combine-vcf.py \
                 /home/j.boom/develop/genomescan/src/python/collect-exomiser-files.py \
+                /home/j.boom/develop/genomescan/src/python/check-test-dataset-variants.py \
+                /home/j.boom/develop/genomescan/src/python/check-family-variants.py \
                 /home/j.boom/develop/genomescan/src/python/calculate-final-rank.py \
                 /home/j.boom/develop/genomescan/src/python/benchmark.py \
-                /home/j.boom/develop/genomescan/src/python/analyse-exomiser-files.py \
-                /home/j.boom/develop/genomescan/src/python/monte-carlo-simulation.py
+                /home/j.boom/develop/genomescan/src/python/analyse-exomiser-files.py
 }
 
 main() {

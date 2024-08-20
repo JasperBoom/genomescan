@@ -66,8 +66,10 @@ class MonteCarlo:
         """
         benign_rows = self.tsv[self.tsv["CLASS"] == "Benign"]
         pathogenic_rows = self.tsv[self.tsv["CLASS"] == "Pathogenic"]
+        top_15_count = 0
         top_10_count = 0
         number_1_count = 0
+        top_15_percentages = []
         top_10_percentages = []
         current_precision = float("inf")
         total_iterations = 0
@@ -81,16 +83,21 @@ class MonteCarlo:
                 combined_sample = combined_sample.sort_values(
                     by="VARIANT_RANK", ascending=False
                 )
+                top_15 = combined_sample.head(15)
                 top_10 = combined_sample.head(10)
                 top_1 = combined_sample.head(1)
+                if sampled_pathogenic.index[0] in top_15.index:
+                    top_15_count += 1
                 if sampled_pathogenic.index[0] in top_10.index:
                     top_10_count += 1
                 if sampled_pathogenic.index[0] == top_1.index[0]:
                     number_1_count += 1
 
             total_iterations += initial_iterations
+            top_15_percentage = (top_15_count / total_iterations) * 100
             top_10_percentage = (top_10_count / total_iterations) * 100
             number_1_percentage = (number_1_count / total_iterations) * 100
+            top_15_percentages.append(top_15_percentage)
             top_10_percentages.append(top_10_percentage)
 
             if len(top_10_percentages) > 1:
@@ -98,10 +105,11 @@ class MonteCarlo:
                     len(top_10_percentages)
                 )
                 print(
-                    f"Iteration {total_iterations}: Top 10% = {top_10_percentage:.2f}%, Top 1% = {number_1_percentage:.2f}%, Precision = {current_precision:.6f}"
+                    f"Iteration {total_iterations}: Top 15% = {top_15_percentage:.2f}%, Top 10% = {top_10_percentage:.2f}%, Top 1% = {number_1_percentage:.2f}%, Precision = {current_precision:.6f}"
                 )
 
         print(f"Converged with {total_iterations} iterations.")
+        print(f"Pathogenic row in top 15: {top_15_percentage:.2f}%")
         print(f"Pathogenic row in top 10: {top_10_percentage:.2f}%")
         print(f"Pathogenic row is number 1: {number_1_percentage:.2f}%")
 
@@ -111,12 +119,14 @@ class MonteCarlo:
             top_10_percentages,
             marker="o",
             linestyle="-",
-            color="#003670",
+            color="#EC9E62",
+            label="Top 10",
         )
         plt.xlabel("Number of iterations (in thousands)")
         plt.ylabel(
-            "Percentage of simulations with pathogenic variant in top 10"
+            "Percentage of simulations with pathogenic variant in top ranks"
         )
+        plt.legend()
         plt.grid(True)
         plt.savefig(
             "/mnt/flashblade01/scratch/j.boom/data/FR07961006.ranking.monte.carlo.simulation.convergence.png",

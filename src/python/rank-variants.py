@@ -230,10 +230,9 @@ class RANK:
                 f"CADD_PHRED\tCADD_RAW\tCAPICE_SCORE\t"
                 f"FATHMM_MKL_C\tFATHMM_MKL_NC\t"
                 f"EXOMISER_GENE_COMBINED_SCORE\t"
-                f"PHEN2GENE_RANK\tVARIANT_RANK\tCLASS\n"
+                f"PHEN2GENE_RANK\tVARIANT_SCORE\n"
             )
             for variant in self.vcf:
-                class_info = variant.INFO.get("Class", "")
                 chrom = variant.CHROM
                 pos = variant.POS
                 ref = variant.REF
@@ -304,8 +303,18 @@ class RANK:
                     f"{normalised_scores["FATHMM_MKL_NC"]}\t"
                     f"{normalised_scores["EXOMISER_GENE_COMBINED_SCORE"]}\t"
                     f"{normalised_scores["PHEN2GENE_RANK"]}\t"
-                    f"{variant_rank}\t{class_info}\n"
+                    f"{variant_rank}\n"
                 )
+
+    def sort_tsv(self):
+        """
+        The sort_tsv function:
+            This function reads in the tsv file and sorts on the variant score
+            column, overwriting the input tsv.
+        """
+        df = pd.read_csv(self.output + ".tsv", sep="\t")
+        df_sorted = df.sort_values(by="VARIANT_SCORE", ascending=False)
+        df_sorted.to_csv(self.output + ".tsv", sep="\t", index=False)
 
 
 def parse_argvs():
@@ -368,6 +377,7 @@ def main():
         user_arguments.phen2gene_file,
     )
     ranking.extract_info()
+    ranking.sort_tsv()
 
 
 if __name__ == "__main__":

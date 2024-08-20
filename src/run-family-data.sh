@@ -28,6 +28,41 @@
 #SBATCH --error="/mnt/flashblade01/scratch/j.boom/errors/R-%x-%j.error"
 #SBATCH --partition=all
 
+run_check_family_variants() {
+    # The run_check_family_variants function:
+    #     This function runs the python script check-family-variants to
+    #     investigate common variants in the two families.
+    INPUT_DIR="/mnt/flashblade01/scratch/j.boom/data/family/results/"
+    source /home/j.boom/miniconda3/bin/activate base
+
+    python3 /home/j.boom/develop/genomescan/src/python/check-family-variants.py \
+        -1 "${INPUT_DIR}103937-026-022-17028318.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        -2 "${INPUT_DIR}103937-026-019-17030033.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        -3 "${INPUT_DIR}103937-026-020-17029533.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        --family "A" \
+        --output "${INPUT_DIR}"
+
+    python3 /home/j.boom/develop/genomescan/src/python/check-family-variants.py \
+        -1 "${INPUT_DIR}103937-026-019-17030033.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        -2 "${INPUT_DIR}103937-026-020-17029533.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        --family "A" \
+        --output "${INPUT_DIR}"
+
+    python3 /home/j.boom/develop/genomescan/src/python/check-family-variants.py \
+        -1 "${INPUT_DIR}103003-007-071-12433993.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        -2 "${INPUT_DIR}103307-013-002-14213540.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        --family "B" \
+        --output "${INPUT_DIR}"
+
+    python3 /home/j.boom/develop/genomescan/src/python/check-family-variants.py \
+        -1 "${INPUT_DIR}103937-026-019-17030033.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        -2 "${INPUT_DIR}103937-026-020-17029533.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        -3 "${INPUT_DIR}103003-007-071-12433993.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        -4 "${INPUT_DIR}103307-013-002-14213540.hard-filtered.sorted.annotated.vep.filtered.exomiser.024.passonly.ranking.tsv" \
+        --family "AB" \
+        --output "${INPUT_DIR}"
+}
+
 run_ranking() {
     # The run_ranking function:
     #     This function runs the python script that takes care of ranking the
@@ -152,7 +187,8 @@ main() {
     #run_vep
     #filter_vep
     #run_exomiser
-    run_ranking
+    #run_ranking
+    run_check_family_variants
 }
 
 # The getopts function.
