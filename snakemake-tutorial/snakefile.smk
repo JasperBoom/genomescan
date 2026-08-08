@@ -1,22 +1,9 @@
-# -----------------------------------------------------------------------------
-# GenomeScan internship repository.
-# Copyright (C) 2023 Jasper Boom
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details.
-
-# You should have received a copy of the GNU Affero General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-# Contact information: info@jboom.org.
-# -----------------------------------------------------------------------------
+# Copyright (C) 2025 Jasper Boom. All rights reserved.
+#
+# Proprietary and confidential. Unauthorized use, copying, modification,
+# distribution, reverse engineering, disclosure, or creation of derivative
+# works is strictly prohibited without prior written permission from
+# Jasper Boom.
 
 # Define which version of snakemake (or higher) should be used.
 from snakemake.utils import min_version
@@ -30,7 +17,7 @@ configfile: "/home/j.boom/develop/genomescan/snakemake-tutorial/envs/config.yaml
 
 
 # Use "include" to be able to add rules from another Snakefile to
-# the workflow
+# the workflow.
 include: config["directories"]["script"] + "/rules/read-mapping.smk"
 
 

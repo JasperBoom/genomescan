@@ -123,7 +123,9 @@ class VEP:
                 csq_info = variant.INFO.get("CSQ", "N/A")
                 if csq_info != "N/A":
                     annotation = csq_info.split(",")[0].split("|")
-                    annotation_dict = dict(zip(self.vep_annotation, annotation))
+                    annotation_dict = dict(
+                        zip(self.vep_annotation, annotation)
+                    )
                     score_classification = []
                     for key, threshold in zip(
                         self.score_names, self.thresholds
@@ -189,9 +191,13 @@ class VEP:
                     true_positives += 1
                 elif class_info == "Benign" and predicted_class == "Benign":
                     true_negatives += 1
-                elif class_info == "Benign" and predicted_class == "Pathogenic":
+                elif (
+                    class_info == "Benign" and predicted_class == "Pathogenic"
+                ):
                     false_positives += 1
-                elif class_info == "Pathogenic" and predicted_class == "Benign":
+                elif (
+                    class_info == "Pathogenic" and predicted_class == "Benign"
+                ):
                     false_negatives += 1
             else:
                 unknown_variants += 1

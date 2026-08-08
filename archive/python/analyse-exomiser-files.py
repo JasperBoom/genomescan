@@ -192,7 +192,10 @@ class ReceiverOperatorCurve:
         self.calculate_optimal_threshold()
         auc = np.trapz(sorted(self.tpr_values), sorted(self.fpr_values))
         plt.plot(
-            self.fpr_values, self.tpr_values, label="ROC Curve", color="#83b96d"
+            self.fpr_values,
+            self.tpr_values,
+            label="ROC Curve",
+            color="#83b96d",
         )
         plt.xlabel("False Positive Rate")
         plt.ylabel("True Positive Rate")
@@ -231,7 +234,10 @@ def process_data(file):
         and the tn, fn, fp and tp metrics.
     """
     dataframe = Data(file)
-    return dataframe.get_minimal_priority_score(), dataframe.calculate_metrics()
+    return (
+        dataframe.get_minimal_priority_score(),
+        dataframe.calculate_metrics(),
+    )
 
 
 def parse_argvs():

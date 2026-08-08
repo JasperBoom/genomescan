@@ -87,7 +87,9 @@ def find_common_rows_three(files, common_identifiers, family, output_folder):
     common_df = pd.DataFrame(common_rows)
     common_df = common_df.sort_values(by="VARIANT_SCORE", ascending=False)
     common_df.to_csv(
-        output_folder + family + "-COMMON-ROWS-THREE.tsv", sep="\t", index=False
+        output_folder + family + "-COMMON-ROWS-THREE.tsv",
+        sep="\t",
+        index=False,
     )
 
 

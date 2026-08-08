@@ -1,26 +1,12 @@
 #!/usr/bin/env python3
+# Copyright (C) 2025 Jasper Boom. All rights reserved.
+#
+# Proprietary and confidential. Unauthorized use, copying, modification,
+# distribution, reverse engineering, disclosure, or creation of derivative
+# works is strictly prohibited without prior written permission from
+# Jasper Boom.
 
-# -----------------------------------------------------------------------------
-# GenomeScan internship repository.
-# Copyright (C) 2023 Jasper Boom
-
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU Affero General Public License for more details.
-
-# You should have received a copy of the GNU Affero General Public License
-# along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-# Contact information: info@jboom.org.
-# -----------------------------------------------------------------------------
-
-# Imports:
+# Imports.
 import argparse
 import matplotlib
 import matplotlib.pyplot as plt
@@ -29,8 +15,7 @@ from pysam import VariantFile
 
 def create_plot():
     """
-    The create_plot function:
-        This function creates the histogram.
+    This function creates the histogram.
     """
     matplotlib.use("Agg")
     quals = [record.qual for record in VariantFile(snakemake.input[0])]
@@ -40,9 +25,8 @@ def create_plot():
 
 def parse_argvs():
     """
-    The parse_argvs function:
-        This function handles all positional arguments that the script accepts,
-        including version and help pages.
+    This function handles all positional arguments that the script accepts,
+    including version and help pages.
     """
     description = "A python script created for the snakemake tutorial,\
                    which generates an image."
@@ -61,15 +45,10 @@ def parse_argvs():
 
 def main():
     """
-    The main function:
-        This function calls all processing functions in correct order.
+    This function calls all processing functions in correct order.
     """
     create_plot()
 
 
 if __name__ == "__main__":
     main()
-
-# Additional information:
-# =======================
-#

@@ -90,7 +90,9 @@ class Settings:
         returned.
     """
 
-    def __init__(self, yaml_file, vcf_file, hpo_term_ids, exomiser_output_name):
+    def __init__(
+        self, yaml_file, vcf_file, hpo_term_ids, exomiser_output_name
+    ):
         """
         The initializer function:
             This function creates a number of instance attributes:
@@ -293,7 +295,9 @@ class Exomiser:
         """
         slurm_name = "exomiser_" + self.exomiser_output_name + "_" + str(score)
         log_directory = self.log_folder + "/" + mode
-        self.log_file_exomiser_slurm = log_directory + "/" + slurm_name + ".log"
+        self.log_file_exomiser_slurm = (
+            log_directory + "/" + slurm_name + ".log"
+        )
         if not os.path.exists(log_directory):
             os.makedirs(log_directory)
         process = subprocess.Popen(
@@ -341,7 +345,9 @@ class Exomiser:
                     self.yaml_dictionary["outputOptions"]["outputDirectory"]
                 ):
                     os.makedirs(
-                        self.yaml_dictionary["outputOptions"]["outputDirectory"]
+                        self.yaml_dictionary["outputOptions"][
+                            "outputDirectory"
+                        ]
                     )
                 self.yaml_to_file()
                 self.singularity()
@@ -349,7 +355,9 @@ class Exomiser:
                 self.exomiser_log_files.append(self.log_file_exomiser_slurm)
                 self.exomiser_result_files.append(
                     str(
-                        self.yaml_dictionary["outputOptions"]["outputDirectory"]
+                        self.yaml_dictionary["outputOptions"][
+                            "outputDirectory"
+                        ]
                         + "/"
                         + self.yaml_dictionary["outputOptions"][
                             "outputFileName"

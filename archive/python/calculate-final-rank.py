@@ -402,7 +402,9 @@ class TSV:
             combined_df_clean["PHEN2GENE_RANK"]
             / max(combined_df_clean["PHEN2GENE_RANK"])
         )
-        print("PHEN2GENE max: " + str(max(combined_df_clean["PHEN2GENE_RANK"])))
+        print(
+            "PHEN2GENE max: " + str(max(combined_df_clean["PHEN2GENE_RANK"]))
+        )
         combined_df_clean.to_csv(
             self.output + "-combined-clean-normalised.tsv",
             sep="\t",

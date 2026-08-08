@@ -284,7 +284,9 @@ class RANK:
                         else 0.0
                     ),
                     "EXOMISER_GENE_COMBINED_SCORE": (
-                        exomiser_annotation_dict["EXOMISER_GENE_COMBINED_SCORE"]
+                        exomiser_annotation_dict[
+                            "EXOMISER_GENE_COMBINED_SCORE"
+                        ]
                         if exomiser_annotation_dict[
                             "EXOMISER_GENE_COMBINED_SCORE"
                         ]

@@ -49,7 +49,9 @@ def extract_annotation(file):
     return annotation
 
 
-def replace_clinvar_column(file, clinvar_file, skip, clinvar_skip, output_file):
+def replace_clinvar_column(
+    file, clinvar_file, skip, clinvar_skip, output_file
+):
     """
     The replace_clinvar_column file:
         This function reads in the truth set created using clinvar and

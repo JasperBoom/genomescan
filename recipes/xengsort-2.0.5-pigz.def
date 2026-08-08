@@ -2,10 +2,32 @@ Bootstrap: docker
 From: python:3.11-slim
 
 %help
-Recipe written by Suzanne van der Steen and Jasper Boom, GenomeScan
+Recipe written by Suzanne van der Steen and Jasper Boom, GenomeScan.
+This recipe builds a container with xengsort and pigz support.
+
+%labels
+Author Suzanne van der Steen, Jasper Boom
+Maintainer Jasper Boom
+Version v2.0.5
 
 %post
-    apt-get clean all
-    apt-get update -y
-    apt-get install -y pigz
-    pip install xengsort==2.0.5
+  # Stop on first error and avoid half-configured builds.
+  set -e
+
+  # Avoid interactive package prompts during container build.
+  export DEBIAN_FRONTEND=noninteractive
+
+  # Install required system tools.
+  apt-get update -y
+  apt-get install -y --no-install-recommends \
+    pigz
+  rm -rf /var/lib/apt/lists/*
+
+  # Upgrade pip and install pinned xengsort release.
+  python -m pip install --upgrade pip
+  pip install --no-cache-dir xengsort==2.0.5
+
+  # Record versions in build logs for traceability.
+  python --version
+  pigz --version
+  xengsort --version
