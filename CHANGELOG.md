@@ -1,4 +1,4 @@
-# GENOMESCAN CHANGELOG
+# GENOMESCAN-INTERNSHIP CHANGELOG
 ## [Unreleased]
 ### Development build
 #### Added
@@ -50,6 +50,8 @@
 - Update paths to files on HPC.
 - Finish python script that determines feature weights for final ranking.
 - Major rework of the repository structure and files.
+- Update all documentation to reflect the new structure and files and 
+  the content of the internship.
 
 #### Notes
 

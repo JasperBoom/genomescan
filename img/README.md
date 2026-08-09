@@ -1,5 +1,6 @@
-# GENOMESCAN-INTERNSHIP TODO
-## Current
+# GENOMESCAN-INTERNSHIP img
+This folder contains image assets used by this repository, primarily for
+documentation and project branding.
 
 ```text
 Copyright (C) 2025 Jasper Boom. All rights reserved.

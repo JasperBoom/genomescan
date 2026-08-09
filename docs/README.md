@@ -1,4 +1,4 @@
-# GENOMESCAN docs
+# GENOMESCAN-INTERNSHIP docs
 This folder contains project documentation for the Genomescan repository,
 with a focus on operational context, data locations, and analysis workflows
 used in HPC environments. It serves as the reference layer around the codebase:

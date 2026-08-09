@@ -1,0 +1,73 @@
+# Copyright (C) 2025 Jasper Boom. All rights reserved.
+#
+# Proprietary and confidential. Unauthorized use, copying, modification,
+# distribution, reverse engineering, disclosure, or creation of derivative
+# works is strictly prohibited without prior written permission from
+# Jasper Boom.
+
+analysis:
+  analysisMode: FULL
+  frequencySources:
+  - THOUSAND_GENOMES
+  - TOPMED
+  - UK10K
+  - ESP_AFRICAN_AMERICAN
+  - ESP_EUROPEAN_AMERICAN
+  - ESP_ALL
+  - EXAC_AFRICAN_INC_AFRICAN_AMERICAN
+  - EXAC_AMERICAN
+  - EXAC_SOUTH_ASIAN
+  - EXAC_EAST_ASIAN
+  - EXAC_FINNISH
+  - EXAC_NON_FINNISH_EUROPEAN
+  - EXAC_OTHER
+  - GNOMAD_E_AFR
+  - GNOMAD_E_AMR
+  - GNOMAD_E_ASJ
+  - GNOMAD_E_EAS
+  - GNOMAD_E_FIN
+  - GNOMAD_E_NFE
+  - GNOMAD_E_OTH
+  - GNOMAD_E_SAS
+  - GNOMAD_G_AFR
+  - GNOMAD_G_AMR
+  - GNOMAD_G_ASJ
+  - GNOMAD_G_EAS
+  - GNOMAD_G_FIN
+  - GNOMAD_G_NFE
+  - GNOMAD_G_OTH
+  - GNOMAD_G_SAS
+  genomeAssembly: hg19
+  hpoIds:
+  - HP:0002858
+  - HP:0500089
+  - HP:0100009
+  - HP:0100010
+  - HP:0033714
+  inheritanceModes: {}
+  pathogenicitySources:
+  - REMM
+  - REVEL
+  - MVP
+  steps:
+  - hiPhivePrioritiser: {}
+  - frequencyFilter:
+      maxFrequency: 1.0
+  - pathogenicityFilter:
+      keepNonPathogenic: false
+  - priorityScoreFilter:
+      minPriorityScore: 0.24
+      priorityType: HIPHIVE_PRIORITY
+  - omimPrioritiser: {}
+  - hiPhivePrioritiser:
+      runParams: human,mouse,fish,ppi
+  vcf: /mnt/flashblade01/scratch/j.boom/data/FR07961001.pathogenic.general.fixed.sorted.vcf
+outputOptions:
+  numGenes: 0
+  outputContributingVariantsOnly: false
+  outputDirectory: /mnt/flashblade01/scratch/j.boom/data
+  outputFileName: FR07961001.pathogenic.general.fixed.sorted.exomiser.024
+  outputFormats:
+  - HTML
+  - TSV_VARIANT
+  - VCF

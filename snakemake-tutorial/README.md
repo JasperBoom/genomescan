@@ -1,4 +1,4 @@
-# GENOMESCAN snakemake-tutorial
+# GENOMESCAN-INTERNSHIP snakemake-tutorial
 This folder contains a compact Snakemake training workflow that demonstrates
 the structure of a reproducible bioinformatics pipeline. It includes a main
 workflow file, modular rule definitions, supporting scripts, and

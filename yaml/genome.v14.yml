@@ -1,0 +1,68 @@
+# Copyright (C) 2025 Jasper Boom. All rights reserved.
+#
+# Proprietary and confidential. Unauthorized use, copying, modification,
+# distribution, reverse engineering, disclosure, or creation of derivative
+# works is strictly prohibited without prior written permission from
+# Jasper Boom.
+
+analysis:
+    genomeAssembly: hg19
+    vcf: test.vcf
+    hpoIds: ["HP:0002858"]
+    inheritanceModes: {}
+    analysisMode: PASS_ONLY
+    frequencySources: [
+        THOUSAND_GENOMES,
+        TOPMED,
+        UK10K,
+        ESP_AFRICAN_AMERICAN,
+        ESP_EUROPEAN_AMERICAN,
+        ESP_ALL,
+        EXAC_AFRICAN_INC_AFRICAN_AMERICAN,
+        EXAC_AMERICAN,
+        EXAC_SOUTH_ASIAN,
+        EXAC_EAST_ASIAN,
+        EXAC_FINNISH,
+        EXAC_NON_FINNISH_EUROPEAN,
+        EXAC_OTHER,
+        GNOMAD_E_AFR,
+        GNOMAD_E_AMR,
+        GNOMAD_E_ASJ,
+        GNOMAD_E_EAS,
+        GNOMAD_E_FIN,
+        GNOMAD_E_NFE,
+        GNOMAD_E_OTH,
+        GNOMAD_E_SAS,
+        GNOMAD_G_AFR,
+        GNOMAD_G_AMR,
+        GNOMAD_G_ASJ,
+        GNOMAD_G_EAS,
+        GNOMAD_G_FIN,
+        GNOMAD_G_NFE,
+        GNOMAD_G_OTH,
+        GNOMAD_G_SAS
+    ]
+    pathogenicitySources: [REMM, REVEL, MVP]
+    steps: [
+        hiPhivePrioritiser: {},
+        # Running the prioritiser followed by a priorityScoreFilter will remove
+        # genes which are least likely to contribute to the phenotype defined
+        # in hpoIds, this will dramatically reduce the time and memory required
+        # to analyse a genome.
+        # 0.501 is a good compromise to select good phenotype matches and the
+        # best protein-protein interactions hits from hiPhive.
+        frequencyFilter: {maxFrequency: 1.0},
+        pathogenicityFilter: {keepNonPathogenic: false},
+        priorityScoreFilter: {
+            priorityType: HIPHIVE_PRIORITY,
+            minPriorityScore: 0.75
+        },
+        omimPrioritiser: {},
+        hiPhivePrioritiser: {runParams: "human,mouse,fish,ppi"}
+    ]
+outputOptions:
+    outputContributingVariantsOnly: false
+    numGenes: 0
+    outputDirectory: /mnt/titan/users/j.boom/tool-testing/Exomiser/results
+    outputFileName: test
+    outputFormats: [HTML, TSV_VARIANT, VCF]
